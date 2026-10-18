@@ -10,4 +10,9 @@
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6" />
     <ProjectReference Include="..\Game.Core\Game.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\content\art\*.png"
+             Link="Content\art\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
