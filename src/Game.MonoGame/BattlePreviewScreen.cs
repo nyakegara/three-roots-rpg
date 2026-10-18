@@ -25,12 +25,12 @@ internal sealed class BattlePreviewScreen
     private readonly HexLayout _layout = new();
     private readonly BattleMap _map;
     private readonly IReadOnlyList<BattleTile> _drawOrder;
-    private readonly AStarPathfinder _pathfinder = new();
     private readonly HashSet<HexCoord> _occupied = [Offset(9, 3)];
-    private HexCoord _start;
-    private HexCoord _destination;
+    private MovementSelection _movement = null!;
+    private HexCoord _start => _movement.Position;
+    private HexCoord? _destination => _movement.Destination;
     private HexCoord? _hover;
-    private PathResult _path = new(false, [], 0);
+    private PathResult _path => _movement.Path;
     private MouseState _previousMouse;
     private KeyboardState _previousKeyboard;
     private Point _mousePosition;
@@ -65,21 +65,9 @@ internal sealed class BattlePreviewScreen
             Reset();
         else if (clicked && WithinButton(mouse.Position, 1220))
             _exit();
-        else if (_hover is { } coordinate)
+        else if (clicked && _hover is { } coordinate)
         {
-            if (clicked)
-            {
-                _destination = coordinate;
-                Recalculate();
-            }
-
-            if (mouse.RightButton == ButtonState.Pressed &&
-                _previousMouse.RightButton == ButtonState.Released &&
-                _map.GetTile(coordinate) is { IsPassable: true } && !_occupied.Contains(coordinate))
-            {
-                _start = coordinate;
-                Recalculate();
-            }
+            _movement.Select(coordinate);
         }
 
         _previousMouse = mouse;
@@ -91,13 +79,8 @@ internal sealed class BattlePreviewScreen
 
     private void Reset()
     {
-        _start = Offset(2, 5);
-        _destination = Offset(8, 2);
-        Recalculate();
+        _movement = new MovementSelection(_map, Offset(2, 5), _occupied);
     }
-
-    private void Recalculate() =>
-        _path = _pathfinder.FindPath(_map, _start, _destination, _occupied);
 
     private static HexCoord Offset(int column, int row) => new(column - row / 2, row);
 
@@ -167,7 +150,8 @@ internal sealed class BattlePreviewScreen
             }
         }
 
-        var destinationTile = _map.GetTile(_destination)!;
+        if (_destination is not { } destination || _map.GetTile(destination) is not { } destinationTile)
+            return;
         var color = _path.IsReachable ? Highlight : new Color(181, 110, 76);
         _canvas.Outline(_layout.Corners(destinationTile, 4), color, 1);
         var target = _layout.Center(destinationTile);
@@ -220,10 +204,12 @@ internal sealed class BattlePreviewScreen
         _font.Draw("ГЕРОЙ", 143, 631, Text, 2);
         var message = _hover is { } h && _occupied.Contains(h) ? "ЭТА КЛЕТКА ЗАНЯТА" :
             _hover is { } cell && _map.GetTile(cell) is { IsPassable: false } ? "КАМНИ ПРЕГРАЖДАЮТ ПУТЬ" :
-            !_path.IsReachable ? "СЮДА НЕ ПРОЙТИ" : $"ПУТЬ: {CellCount(_path.Cost)}";
+            _destination is null ? "ВЫБЕРИТЕ КЛЕТКУ" :
+            !_path.IsReachable ? "СЮДА НЕ ПРОЙТИ" :
+            _path.Cost == 0 ? "ГЕРОЙ УЖЕ ЗДЕСЬ" : $"ПУТЬ: {CellCount(_path.Cost)}";
         _font.Draw(message, 143, 665, Muted, 2);
 
-        _font.Draw("ЛКМ - ЦЕЛЬ / ПКМ - ПЕРЕСТАВИТЬ ГЕРОЯ", 489, 651, Muted, 2);
+        _font.Draw("ЛКМ - ПУТЬ / ЕЩЁ РАЗ - ИДТИ", 489, 651, Muted, 2);
 
         DrawRoundButton(1080, 0, "СЕТКА", _showGrid);
         DrawRoundButton(1150, 1, "СБРОС", false);
