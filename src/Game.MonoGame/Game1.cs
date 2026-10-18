@@ -8,15 +8,17 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
 {
     private readonly GraphicsDeviceManager _graphics;
     private readonly string? _screenshotPath;
+    private readonly bool _showGrid;
     private SpriteBatch _spriteBatch = null!;
     private PixelCanvas _canvas = null!;
     private AssetCatalog _assets = null!;
     private BattlePreviewScreen _screen = null!;
     private RenderTarget2D _frame = null!;
 
-    public Game1(string? screenshotPath = null)
+    public Game1(string? screenshotPath = null, bool showGrid = false)
     {
         _screenshotPath = screenshotPath;
+        _showGrid = showGrid;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -34,7 +36,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
         _assets = new AssetCatalog(GraphicsDevice);
-        _screen = new BattlePreviewScreen(_canvas, _assets, Exit);
+        _screen = new BattlePreviewScreen(_canvas, _assets, Exit, _showGrid);
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
             SurfaceFormat.Color, DepthFormat.None);
     }
