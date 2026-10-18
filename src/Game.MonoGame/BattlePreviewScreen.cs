@@ -25,7 +25,8 @@ internal sealed class BattlePreviewScreen
     private readonly HexLayout _layout = new();
     private readonly BattleMap _map;
     private readonly IReadOnlyList<BattleTile> _drawOrder;
-    private readonly HashSet<HexCoord> _occupied = [Offset(9, 3)];
+    private readonly bool _previewDescent;
+    private readonly HashSet<HexCoord> _occupied = [Offset(9, 5)];
     private MovementSelection _movement = null!;
     private HexCoord _start => _movement.Position;
     private HexCoord? _destination => _movement.Destination;
@@ -38,17 +39,18 @@ internal sealed class BattlePreviewScreen
     private static readonly int[] SharedEdgeByNeighbor = [1, 0, 5, 4, 3, 2];
 
     public BattlePreviewScreen(PixelCanvas canvas, AssetCatalog assets, Action exit,
-        bool showGrid = false)
+        bool showGrid = false, bool previewDescent = false)
     {
         _canvas = canvas;
         _assets = assets;
         _exit = exit;
         _font = new PixelFont(canvas);
         _map = CreateDemoMap();
+        _previewDescent = previewDescent;
         _drawOrder = _map.Tiles.OrderBy(t => t.Coordinate.R)
             .ThenBy(t => t.Coordinate.Q).ToArray();
         _showGrid = showGrid;
-        _hover = showGrid ? Offset(8, 2) : null;
+        _hover = showGrid ? (previewDescent ? Offset(2, 5) : Offset(8, 2)) : null;
         Reset();
     }
 
@@ -83,7 +85,8 @@ internal sealed class BattlePreviewScreen
 
     private void Reset()
     {
-        _movement = new MovementSelection(_map, Offset(2, 5), _occupied);
+        var start = _previewDescent ? Offset(8, 3) : Offset(2, 5);
+        _movement = new MovementSelection(_map, start, _occupied);
     }
 
     private static HexCoord Offset(int column, int row) => new(column - row / 2, row);
@@ -256,12 +259,72 @@ internal sealed class BattlePreviewScreen
             !_path.IsReachable ? "СЮДА НЕ ПРОЙТИ" :
             _path.Cost == 0 ? "ГЕРОЙ УЖЕ ЗДЕСЬ" : $"ПУТЬ: {CellCount(_path.Cost)}";
         _font.Draw(message, 143, 665, Muted, 2);
+        if (_hover is { } hoveredCoordinate && _map.GetTile(hoveredCoordinate) is { } hoveredCell)
+            DrawElevationChange(hoveredCell);
 
         _font.Draw("ЛКМ - ПУТЬ / ЕЩЁ РАЗ - ИДТИ", 489, 651, Muted, 2);
 
         DrawRoundButton(1080, 0, "СЕТКА", _showGrid);
         DrawRoundButton(1150, 1, "СБРОС", false);
         DrawRoundButton(1220, 2, "ВЫХОД", false);
+    }
+
+    private void DrawElevationChange(BattleTile hoveredCell)
+    {
+        var currentHeight = _map.GetTile(_start)!.Height;
+        var targetHeights = _occupied.Select(coordinate => _map.GetTile(coordinate)!.Height);
+        var change = ElevationChangePreview.Between(currentHeight, hoveredCell.Height, targetHeights);
+        if (change.LevelDelta == 0)
+            return;
+
+        var direction = change.LevelDelta > 0 ? "ПОДЪЁМ" : "СПУСК";
+        var levels = Math.Abs(change.LevelDelta);
+        _font.Draw($"{direction}: {Signed(change.LevelDelta)} {LevelWord(levels)}",
+            143, 684, Muted, 1);
+
+        _font.Draw(DescribeRangeChange(change), 143, 697,
+            change.LostRangeBonusTargetCount > 0 ? Highlight : Text, 1);
+    }
+
+    private static string DescribeRangeChange(ElevationChangePreview change)
+    {
+        if (change.TargetCount == 0)
+            return "НЕТ ВРАГОВ ДЛЯ СРАВНЕНИЯ";
+
+        if (change.LostRangeBonusTargetCount > 0 && change.GainedRangeBonusTargetCount > 0)
+            return $"ДАЛЬНОСТЬ: -{ElevationChangePreview.HighGroundRangeBonus} У " +
+                   $"{change.LostRangeBonusTargetCount}, +{ElevationChangePreview.HighGroundRangeBonus} У " +
+                   change.GainedRangeBonusTargetCount;
+
+        if (change.LostRangeBonusTargetCount > 0)
+            return $"ПОТЕРЯ: +{ElevationChangePreview.HighGroundRangeBonus} ДАЛЬНОСТИ ПРОТИВ " +
+                   $"{change.LostRangeBonusTargetCount} {EnemyWord(change.LostRangeBonusTargetCount)}";
+
+        if (change.GainedRangeBonusTargetCount > 0)
+            return $"ПОЛУЧЕН БОНУС: +{ElevationChangePreview.HighGroundRangeBonus} ДАЛЬНОСТИ ПРОТИВ " +
+                   $"{change.GainedRangeBonusTargetCount} {EnemyWord(change.GainedRangeBonusTargetCount)}";
+
+        return change.TargetCount == 1
+            ? "БОНУС ДАЛЬНОСТИ ПРОТИВ ВРАГА НЕ МЕНЯЕТСЯ"
+            : "БОНУС ДАЛЬНОСТИ ПРОТИВ ВРАГОВ НЕ МЕНЯЕТСЯ";
+    }
+
+    private static string EnemyWord(int count) => count == 1 ? "ВРАГА" : "ВРАГОВ";
+
+    private static string Signed(int value) => value > 0 ? $"+{value}" : value.ToString();
+
+    private static string LevelWord(int count)
+    {
+        var lastTwo = count % 100;
+        if (lastTwo is >= 11 and <= 14)
+            return "УРОВНЕЙ";
+
+        return (count % 10) switch
+        {
+            1 => "УРОВЕНЬ",
+            2 or 3 or 4 => "УРОВНЯ",
+            _ => "УРОВНЕЙ"
+        };
     }
 
     private void DrawRoundButton(int x, int icon, string label, bool active)
