@@ -35,8 +35,10 @@ internal sealed class BattlePreviewScreen
     private KeyboardState _previousKeyboard;
     private Point _mousePosition;
     private bool _showGrid;
+    private static readonly int[] SharedEdgeByNeighbor = [1, 0, 5, 4, 3, 2];
 
-    public BattlePreviewScreen(PixelCanvas canvas, AssetCatalog assets, Action exit)
+    public BattlePreviewScreen(PixelCanvas canvas, AssetCatalog assets, Action exit,
+        bool showGrid = false)
     {
         _canvas = canvas;
         _assets = assets;
@@ -45,6 +47,8 @@ internal sealed class BattlePreviewScreen
         _map = CreateDemoMap();
         _drawOrder = _map.Tiles.OrderBy(t => t.Coordinate.R)
             .ThenBy(t => t.Coordinate.Q).ToArray();
+        _showGrid = showGrid;
+        _hover = showGrid ? Offset(8, 2) : null;
         Reset();
     }
 
@@ -107,8 +111,11 @@ internal sealed class BattlePreviewScreen
         FantasyArt.DrawLandscape(_canvas);
 
         if (_showGrid)
+            DrawElevation();
+
+        if (_showGrid)
             foreach (var tile in _drawOrder)
-                _canvas.Outline(_layout.Corners(tile, 1), Translucent(188, 193, 133, 75), 1);
+                _canvas.Outline(_layout.Corners(tile, 1), Translucent(188, 193, 133, 85), 1);
 
         DrawPath();
         if (_hover is { } hover && hover != _destination)
@@ -158,6 +165,44 @@ internal sealed class BattlePreviewScreen
         Ellipse((int)target.X, (int)target.Y + 3, 5, 2, color);
     }
 
+    private void DrawElevation()
+    {
+        foreach (var tile in _drawOrder)
+        {
+            var tint = tile.Height switch
+            {
+                0 => Translucent(62, 91, 54, 48),
+                1 => Translucent(162, 143, 74, 50),
+                _ => Translucent(221, 180, 91, 61)
+            };
+            _canvas.Polygon(_layout.Corners(tile, 4), tint);
+        }
+
+        foreach (var tile in _drawOrder)
+        {
+            var corners = _layout.Corners(tile);
+            var neighbors = tile.Coordinate.GetNeighbors();
+            for (var direction = 0; direction < neighbors.Count; direction++)
+            {
+                var neighbor = _map.GetTile(neighbors[direction]);
+                if (neighbor is null || tile.Height <= neighbor.Height)
+                    continue;
+
+                var edge = SharedEdgeByNeighbor[direction];
+                var first = corners[edge];
+                var second = corners[(edge + 1) % corners.Length];
+                var difference = tile.Height - neighbor.Height;
+                var midpoint = (first + second) / 2;
+                var inward = Vector2.Normalize(_layout.Center(tile) - midpoint);
+
+                // A dark earthen face with a thin grass rim marks only actual level changes.
+                _canvas.Line(first, second, Translucent(45, 52, 33, 225), 3 + difference);
+                _canvas.Line(first + inward * 2, second + inward * 2,
+                    Translucent(143, 161, 88, 205), 1);
+            }
+        }
+    }
+
     private void DrawHero(int x, int y)
     {
         Ellipse(x, y + 18, 24, 8, Translucent(39, 48, 23, 140));
@@ -201,7 +246,10 @@ internal sealed class BattlePreviewScreen
             new Point(20, 708), new Point(114, 708) })
             Ellipse(corner.X, corner.Y, 3, 3, Highlight);
 
-        _font.Draw("ГЕРОЙ", 143, 631, Text, 2);
+        var header = _hover is { } hover && _map.GetTile(hover) is { } hoveredTile
+            ? $"КЛЕТКА: ВЫСОТА {hoveredTile.Height}"
+            : "ГЕРОЙ";
+        _font.Draw(header, 143, 631, Text, 2);
         var message = _hover is { } h && _occupied.Contains(h) ? "ЭТА КЛЕТКА ЗАНЯТА" :
             _hover is { } cell && _map.GetTile(cell) is { IsPassable: false } ? "КАМНИ ПРЕГРАЖДАЮТ ПУТЬ" :
             _destination is null ? "ВЫБЕРИТЕ КЛЕТКУ" :
