@@ -309,7 +309,8 @@ internal sealed class BattlePreviewScreen
             : "БОНУС ДАЛЬНОСТИ ПРОТИВ ВРАГОВ НЕ МЕНЯЕТСЯ";
     }
 
-    private static string EnemyWord(int count) => count == 1 ? "ВРАГА" : "ВРАГОВ";
+    private static string EnemyWord(int count) =>
+        count % 10 == 1 && count % 100 != 11 ? "ВРАГА" : "ВРАГОВ";
 
     private static string Signed(int value) => value > 0 ? $"+{value}" : value.ToString();
 
