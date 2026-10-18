@@ -1,0 +1,19 @@
+# .NET build output
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+
+# MonoGame generated content
+**/Content/bin/
+**/Content/obj/
+
+# Local saves and editor files
+saves/
+.idea/
+
+# Local-only work files
+.superpowers/
+.worktrees/
+worktrees/
