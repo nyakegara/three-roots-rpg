@@ -67,15 +67,15 @@
 
 ### Задача 2: гекс-геометрия и модель поля
 
-**Файлы:** `src/Game.Core/Geometry/HexCoord.cs`, `src/Game.Core/World/WorldTile.cs`, `src/Game.Core/World/WorldMap.cs`; тесты `Geometry/HexCoordTests.cs`, `World/WorldMapTests.cs`.
+**Файлы:** `src/Game.Core/Geometry/HexCoord.cs`, `src/Game.Core/World/WorldTile.cs`, `src/Game.Core/World/WorldMap.cs`; тесты `Geometry/HexCoordTests.cs`, `World/WorldMapTests.cs`, `World/WorldTileTests.cs`.
 
 **Интерфейсы:** `HexCoord(int Q, int R)` с `IReadOnlyList<HexCoord> GetNeighbors()` и `int DistanceTo(HexCoord other)`; `WorldMap.GetTile(HexCoord coordinate) -> WorldTile?`, `WorldMap.Contains(HexCoord coordinate) -> bool`.
 
-- [ ] Написать `DistanceTo_AdjacentHexes_ReturnsOne`, `GetNeighbors_ReturnsSixUniqueCoordinates` и `WorldMap_OutsideCoordinate_ReturnsFalse`.
-- [ ] Запустить тесты и проверить, что они падают из-за отсутствующей модели.
-- [ ] Реализовать axial-координаты, шесть соседей и гекс-расстояние; координаты отображения оставить за пределами `Game.Core`.
-- [ ] Прогнать тесты геометрии; ожидается PASS, включая отрицательные координаты и клетки на краю карты.
-- [ ] Закоммитить `feat(core): add hex coordinates and world map model`.
+- [x] Написать `DistanceTo_AdjacentHexes_ReturnsOne`, `GetNeighbors_ReturnsSixUniqueCoordinates` и `WorldMap_OutsideCoordinate_ReturnsFalse`.
+- [x] Запустить тесты и проверить, что они падают из-за отсутствующей модели.
+- [x] Реализовать axial-координаты, шесть соседей и гекс-расстояние; координаты отображения оставить за пределами `Game.Core`.
+- [x] Прогнать тесты геометрии и карты; PASS: 29 проверок, включая отрицательные координаты, отсутствующие клетки, дубликаты и непроходимые клетки. Решение собирается без предупреждений.
+- [ ] Пользователь коммитит оставшуюся модель карты: `feat(core): add world map model`; координаты уже сохранены коммитом `9115824`.
 
 ### Задача 3: движение на карте и A* для боевого поля
 
