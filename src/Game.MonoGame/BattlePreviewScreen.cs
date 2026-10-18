@@ -39,7 +39,7 @@ internal sealed class BattlePreviewScreen
     private static readonly int[] SharedEdgeByNeighbor = [1, 0, 5, 4, 3, 2];
 
     public BattlePreviewScreen(PixelCanvas canvas, AssetCatalog assets, Action exit,
-        bool showGrid = false, bool previewDescent = false)
+        bool showGrid = true, bool previewDescent = false)
     {
         _canvas = canvas;
         _assets = assets;

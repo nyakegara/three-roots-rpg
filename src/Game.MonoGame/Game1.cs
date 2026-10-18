@@ -16,7 +16,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private BattlePreviewScreen _screen = null!;
     private RenderTarget2D _frame = null!;
 
-    public Game1(string? screenshotPath = null, bool showGrid = false, bool previewDescent = false)
+    public Game1(string? screenshotPath = null, bool showGrid = true, bool previewDescent = false)
     {
         _screenshotPath = screenshotPath;
         _showGrid = showGrid;

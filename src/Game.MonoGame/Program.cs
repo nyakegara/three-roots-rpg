@@ -6,7 +6,7 @@ internal static class Program
     private static void Main(string[] args)
     {
         string? screenshotPath = null;
-        var showGrid = false;
+        var showGrid = true;
         var previewDescent = false;
         if (args.Length != 0)
         {
@@ -20,7 +20,6 @@ internal static class Program
             }
 
             screenshotPath = Path.GetFullPath(args[1]);
-            showGrid = args[0] != "--screenshot";
             previewDescent = args[0] == "--screenshot-grid-descent";
         }
 
