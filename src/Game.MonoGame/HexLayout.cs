@@ -7,12 +7,13 @@ namespace Game.MonoGame;
 /// <summary>Pointy axial projection. Hit testing uses the exact rendered top polygon.</summary>
 internal sealed class HexLayout
 {
-    public const float Radius = 41;
-    private static readonly Vector2 Origin = new(108, 193);
+    public const float Radius = 50;
+    private const float VerticalCompression = 0.68f;
+    private static readonly Vector2 Origin = new(110, 145);
 
     public Vector2 Center(BattleTile tile) => new(
         Origin.X + MathF.Sqrt(3) * Radius * (tile.Coordinate.Q + tile.Coordinate.R / 2f),
-        Origin.Y + 1.5f * Radius * tile.Coordinate.R - tile.Height * 5);
+        Origin.Y + 1.5f * Radius * VerticalCompression * tile.Coordinate.R - tile.Height * 2);
 
     public Vector2[] Corners(BattleTile tile, float inset = 0)
     {
@@ -20,7 +21,7 @@ internal sealed class HexLayout
         return Enumerable.Range(0, 6).Select(i =>
         {
             var angle = MathHelper.ToRadians(-90 + 60 * i);
-            return center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * (Radius - inset);
+            return center + new Vector2(MathF.Cos(angle), MathF.Sin(angle) * VerticalCompression) * (Radius - inset);
         }).ToArray();
     }
 
