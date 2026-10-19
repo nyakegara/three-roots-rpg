@@ -103,17 +103,17 @@
 - [x] Прогнать все боевые тесты и добавить проверку, что высота не отменяет блокировку линии видимости.
 - [x] Закоммитить `feat(combat): add battle rules and tactical opponent`.
 
-### Задача 5: JSON-карты и исследование
+### Task 5: JSON-карты и исследование
 
 **Файлы:** `src/Game.Core/Content/MapLoader.cs`, модели `WorldMap`; `content/maps/tutorial.json`; тесты `Content/MapLoaderTests.cs`.
 
 **Интерфейсы:** `MapLoadResult(bool Success, WorldMap? Map, IReadOnlyList<ContentError> Errors)`; `MapLoader.Load(string path) -> MapLoadResult`; `WorldMap` хранит размеры, клетки, точки интереса и старт героя.
 
-- [ ] Написать `Load_ValidMap_ReturnsMap`, `Load_MalformedJson_ReturnsFileAndLineError`, `Load_MissingRequiredStart_ReturnsValidationError`.
-- [ ] Убедиться, что загрузчик отсутствует и тесты падают.
-- [ ] Реализовать JSON-модель и валидацию уникальности координат, допустимых высот и существования стартовой клетки.
-- [ ] Добавить карту обучения; запустить тесты и загрузить файл из каталога `content/maps`.
-- [ ] Закоммитить `feat(content): load validated maps from json`.
+- [x] Написать `Load_ValidMap_ReturnsMap`, `Load_MalformedJson_ReturnsFileAndLineError`, `Load_MissingRequiredStart_ReturnsValidationError`.
+- [x] Убедиться, что загрузчик отсутствует и тесты падают.
+- [x] Реализовать JSON-модель и валидацию уникальности координат, допустимых высот и существования стартовой клетки.
+- [x] Добавить карту обучения; запустить тесты и загрузить файл из каталога `content/maps`.
+- [x] Закоммитить `feat(content): load validated maps from json`.
 
 ### Задача 6: квесты, экономика, найм и развитие героя
 
