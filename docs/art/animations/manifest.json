@@ -1,0 +1,10 @@
+{
+  "sheets": [
+    "../../../content/art/animations/hero.flora.walk.json",
+    "../../../content/art/animations/unit.flora.thorn-guard.actions.json",
+    "../../../content/art/animations/unit.flora.sprout.actions.json",
+    "../../../content/art/animations/unit.flora.ember-bloom.actions.json",
+    "../../../content/art/animations/unit.flora.pod-slinger.actions.json",
+    "../../../content/art/animations/unit.flora.root-warden.actions.json"
+  ]
+}

@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 2,
+  "id": "unit.flora.pod-slinger.actions",
+  "image": "unit.flora.pod-slinger.actions.png",
+  "kind": "unit",
+  "width": 256,
+  "height": 160,
+  "columns": 4,
+  "rows": 2,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "contentBox": {
+    "x": 8,
+    "y": 8,
+    "width": 48,
+    "height": 64
+  },
+  "alphaCutoff": 128,
+  "alignBottom": 72,
+  "frameOrder": "row-major",
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "frameMs": 100,
+      "loop": false,
+      "impactFrame": 4
+    }
+  ],
+  "frameDiagnostics": [
+    {
+      "frame": 0,
+      "empty": false,
+      "visibleBounds": {
+        "left": 20,
+        "top": 34,
+        "right": 46,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 1,
+      "empty": false,
+      "visibleBounds": {
+        "left": 17,
+        "top": 36,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 2,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 35,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 3,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 38,
+        "right": 50,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 4,
+      "empty": false,
+      "visibleBounds": {
+        "left": 18,
+        "top": 36,
+        "right": 55,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 5,
+      "empty": false,
+      "visibleBounds": {
+        "left": 18,
+        "top": 38,
+        "right": 54,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 6,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 36,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 7,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 34,
+        "right": 46,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    }
+  ],
+  "registration": [
+    {
+      "frame": 0,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 1,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 2,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 3,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 4,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 5,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 6,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 7,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    }
+  ],
+  "sourceBorderDiagnostics": [],
+  "unpacking": {
+    "enabled": true,
+    "connectivity": 8,
+    "majorMinAreaFraction": 0.1,
+    "majorMinHeightFraction": 0.35,
+    "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
+    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sources": [
+      {
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "Width": 1586,
+        "Height": 992,
+        "Columns": 4,
+        "Rows": 2,
+        "expected": 8,
+        "primaryComponents": 8,
+        "totalComponents": 13,
+        "detachedComponents": 5,
+        "Scale": 0.08863441552984677,
+        "FitScale": 0.08863441552984677,
+        "Attachments": [
+          {
+            "component": 9,
+            "Area": 120,
+            "bounds": {
+              "Left": 359,
+              "Top": 626,
+              "Right": 374,
+              "Bottom": 639
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 10,
+            "Area": 203,
+            "bounds": {
+              "Left": 395,
+              "Top": 626,
+              "Right": 414,
+              "Bottom": 643
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 11,
+            "Area": 2642,
+            "bounds": {
+              "Left": 385,
+              "Top": 654,
+              "Right": 460,
+              "Bottom": 781
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 12,
+            "Area": 128,
+            "bounds": {
+              "Left": 383,
+              "Top": 742,
+              "Right": 398,
+              "Bottom": 755
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 13,
+            "Area": 182,
+            "bounds": {
+              "Left": 343,
+              "Top": 754,
+              "Right": 361,
+              "Bottom": 771
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          }
+        ],
+        "sha256": "f68981a782ad1b9bb176926f455b4b64aaced7184fbb4deb567437d8195093a6"
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 37,
+          "top": 56,
+          "right": 356,
+          "bottom": 490
+        },
+        "primaryBounds": {
+          "left": 37,
+          "top": 56,
+          "right": 356,
+          "bottom": 490
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 179.79439827639274,
+        "primaryBottom": 490,
+        "transform": {
+          "offsetX": 16.06402859323144,
+          "offsetY": 28.56913639037508
+        },
+        "nativeBounds": {
+          "left": 20,
+          "top": 34,
+          "rightExclusive": 47,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 1,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 1,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 393,
+          "top": 84,
+          "right": 730,
+          "bottom": 489
+        },
+        "primaryBounds": {
+          "left": 393,
+          "top": 84,
+          "right": 730,
+          "bottom": 489
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 576.61754631792,
+        "primaryBottom": 489,
+        "transform": {
+          "offsetX": -19.108159202143185,
+          "offsetY": 28.65777080590493
+        },
+        "nativeBounds": {
+          "left": 17,
+          "top": 36,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 2,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 2,
+        "primaryComponent": 2,
+        "componentIds": [
+          2
+        ],
+        "sourceCropBounds": {
+          "left": 824,
+          "top": 76,
+          "right": 1130,
+          "bottom": 489
+        },
+        "primaryBounds": {
+          "left": 824,
+          "top": 76,
+          "right": 1130,
+          "bottom": 489
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 975.6043214556482,
+        "primaryBottom": 489,
+        "transform": {
+          "offsetX": -54.47211882061413,
+          "offsetY": 28.65777080590493
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 35,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 3,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 3,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 1220,
+          "top": 104,
+          "right": 1583,
+          "bottom": 489
+        },
+        "primaryBounds": {
+          "left": 1220,
+          "top": 104,
+          "right": 1583,
+          "bottom": 489
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 1370.962377667255,
+        "primaryBottom": 489,
+        "transform": {
+          "offsetX": -89.5144490579462,
+          "offsetY": 28.65777080590493
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 38,
+          "rightExclusive": 51,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 4,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 4,
+        "primaryComponent": 7,
+        "componentIds": [
+          7,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "sourceCropBounds": {
+          "left": 33,
+          "top": 577,
+          "right": 460,
+          "bottom": 981
+        },
+        "primaryBounds": {
+          "left": 33,
+          "top": 577,
+          "right": 432,
+          "bottom": 981
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 189.22481796116506,
+        "primaryBottom": 981,
+        "transform": {
+          "offsetX": 15.228168856270482,
+          "offsetY": -14.950361634779682
+        },
+        "nativeBounds": {
+          "left": 18,
+          "top": 36,
+          "rightExclusive": 56,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 5,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 5,
+        "primaryComponent": 8,
+        "componentIds": [
+          8
+        ],
+        "sourceCropBounds": {
+          "left": 421,
+          "top": 601,
+          "right": 844,
+          "bottom": 981
+        },
+        "primaryBounds": {
+          "left": 421,
+          "top": 601,
+          "right": 844,
+          "bottom": 981
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 581.8134303942418,
+        "primaryBottom": 981,
+        "transform": {
+          "offsetX": -19.568693350408807,
+          "offsetY": -14.950361634779682
+        },
+        "nativeBounds": {
+          "left": 18,
+          "top": 38,
+          "rightExclusive": 55,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 6,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 6,
+        "primaryComponent": 6,
+        "componentIds": [
+          6
+        ],
+        "sourceCropBounds": {
+          "left": 829,
+          "top": 570,
+          "right": 1143,
+          "bottom": 981
+        },
+        "primaryBounds": {
+          "left": 829,
+          "top": 570,
+          "right": 1143,
+          "bottom": 981
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 976.0823330255463,
+        "primaryBottom": 981,
+        "transform": {
+          "offsetX": -54.514487096728544,
+          "offsetY": -14.950361634779682
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 36,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 7,
+        "source": "../../../docs/art/animations/sources/pod-slinger.source.png",
+        "sourceFrame": 7,
+        "primaryComponent": 5,
+        "componentIds": [
+          5
+        ],
+        "sourceCropBounds": {
+          "left": 1227,
+          "top": 549,
+          "right": 1546,
+          "bottom": 981
+        },
+        "primaryBounds": {
+          "left": 1227,
+          "top": 549,
+          "right": 1546,
+          "bottom": 981
+        },
+        "scale": 0.08863441552984677,
+        "pivotX": 1368.034819792303,
+        "primaryBottom": 981,
+        "transform": {
+          "offsetX": -89.25496667677004,
+          "offsetY": -14.950361634779682
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 34,
+          "rightExclusive": 47,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      }
+    ]
+  },
+  "source": {
+    "image": "../../../docs/art/animations/sources/pod-slinger.source.png",
+    "width": 1586,
+    "height": 992,
+    "transparentPixels": 905680,
+    "partialAlphaPixels": 667503,
+    "opaquePixels": 129
+  }
+}

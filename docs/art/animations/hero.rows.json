@@ -1,0 +1,44 @@
+[
+  {
+    "source": "sources/hero.rotation4.source.png",
+    "sourceRow": 0,
+    "targetRow": 4,
+    "sourceColumns": 6,
+    "sourceRows": 4
+  },
+  {
+    "source": "sources/hero.rotation4.source.png",
+    "sourceRow": 1,
+    "targetRow": 5,
+    "sourceColumns": 6,
+    "sourceRows": 4
+  },
+  {
+    "source": "sources/hero.rotation4.source.png",
+    "sourceRow": 2,
+    "targetRow": 6,
+    "sourceColumns": 6,
+    "sourceRows": 4
+  },
+  {
+    "source": "sources/hero.rotation4.source.png",
+    "sourceRow": 3,
+    "targetRow": 7,
+    "sourceColumns": 6,
+    "sourceRows": 4
+  },
+  {
+    "targetRow": 3,
+    "source": "sources/hero.se.source.png",
+    "sourceColumns": 6,
+    "sourceRow": 0,
+    "sourceRows": 2
+  },
+  {
+    "targetRow": 8,
+    "source": "sources/hero.se.source.png",
+    "sourceColumns": 6,
+    "sourceRow": 1,
+    "sourceRows": 2
+  }
+]
