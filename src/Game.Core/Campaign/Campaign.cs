@@ -21,6 +21,7 @@ public sealed class Campaign
     private readonly ReadOnlyCollection<RecruitmentSite> _recruitmentSiteView;
     private readonly ReadOnlyCollection<CampaignEncounter> _encounters;
     private readonly HashSet<string> _completedEncounterIds = new(StringComparer.Ordinal);
+    private readonly CampaignProgressionRules _progression;
     private CampaignBattle? _activeEncounter;
 
     public Hero Hero { get; }
@@ -31,6 +32,19 @@ public sealed class Campaign
     public IReadOnlyList<RecruitmentSite> RecruitmentSites => _recruitmentSiteView;
     public IReadOnlyList<CampaignEncounter> Encounters => _encounters;
     public IReadOnlySet<string> CompletedEncounterIds => _completedEncounterIds.ToHashSet(StringComparer.Ordinal);
+    public bool IsVictory => _progression.VictoryEncounterId is not null &&
+        _completedEncounterIds.Contains(_progression.VictoryEncounterId);
+    public bool IsDefeated { get; private set; }
+    public bool IsUnlocked(string unlockId) => !string.IsNullOrWhiteSpace(unlockId) &&
+        _progression.UnlockEncounterIds.TryGetValue(unlockId, out var encounterId) &&
+        _completedEncounterIds.Contains(encounterId);
+    public bool CanAccessEncounter(string encounterId) => !IsDefeated && !IsVictory &&
+        !_completedEncounterIds.Contains(encounterId) &&
+        _encounters.Any(encounter => encounter.Id == encounterId) &&
+        Meets(_progression.EncounterRequirements.GetValueOrDefault(encounterId));
+    public bool CanAccessRecruitmentSite(string siteId) => !IsDefeated && !IsVictory &&
+        _recruitmentSites.ContainsKey(siteId) &&
+        Meets(_progression.RecruitmentRequirements.GetValueOrDefault(siteId));
 
     public bool TryGetRecruitmentSiteAt(WorldPointOfInterest point, HexCoord heroPosition,
         out RecruitmentSite? site)
@@ -41,12 +55,13 @@ public sealed class Campaign
             point.Coordinate != heroPosition || string.IsNullOrWhiteSpace(point.RecruitmentSiteId))
             return false;
 
-        site = _recruitmentSites.GetValueOrDefault(point.RecruitmentSiteId);
+        site = CanAccessRecruitmentSite(point.RecruitmentSiteId)
+            ? _recruitmentSites.GetValueOrDefault(point.RecruitmentSiteId) : null;
         return site is not null;
     }
 
     public Campaign(Hero hero, IEnumerable<Quest> quests, IEnumerable<RecruitmentSite>? recruitmentSites = null,
-        IEnumerable<CampaignEncounter>? encounters = null)
+        IEnumerable<CampaignEncounter>? encounters = null, CampaignProgressionRules? progression = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(quests);
@@ -76,6 +91,7 @@ public sealed class Campaign
             encounterArray.Select(encounter => encounter.PointOfInterestId).Distinct(StringComparer.Ordinal).Count() != encounterArray.Length)
             throw new ArgumentException("Campaign encounters require unique ids and world points.", nameof(encounters));
         _encounters = Array.AsReadOnly(encounterArray);
+        _progression = progression ?? new CampaignProgressionRules();
     }
 
     public EncounterStartResult TryStartEncounter(WorldPointOfInterest point, HexCoord heroPosition, UnitCatalog catalog)
@@ -89,6 +105,8 @@ public sealed class Campaign
             return new(false, "The hero must reach the encounter's world point.");
         if (_completedEncounterIds.Contains(encounter.Id))
             return new(false, "This encounter is already completed.");
+        if (!CanAccessEncounter(encounter.Id))
+            return new(false, "This encounter is locked by campaign progress.");
         if (Hero.Army.Stacks.Count == 0)
             return new(false, "Recruit an army before starting this encounter.");
 
@@ -146,7 +164,13 @@ public sealed class Campaign
         Hero.TryChangeGold(gold);
         Hero.GainExperience(experience);
         if (victory)
+        {
             _completedEncounterIds.Add(session.Encounter.Id);
+            if (_progression.EncounterReputationRewards.TryGetValue(session.Encounter.Id, out var reputation))
+                Hero.ChangeReputation(reputation);
+        }
+        else if (_progression.DefeatOnArmyWipe && Hero.Army.Stacks.Count == 0)
+            IsDefeated = true;
         _activeEncounter = null;
         return new(true, victory ? "Encounter won." : "Encounter lost.", victory, gold, experience);
     }
@@ -186,6 +210,8 @@ public sealed class Campaign
 
     public ChoiceResult ApplyChoice(string questId, string choiceId)
     {
+        if (IsDefeated || IsVictory)
+            return new ChoiceResult(false, "The campaign has ended.");
         if (string.IsNullOrWhiteSpace(questId) || string.IsNullOrWhiteSpace(choiceId))
         {
             return new ChoiceResult(false, "A quest id and a choice id are required.");
@@ -217,6 +243,47 @@ public sealed class Campaign
         _selectedChoiceIds.Add(questId, choiceId);
         return new ChoiceResult(true, "Choice applied.", choice);
     }
+
+    public CampaignProgressSnapshot GetProgressSnapshot() => new(
+        _completedEncounterIds.Order(StringComparer.Ordinal).ToArray(), IsDefeated);
+
+    public bool TryRestoreChoices(IReadOnlyList<SavedQuestChoice> choices)
+    {
+        if (choices is null || choices.Any(choice => choice is null ||
+            !_quests.TryGetValue(choice.QuestId, out var quest) || quest.GetChoice(choice.ChoiceId) is null) ||
+            choices.Select(choice => choice.QuestId).Distinct(StringComparer.Ordinal).Count() != choices.Count)
+            return false;
+        _selectedChoiceIds.Clear();
+        _completedQuestIds.Clear();
+        foreach (var choice in choices)
+        {
+            _selectedChoiceIds.Add(choice.QuestId, choice.ChoiceId);
+            _completedQuestIds.Add(choice.QuestId);
+        }
+        return true;
+    }
+
+    public bool TryRestoreProgress(CampaignProgressSnapshot snapshot)
+    {
+        if (snapshot is null || snapshot.CompletedEncounterIds is null ||
+            snapshot.CompletedEncounterIds.Any(string.IsNullOrWhiteSpace) ||
+            snapshot.CompletedEncounterIds.Distinct(StringComparer.Ordinal).Count() != snapshot.CompletedEncounterIds.Count ||
+            snapshot.CompletedEncounterIds.Any(id => !_encounters.Any(encounter => encounter.Id == id)) ||
+            (snapshot.IsDefeated && (!_progression.DefeatOnArmyWipe || Hero.Army.Stacks.Count != 0)))
+            return false;
+        _completedEncounterIds.Clear();
+        foreach (var id in snapshot.CompletedEncounterIds)
+            _completedEncounterIds.Add(id);
+        IsDefeated = snapshot.IsDefeated;
+        return true;
+    }
+
+    private bool Meets(CampaignAccessRequirement? requirement) => requirement is null ||
+        (requirement.RequiredEncounterIds.All(_completedEncounterIds.Contains) &&
+         (requirement.QuestId is null ||
+          (_selectedChoiceIds.TryGetValue(requirement.QuestId, out var choiceId) &&
+           (requirement.ChoiceId is null || choiceId == requirement.ChoiceId))));
 }
 
 public sealed record RecruitmentStockRestoreResult(bool Success, string Message);
+public sealed record CampaignProgressSnapshot(IReadOnlyList<string> CompletedEncounterIds, bool IsDefeated);

@@ -19,7 +19,8 @@ public sealed class CampaignSerializerTests
             ["pathfinder"], ["seed-charm"])
         {
             RecruitmentStocks = [new SavedRecruitmentStock("root-greenhouse", "flora.guard", 0),
-                new SavedRecruitmentStock("sunny-clearing", "flora.flame", 7)]
+                new SavedRecruitmentStock("sunny-clearing", "flora.flame", 7)],
+            CompletedEncounterIds = ["peasants-refused", "north-knights"]
         };
 
         var write = CampaignSerializer.Save(path, save);
@@ -37,7 +38,26 @@ public sealed class CampaignSerializerTests
         Assert.Equal(save.SkillIds, read.Save.SkillIds);
         Assert.Equal(save.ArtifactIds, read.Save.ArtifactIds);
         Assert.Equal(save.RecruitmentStocks, read.Save.RecruitmentStocks);
+        Assert.Equal(save.CompletedEncounterIds, read.Save.CompletedEncounterIds);
+        Assert.False(read.Save.IsDefeated);
         Assert.Empty(Directory.GetFiles(directory.Path, "*.tmp"));
+    }
+
+    [Fact]
+    public void SaveAndLoad_PreservesDefeatAndRejectsArmyInDefeatedState()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "defeated.json");
+        var defeated = SampleSave() with { IsDefeated = true, CompletedEncounterIds = ["first-battle"] };
+        Assert.True(CampaignSerializer.Save(path, defeated).Success);
+        var loaded = CampaignSerializer.Load(path);
+        Assert.True(loaded.Success, loaded.Message);
+        Assert.True(loaded.Save!.IsDefeated);
+        Assert.Equal(["first-battle"], loaded.Save.CompletedEncounterIds);
+        Assert.False(CampaignSerializer.Save(path, defeated with
+        {
+            Army = [new SavedTroopStack("flora.thorn-guard", 1)]
+        }).Success);
     }
 
     [Theory]

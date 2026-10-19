@@ -123,6 +123,10 @@ public static class CampaignSerializer
                 string.IsNullOrWhiteSpace(stock.SiteId) || string.IsNullOrWhiteSpace(stock.UnitId) || stock.RemainingStock < 0) ||
             save.RecruitmentStocks.Select(stock => (stock.SiteId, stock.UnitId)).Distinct().Count() != save.RecruitmentStocks.Count)
             return "Recruitment stock must contain unique site and unit ids with non-negative remaining stock.";
+        if (save.CompletedEncounterIds is null || !HasUniqueNonEmptyIds(save.CompletedEncounterIds))
+            return "Completed encounter ids must be non-empty and unique.";
+        if (save.IsDefeated && save.Army.Count != 0)
+            return "A defeated campaign cannot have a surviving army.";
         return null;
     }
 

@@ -24,6 +24,8 @@ public sealed record CampaignSave(
 
     public int SchemaVersion { get; init; } = CurrentSchemaVersion;
     public IReadOnlyList<SavedRecruitmentStock> RecruitmentStocks { get; init; } = [];
+    public IReadOnlyList<string> CompletedEncounterIds { get; init; } = [];
+    public bool IsDefeated { get; init; }
 }
 
 public sealed record SavedTroopStack(string UnitId, int Count);
