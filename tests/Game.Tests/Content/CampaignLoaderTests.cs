@@ -142,11 +142,19 @@ public sealed class CampaignLoaderTests : IDisposable
             (site.Id, offer.UnitId, offer.StartingStock))));
         Assert.Empty(campaigns[1].Definition!.RecruitmentSites);
         Assert.Empty(campaigns[2].Definition!.RecruitmentSites);
+        var encounter = Assert.Single(first.Encounters);
+        Assert.Equal("road-patrol", encounter.Id);
+        Assert.Equal("iron-road", encounter.PointOfInterestId);
+        Assert.Equal(new[] { ("human.militia", 4), ("human.spearman", 2), ("human.longbow", 1) },
+            encounter.EnemyArmy.Select(troop => (troop.UnitTypeId, troop.Count)));
+        Assert.Empty(campaigns[1].Definition!.Encounters);
+        Assert.Empty(campaigns[2].Definition!.Encounters);
         var state = first.CreateGameState();
         Assert.Equal(first.HeroName, state.Hero.Name);
         Assert.Equal(first.StartingGold, state.Hero.Gold);
         Assert.Equal(3, state.Quests.Count);
         Assert.Equal(3, state.RecruitmentSites.Count);
+        Assert.Same(encounter, Assert.Single(state.Encounters));
         Assert.Equal(5, state.GetRecruitmentStockSnapshot().Count);
         Assert.Equal(new[] { 3, 4, 5, 8, 15 }, state.GetRecruitmentStockSnapshot()
             .Select(stock => stock.RemainingStock).Order().ToArray());

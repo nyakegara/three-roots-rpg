@@ -45,6 +45,20 @@ public sealed class Army
         return true;
     }
 
+    internal bool TryReplace(IEnumerable<TroopStack> stacks)
+    {
+        var replacement = stacks.ToArray();
+        if (replacement.Length > MaximumStacks || replacement.Any(stack => stack is null ||
+            string.IsNullOrWhiteSpace(stack.UnitTypeId) || stack.Count <= 0) ||
+            replacement.Select(stack => stack.UnitTypeId).Distinct(StringComparer.Ordinal).Count() != replacement.Length)
+            return false;
+
+        var copies = replacement.Select(stack => new TroopStack(stack.UnitTypeId, stack.Count)).ToArray();
+        _stacks.Clear();
+        _stacks.AddRange(copies);
+        return true;
+    }
+
     private TroopStack? FindStack(string unitTypeId) =>
         _stacks.FirstOrDefault(stack => string.Equals(stack.UnitTypeId, unitTypeId, StringComparison.Ordinal));
 }

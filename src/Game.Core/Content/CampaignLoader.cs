@@ -236,12 +236,80 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                 if (!pointIds.Contains(point.Id)) errors.Add(new ContentError(path, $"Map quest point '{point.Id}' has no matching campaign quest."));
         }
 
+        var encounters = new List<CampaignEncounter>();
+        var encounterIds = new HashSet<string>(StringComparer.Ordinal);
+        var encounterPointIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var encounter in document.Encounters ?? [])
+        {
+            var initialErrorCount = errors.Count;
+            if (encounter is null)
+            {
+                errors.Add(new ContentError(path, "Each encounter must define id, pointOfInterestId, name, seed, enemyArmy, and rewards."));
+                continue;
+            }
+            Require(encounter.Id, "encounters.id", path, errors);
+            Require(encounter.PointOfInterestId, "encounters.pointOfInterestId", path, errors);
+            Require(encounter.Name, "encounters.name", path, errors);
+            if (encounter.Seed is null)
+                errors.Add(new ContentError(path, "Encounter requires an integer seed."));
+            if (encounter.GoldReward is null or < 0)
+                errors.Add(new ContentError(path, "Encounter goldReward must be zero or a positive integer."));
+            if (encounter.ExperienceReward is null or < 0)
+                errors.Add(new ContentError(path, "Encounter experienceReward must be zero or a positive integer."));
+            if (!string.IsNullOrWhiteSpace(encounter.Id) && !encounterIds.Add(encounter.Id))
+                errors.Add(new ContentError(path, $"Campaign contains duplicate encounter id '{encounter.Id}'."));
+            if (!string.IsNullOrWhiteSpace(encounter.PointOfInterestId))
+            {
+                if (!encounterPointIds.Add(encounter.PointOfInterestId))
+                    errors.Add(new ContentError(path, $"Point '{encounter.PointOfInterestId}' is linked by multiple encounters."));
+                if (map is not null)
+                {
+                    var point = map.PointsOfInterest.FirstOrDefault(point => point.Id == encounter.PointOfInterestId);
+                    if (point is null)
+                        errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' references missing point '{encounter.PointOfInterestId}'."));
+                    else if (point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase) ||
+                             sitePointIds.Contains(point.Id))
+                        errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' conflicts with recruitment point '{point.Id}'."));
+                }
+            }
+            var enemyArmy = new List<EncounterTroop>();
+            var enemyUnitIds = new HashSet<string>(StringComparer.Ordinal);
+            if (encounter.EnemyArmy is null || encounter.EnemyArmy.Count == 0)
+                errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' must define a nonempty enemyArmy."));
+            else if (encounter.EnemyArmy.Count > 5)
+                errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' enemyArmy must contain at most five stacks."));
+            foreach (var troop in encounter.EnemyArmy ?? [])
+            {
+                if (troop is null || string.IsNullOrWhiteSpace(troop.UnitId) || troop.Count is null or <= 0)
+                {
+                    errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' enemyArmy requires unitId and positive count."));
+                    continue;
+                }
+                if (!enemyUnitIds.Add(troop.UnitId))
+                    errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' contains duplicate unit '{troop.UnitId}'."));
+                var unit = units.Get(troop.UnitId);
+                if (unit is null)
+                {
+                    errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' references unknown unitId '{troop.UnitId}'."));
+                    continue;
+                }
+                if (unit.FactionId != document.EnemyFactionId)
+                    errors.Add(new ContentError(path, $"Encounter unit '{troop.UnitId}' does not belong to enemy faction '{document.EnemyFactionId}'."));
+                if ((long)unit.HitPoints * troop.Count.Value > int.MaxValue)
+                    errors.Add(new ContentError(path, $"Encounter unit '{troop.UnitId}' total hit points exceed the integer limit."));
+                enemyArmy.Add(new EncounterTroop(unit.Id, troop.Count.Value));
+            }
+            if (errors.Count == initialErrorCount)
+                encounters.Add(new CampaignEncounter(encounter.Id!, encounter.PointOfInterestId!, encounter.Name!,
+                    encounter.Seed!.Value, enemyArmy, encounter.GoldReward!.Value, encounter.ExperienceReward!.Value));
+        }
+
         if (errors.Count > 0 || map is null || document.Hero is null)
             return new CampaignLoadResult(false, null, errors.AsReadOnly());
 
         return new CampaignLoadResult(true, new CampaignDefinition(document.Id!, document.Name!, document.Description!,
             document.PlayerFactionId!, document.EnemyFactionId!, mapPath, map, document.Hero.Id!, document.Hero.Name!,
-            document.Hero.StartingGold!.Value, recruitment, recruitmentSites, quests), Array.Empty<ContentError>());
+            document.Hero.StartingGold!.Value, recruitment, recruitmentSites, quests, encounters), Array.Empty<ContentError>());
     }
 
     private static void Require(string? value, string field, string path, ICollection<ContentError> errors)
@@ -264,8 +332,20 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
         public List<RecruitmentDocument?>? Recruitment { get; init; }
         public List<RecruitmentSiteDocument?>? RecruitmentSites { get; init; }
         public List<QuestDocument?>? Quests { get; init; }
+        public List<EncounterDocument?>? Encounters { get; init; }
     }
     private sealed class HeroDocument { public string? Id { get; init; } public string? Name { get; init; } public int? StartingGold { get; init; } }
+    private sealed class EncounterDocument
+    {
+        public string? Id { get; init; }
+        public string? PointOfInterestId { get; init; }
+        public string? Name { get; init; }
+        public int? Seed { get; init; }
+        public List<EncounterTroopDocument?>? EnemyArmy { get; init; }
+        public int? GoldReward { get; init; }
+        public int? ExperienceReward { get; init; }
+    }
+    private sealed class EncounterTroopDocument { public string? UnitId { get; init; } public int? Count { get; init; } }
     private sealed class RecruitmentDocument { public string? UnitId { get; init; } public int? StartingStock { get; init; } }
     private sealed class RecruitmentSiteDocument
     {

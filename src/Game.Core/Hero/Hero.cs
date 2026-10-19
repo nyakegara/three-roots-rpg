@@ -61,6 +61,24 @@ public sealed class Hero
         }
     }
 
+    internal bool CanGainExperience(int amount)
+    {
+        if (amount < 0 || (long)_experience + amount > int.MaxValue)
+            return false;
+        var experience = (long)_experience + amount;
+        var level = (long)Level;
+        var skillPoints = (long)SkillPoints;
+        while (experience >= level * 100)
+        {
+            if (level * 100 > int.MaxValue || level >= int.MaxValue || skillPoints >= int.MaxValue)
+                return false;
+            experience -= level * 100;
+            level++;
+            skillPoints++;
+        }
+        return level * 100 <= int.MaxValue;
+    }
+
     public bool LearnSkill(Skill skill)
     {
         ArgumentNullException.ThrowIfNull(skill);

@@ -19,6 +19,14 @@
       { "unitId": "flora.root-warden", "startingStock": 3 }
     ] }
   ],
+  "encounters": [
+    { "id": "road-patrol", "pointOfInterestId": "iron-road", "name": "Дозор у стройки", "seed": 20261019,
+      "enemyArmy": [
+        { "unitId": "human.militia", "count": 4 },
+        { "unitId": "human.spearman", "count": 2 },
+        { "unitId": "human.longbow", "count": 1 }
+      ], "goldReward": 60, "experienceReward": 60 }
+  ],
   "quests": [
     { "id": "spring-call", "title": "Голос родника", "pointOfInterestId": "spring-call", "choices": [
       { "id": "share", "description": "Открыть воду беженцам: +20 золота, +1 репутация.", "goldChange": 20, "reputationChange": 1 },

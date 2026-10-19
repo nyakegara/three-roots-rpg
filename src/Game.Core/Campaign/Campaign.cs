@@ -4,6 +4,9 @@ using Game.Core.Geometry;
 using Game.Core.Economy;
 using Game.Core.Persistence;
 using Game.Core.World;
+using Game.Core.Content;
+using Game.Core.Combat;
+using Game.Core.Combat.Generation;
 
 namespace Game.Core.Campaigns;
 
@@ -16,6 +19,9 @@ public sealed class Campaign
     private readonly ReadOnlyCollection<Quest> _questView;
     private readonly Dictionary<string, RecruitmentSite> _recruitmentSites;
     private readonly ReadOnlyCollection<RecruitmentSite> _recruitmentSiteView;
+    private readonly ReadOnlyCollection<CampaignEncounter> _encounters;
+    private readonly HashSet<string> _completedEncounterIds = new(StringComparer.Ordinal);
+    private CampaignBattle? _activeEncounter;
 
     public Hero Hero { get; }
     public IReadOnlyList<Quest> Quests => _questView;
@@ -23,6 +29,8 @@ public sealed class Campaign
     public IReadOnlyDictionary<string, string> SelectedChoiceIds =>
         new Dictionary<string, string>(_selectedChoiceIds, StringComparer.Ordinal);
     public IReadOnlyList<RecruitmentSite> RecruitmentSites => _recruitmentSiteView;
+    public IReadOnlyList<CampaignEncounter> Encounters => _encounters;
+    public IReadOnlySet<string> CompletedEncounterIds => _completedEncounterIds.ToHashSet(StringComparer.Ordinal);
 
     public bool TryGetRecruitmentSiteAt(WorldPointOfInterest point, HexCoord heroPosition,
         out RecruitmentSite? site)
@@ -37,7 +45,8 @@ public sealed class Campaign
         return site is not null;
     }
 
-    public Campaign(Hero hero, IEnumerable<Quest> quests, IEnumerable<RecruitmentSite>? recruitmentSites = null)
+    public Campaign(Hero hero, IEnumerable<Quest> quests, IEnumerable<RecruitmentSite>? recruitmentSites = null,
+        IEnumerable<CampaignEncounter>? encounters = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(quests);
@@ -61,6 +70,85 @@ public sealed class Campaign
                 throw new ArgumentException($"Campaign contains duplicate recruitment site id '{site.Id}'.", nameof(recruitmentSites));
         }
         _recruitmentSiteView = Array.AsReadOnly(_recruitmentSites.Values.ToArray());
+        var encounterArray = (encounters ?? []).ToArray();
+        if (encounterArray.Any(encounter => encounter is null) ||
+            encounterArray.Select(encounter => encounter.Id).Distinct(StringComparer.Ordinal).Count() != encounterArray.Length ||
+            encounterArray.Select(encounter => encounter.PointOfInterestId).Distinct(StringComparer.Ordinal).Count() != encounterArray.Length)
+            throw new ArgumentException("Campaign encounters require unique ids and world points.", nameof(encounters));
+        _encounters = Array.AsReadOnly(encounterArray);
+    }
+
+    public EncounterStartResult TryStartEncounter(WorldPointOfInterest point, HexCoord heroPosition, UnitCatalog catalog)
+    {
+        ArgumentNullException.ThrowIfNull(point);
+        ArgumentNullException.ThrowIfNull(catalog);
+        if (_activeEncounter is not null)
+            return new(false, "Another encounter is already active.");
+        var encounter = _encounters.FirstOrDefault(candidate => candidate.PointOfInterestId == point.Id);
+        if (point.Coordinate != heroPosition || encounter is null)
+            return new(false, "The hero must reach the encounter's world point.");
+        if (_completedEncounterIds.Contains(encounter.Id))
+            return new(false, "This encounter is already completed.");
+        if (Hero.Army.Stacks.Count == 0)
+            return new(false, "Recruit an army before starting this encounter.");
+
+        var startingArmy = Array.AsReadOnly(Hero.Army.Stacks.Select(stack => new EncounterTroop(stack.UnitTypeId, stack.Count)).ToArray());
+        var allTroops = startingArmy.Concat(encounter.EnemyArmy);
+        foreach (var troop in allTroops)
+        {
+            var definition = catalog.Get(troop.UnitTypeId);
+            if (definition is null || definition.HitPoints <= 0 || definition.Damage <= 0 || definition.Speed <= 0 ||
+                definition.Movement < 0 || definition.Range <= 0 || !Enum.IsDefined(definition.Ability) ||
+                (long)troop.Count * definition.HitPoints > int.MaxValue)
+                return new(false, $"Unit type '{troop.UnitTypeId}' has missing or invalid battle values.");
+        }
+
+        var field = new BattlefieldGenerator().Generate(encounter.Seed);
+        var units = Deploy(startingArmy, BattleSide.Player).Concat(Deploy(encounter.EnemyArmy, BattleSide.Enemy));
+        var battle = new Battle(field.Map, units, new Random(encounter.Seed));
+        _activeEncounter = new CampaignBattle(this, encounter, field, battle, startingArmy);
+        return new(true, "Encounter started.", _activeEncounter);
+
+        IEnumerable<BattleUnit> Deploy(IReadOnlyList<EncounterTroop> troops, BattleSide side)
+        {
+            (int Column, int Row)[] positions = side == BattleSide.Player
+                ? [(1, 1), (2, 2), (1, 3), (2, 5), (1, 6)]
+                : [(10, 1), (9, 2), (10, 3), (9, 5), (10, 6)];
+            for (var i = 0; i < troops.Count; i++)
+            {
+                var troop = troops[i];
+                var definition = catalog.Get(troop.UnitTypeId)!;
+                var (deploymentColumn, row) = positions[i];
+                yield return new BattleUnit($"{side}:{i}", side, new HexCoord(deploymentColumn - row / 2, row), troop.Count,
+                    definition.HitPoints, definition.Damage, definition.Speed, definition.Movement, definition.Range,
+                    definition.IsRanged, ability: definition.Ability, unitTypeId: definition.Id);
+            }
+        }
+    }
+
+    public EncounterResolution ResolveEncounter(CampaignBattle session)
+    {
+        if (session is null || !ReferenceEquals(session.Owner, this) || !ReferenceEquals(_activeEncounter, session))
+            return new(false, "This encounter session is stale or belongs to another campaign.");
+        if (!session.Battle.IsFinished)
+            return new(false, "Finish the battle before resolving this encounter.");
+        if (!session.StartingArmy.SequenceEqual(Hero.Army.Stacks.Select(stack => new EncounterTroop(stack.UnitTypeId, stack.Count))))
+            return new(false, "The campaign army changed during this encounter.");
+
+        var victory = session.Battle.Winner == BattleSide.Player;
+        var gold = victory ? session.Encounter.GoldReward : 0;
+        var experience = victory ? session.Encounter.ExperienceReward : 0;
+        if ((long)Hero.Gold + gold > int.MaxValue || !Hero.CanGainExperience(experience))
+            return new(false, "The encounter rewards exceed the hero's resource limits.");
+        var survivors = session.Battle.GetOutcome().SurvivingPlayerStacks;
+        if (!Hero.Army.TryReplace(survivors.Select(stack => new TroopStack(stack.UnitTypeId, stack.Count))))
+            return new(false, "The battle survivors cannot form a valid campaign army.");
+        Hero.TryChangeGold(gold);
+        Hero.GainExperience(experience);
+        if (victory)
+            _completedEncounterIds.Add(session.Encounter.Id);
+        _activeEncounter = null;
+        return new(true, victory ? "Encounter won." : "Encounter lost.", victory, gold, experience);
     }
 
     public IReadOnlyList<SavedRecruitmentStock> GetRecruitmentStockSnapshot() => Array.AsReadOnly(

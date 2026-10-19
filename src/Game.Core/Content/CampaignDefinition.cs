@@ -44,11 +44,13 @@ public sealed class CampaignDefinition
     public IReadOnlyList<CampaignRecruitment> Recruitment { get; }
     public IReadOnlyList<CampaignRecruitmentSite> RecruitmentSites { get; }
     public IReadOnlyList<CampaignQuest> Quests { get; }
+    public IReadOnlyList<CampaignEncounter> Encounters { get; }
 
     internal CampaignDefinition(string id, string name, string description, string playerFactionId,
         string enemyFactionId, string mapFile, WorldMap map, string heroId, string heroName,
         int startingGold, IEnumerable<CampaignRecruitment> recruitment,
-        IEnumerable<CampaignRecruitmentSite> recruitmentSites, IEnumerable<CampaignQuest> quests)
+        IEnumerable<CampaignRecruitmentSite> recruitmentSites, IEnumerable<CampaignQuest> quests,
+        IEnumerable<CampaignEncounter> encounters)
     {
         Id = id;
         Name = name;
@@ -63,10 +65,11 @@ public sealed class CampaignDefinition
         Recruitment = Array.AsReadOnly(recruitment.ToArray());
         RecruitmentSites = Array.AsReadOnly(recruitmentSites.ToArray());
         Quests = Array.AsReadOnly(quests.ToArray());
+        Encounters = Array.AsReadOnly(encounters.ToArray());
     }
 
     public Campaign CreateGameState() => new(new Hero(HeroId, HeroName, StartingGold),
         Quests.Select(entry => entry.Quest), RecruitmentSites.Select(site => new Game.Core.Economy.RecruitmentSite(
             site.Id, site.Offers.Select(offer => new Game.Core.Economy.RecruitmentOffer(
-                offer.UnitId, offer.UnitCost, offer.StartingStock)))));
+                offer.UnitId, offer.UnitCost, offer.StartingStock)))), Encounters);
 }
