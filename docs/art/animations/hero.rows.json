@@ -64,11 +64,11 @@
     "sourceScale": 0.22810590631364563
   },
   {
-    "source": "sources/hero.se.source.png",
-    "sourceRow": 1,
+    "source": "sources/hero.walk.se.source.png",
+    "sourceRow": 0,
     "targetRow": 8,
     "sourceColumns": 6,
-    "sourceRows": 2,
-    "sourceScale": 0.1432225063938619
+    "sourceRows": 1,
+    "sourceScale": 0.08296296296296296
   }
 ]

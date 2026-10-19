@@ -15,7 +15,10 @@ static class ComponentExporter
         var anchorMode = options.GetValueOrDefault("--anchor-mode") ?? "body";
         if (anchorMode is not ("body" or "cell")) throw new ArgumentException("--anchor-mode must be body or cell.");
         if (kind is not ("hero" or "unit" or "support")) throw new ArgumentException("Invalid kind.");
-        var columns = kind == "hero" ? 6 : 4; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : 2;
+        var heroTwoFrame = options.ContainsKey("--hero-two-frame");
+        if(heroTwoFrame&&kind!="hero")throw new ArgumentException("--hero-two-frame is only valid with --kind hero.");
+        var sourceColumns = kind == "hero" ? 6 : 4;
+        var columns = heroTwoFrame ? 2 : sourceColumns; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : 2;
         var cutoff = int.Parse(options.GetValueOrDefault("--alpha-cutoff") ?? "128");
         if (cutoff is < 1 or > 255) throw new ArgumentException("Component alpha cutoff must be1–255.");
         var box = (options.GetValueOrDefault("--content-box") ?? "8,8,48,64").Split(',').Select(int.Parse).ToArray();
@@ -23,7 +26,7 @@ static class ComponentExporter
             throw new ArgumentException("Invalid component content box around anchor32.");
         var baseline = int.Parse(options.GetValueOrDefault("--align-bottom") ?? "72");
         if (baseline is < 1 or > 80 || baseline <= box[1]) throw new ArgumentException("Invalid baseline.");
-        var frameMs = int.Parse(options.GetValueOrDefault("--frame-ms") ?? (kind == "hero" ? "110" : "100"));
+        var frameMs = int.Parse(options.GetValueOrDefault("--frame-ms") ?? (heroTwoFrame ? "220" : kind == "hero" ? "110" : "100"));
         var impact = int.Parse(options.GetValueOrDefault("--impact-frame") ?? "4");
         if (frameMs < 1 || impact is < 0 or > 7) throw new ArgumentException("Invalid clip timing.");
         var atlases = new Dictionary<string, Atlas>(StringComparer.OrdinalIgnoreCase);
@@ -34,7 +37,7 @@ static class ComponentExporter
             else if (atlas.Columns != cols || atlas.Rows != rs) throw new ArgumentException("A source path cannot have multiple grid definitions.");
             return atlas;
         }
-        var primary = Load(sourcePath, columns, rows);
+        var primary = Load(sourcePath, sourceColumns, rows);
         var bindings = Enumerable.Range(0, rows).Select(row => new Binding(primary, row)).ToArray();
         var requestedScales = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
         if (options.TryGetValue("--row-map", out var mapPath))
@@ -44,9 +47,9 @@ static class ComponentExporter
             foreach (var entry in map.RootElement.EnumerateArray())
             {
                 var target = entry.GetProperty("targetRow").GetInt32(); var row = entry.GetProperty("sourceRow").GetInt32();
-                var cols = entry.TryGetProperty("sourceColumns", out var c) ? c.GetInt32() : columns;
+                var cols = entry.TryGetProperty("sourceColumns", out var c) ? c.GetInt32() : sourceColumns;
                 var rs = entry.TryGetProperty("sourceRows", out var r) ? r.GetInt32() : rows;
-                if (target < 0 || target >= rows || row < 0 || row >= rs || cols != columns || !mappedRows.Add(target)) throw new ArgumentException("Invalid component row map.");
+                if (target < 0 || target >= rows || row < 0 || row >= rs || cols != sourceColumns || !mappedRows.Add(target)) throw new ArgumentException("Invalid component row map.");
                 var path = Path.GetFullPath(entry.GetProperty("source").GetString()!, Path.GetDirectoryName(Path.GetFullPath(mapPath))!);
                 var atlas = Load(path, cols, rs);
                 if (entry.TryGetProperty("sourceScale", out var requestedScale))
@@ -67,7 +70,8 @@ static class ComponentExporter
         for (var frame = 0; frame < columns * rows; frame++)
         {
             var binding = bindings[frame / columns]; var atlas = binding.Atlas;
-            var group = atlas.Groups[binding.SourceRow * columns + frame % columns]; var main = group.Main;
+            var selectedColumn=heroTwoFrame?(frame/columns==8?0:frame%columns*3):frame%columns;
+            var group = atlas.Groups[binding.SourceRow * sourceColumns + selectedColumn]; var main = group.Main;
             var sampled = new Color[64, 80]; var primaryBottom = 0; var sampledBodyPixels = 0;
             for (var y = 0; y < 80; y++)
             for (var x = 0; x < 64; x++)
@@ -104,7 +108,7 @@ static class ComponentExporter
             registration.Add(new { frame, translationY = dy, originalBottomExclusive = primaryBottom, registeredBottomExclusive = primaryBottom + dy, clippedOpaquePixels = clipped });
             diagnostics.Add(new { frame, empty = false, visibleBounds = new { left, top, right, bottom }, edgePixels = edge });
             frameRecords.Add(new {
-                frame, source = Path.GetRelativePath(Path.GetDirectoryName(outputPath)!, atlas.Path).Replace('\\', '/'), sourceFrame = group.Frame,
+                frame, source = Path.GetRelativePath(Path.GetDirectoryName(outputPath)!, atlas.Path).Replace('\\', '/'), sourceFrame = group.Frame, sourceColumn=selectedColumn, sourceRow=binding.SourceRow,
                 primaryComponent = main.Id, componentIds = group.Ids.Order().ToArray(),
                 sourceCropBounds = new { left = group.Left, top = group.Top, right = group.Right, bottom = group.Bottom },
                 primaryBounds = new { left = main.Left, top = main.Top, right = main.Right, bottom = main.Bottom },
@@ -122,14 +126,14 @@ static class ComponentExporter
             if (!copy.Equals(sourcePath, StringComparison.OrdinalIgnoreCase)) File.Copy(sourcePath, copy, true);
         }
         object Clip(string name, int first, int count, bool loop, int? hit) => new { name, frames = Enumerable.Range(first, count).ToArray(), frameMs, loop, impactFrame = hit };
-        var clips = kind == "hero" ? new[] {"N","NE","E","SE","S","SW","W","NW","IdleSE"}.Select((direction, row) => Clip(row == 8 ? "idle.SE" : "walk." + direction, row * 6, 6, true, null)).ToArray()
+        var clips = kind == "hero" ? new[] {"N","NE","E","SE","S","SW","W","NW","IdleSE"}.Select((direction, row) => Clip(row == 8 ? "idle.SE" : "walk." + direction, row * columns, heroTwoFrame&&row==8?1:columns, !(heroTwoFrame&&row==8), null)).ToArray()
             : kind == "support" ? new[] { Clip("attack", 0, 8, false, impact), Clip(options.GetValueOrDefault("--ability-name") ?? "ability", 8, 8, false, impact) }
             : new[] { Clip("attack", 0, 8, false, impact) };
         var metadata = new {
             schemaVersion = 2, id, image = Path.GetFileName(outputPath), kind, width = output.Width, height = output.Height, columns, rows,
             cell = new { width = 64, height = 80 }, anchor = new { x = 32, y = baseline },
             contentBox = new { x = box[0], y = box[1], width = box[2], height = box[3] }, alphaCutoff = cutoff, alignBottom = baseline, anchorMode,
-            frameOrder = "row-major", clips, frameDiagnostics = diagnostics, registration,
+            frameOrder = "row-major", heroTwoFrame, usedFrameCount=heroTwoFrame?17:columns*rows, unusedSlots=heroTwoFrame?new[]{17}:Array.Empty<int>(), clips, frameDiagnostics = diagnostics, registration,
             sourceBorderDiagnostics = Array.Empty<object>(),
             unpacking = new {
                 enabled = true, connectivity = 8, majorMinAreaFraction = .1, majorMinHeightFraction = .35,
@@ -141,7 +145,7 @@ static class ComponentExporter
                     source = Path.GetRelativePath(Path.GetDirectoryName(outputPath)!, a.Path).Replace('\\', '/'),
                     a.Width, a.Height, a.Columns, a.Rows, expected = a.Columns * a.Rows, primaryComponents = a.Groups.Count,
                     totalComponents = a.Components.Count, detachedComponents = a.Components.Count - a.Groups.Count,
-                    a.Scale, a.FitScale, a.Attachments, sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(a.Path))).ToLowerInvariant()
+                    a.Scale, a.FitScale, a.RowGrounds, a.Attachments, sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(a.Path))).ToLowerInvariant()
                 }).ToArray(), frames = frameRecords
             },
             source = new { image = Path.GetRelativePath(Path.GetDirectoryName(outputPath)!, options.TryGetValue("--source-copy", out var stored) ? Path.GetFullPath(stored) : sourcePath).Replace('\\', '/'), width = primary.Width, height = primary.Height, transparentPixels = primary.Transparent, partialAlphaPixels = primary.Partial, opaquePixels = primary.Opaque }
@@ -179,7 +183,7 @@ static class ComponentExporter
     {
         public string Path; public int Width,Height,Columns,Rows,Stride; public int[] Labels; public byte[] Bytes;
         public List<Part> Components=[]; public Dictionary<int,Group> Groups=[]; public List<object> Attachments=[];
-        public double Scale, FitScale; public long Transparent,Partial,Opaque;
+        public double Scale, FitScale; public int[] RowGrounds=[]; public long Transparent,Partial,Opaque;
         public Color Pixel(int x,int y) { var i=y*Stride+x*4; return Color.FromArgb(Bytes[i+3],Bytes[i+2],Bytes[i+1],Bytes[i]); }
         public Atlas(string path,int columns,int rows,int cutoff,int[] box,int baseline,string anchorMode)
         {
@@ -210,10 +214,10 @@ static class ComponentExporter
                 for(var y=main.Bottom-(int)Math.Ceiling(main.Height*.15);y<main.Bottom;y++)for(var x=main.Left;x<main.Right;x++)if(Labels[y*Width+x]==main.Id){mass++;sum+=x+.5;}
                 Groups.Add(frame,new Group(main,frame,sum/mass));
             }
+            RowGrounds=Enumerable.Range(0,rows).Select(row=>Groups.Values.Where(g=>g.Frame/columns==row).Max(g=>g.Main.Bottom)).ToArray();
             if(anchorMode=="cell")
             {
-                var grounds=Groups.Values.GroupBy(g=>g.Frame/columns).ToDictionary(row=>row.Key,row=>row.Max(g=>g.Main.Bottom));
-                foreach(var group in Groups.Values){group.PivotX=(group.Frame%columns+.5)*cw;group.PivotY=grounds[group.Frame/columns];}
+                foreach(var group in Groups.Values){group.PivotX=(group.Frame%columns+.5)*cw;group.PivotY=RowGrounds[group.Frame/columns];}
             }
             double BoxDistance(Part a,Part b) {var dx=Math.Max(0,Math.Max(a.Left-b.Right,b.Left-a.Right));var dy=Math.Max(0,Math.Max(a.Top-b.Bottom,b.Top-a.Bottom));return Math.Sqrt(dx*dx+dy*dy);}
             var boundaryCache=new Dictionary<int,List<Point>>();
