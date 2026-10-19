@@ -77,10 +77,10 @@ internal sealed class RecruitmentScreen : IGameScreen
                       _previousMouse.LeftButton == ButtonState.Released;
         if (clicked)
         {
-            if (mouse.X is >= 80 and < 770 && mouse.Y is >= 202 and < 462)
+            var quantityDelta = RecruitmentLayout.QuantityDeltaAt(mouse.X, mouse.Y);
+            if (quantityDelta != 0) ChangeQuantity(quantityDelta);
+            else if (mouse.X is >= 80 and < 770 && mouse.Y is >= 202 and < 462)
                 SelectOffer((mouse.Y - 202) / 86);
-            else if (Inside(mouse.X, mouse.Y, 800, 414, 54, 42)) ChangeQuantity(-1);
-            else if (Inside(mouse.X, mouse.Y, 924, 414, 54, 42)) ChangeQuantity(1);
             else if (Inside(mouse.X, mouse.Y, 772, 568, 220, 62)) Buy();
             else if (Inside(mouse.X, mouse.Y, 1004, 568, 196, 62)) _close();
         }
@@ -151,11 +151,14 @@ internal sealed class RecruitmentScreen : IGameScreen
             SoftInk, 1);
         _canvas.Rect(799, 301, 382, 1, new Color(133, 108, 67));
         _font.Draw("КОЛИЧЕСТВО", 800, 324, Ink, 1);
-        DrawButton(800, 348, 54, 38, "-", Parchment);
-        _canvas.Rect(862, 348, 54, 38, new Color(54, 43, 29));
-        _canvas.Frame(862, 348, 54, 38, Bronze, 2);
-        _font.Draw(_quantity.ToString(), 882, 359, Gold, 2);
-        DrawButton(924, 348, 54, 38, "+", Parchment);
+        var minusBounds = RecruitmentLayout.QuantityMinusBounds;
+        DrawButton(minusBounds.X, minusBounds.Y, minusBounds.Width, minusBounds.Height, "-", Parchment);
+        var quantityBounds = RecruitmentLayout.QuantityValueBounds;
+        _canvas.Rect(quantityBounds.X, quantityBounds.Y, quantityBounds.Width, quantityBounds.Height, new Color(54, 43, 29));
+        _canvas.Frame(quantityBounds.X, quantityBounds.Y, quantityBounds.Width, quantityBounds.Height, Bronze, 2);
+        _font.Draw(_quantity.ToString(), quantityBounds.X + 20, quantityBounds.Y + 11, Gold, 2);
+        var plusBounds = RecruitmentLayout.QuantityPlusBounds;
+        DrawButton(plusBounds.X, plusBounds.Y, plusBounds.Width, plusBounds.Height, "+", Parchment);
         var unitCost = _site.Offers[_selectedOffer] is { } selectedOffer
             ? _economy.GetAdjustedUnitCost(_hero, selectedOffer) : null;
         var total = unitCost is null ? 0L : (long)unitCost.Value * _quantity;
