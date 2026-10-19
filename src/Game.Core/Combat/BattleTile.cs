@@ -8,12 +8,15 @@ public sealed class BattleTile
     public HexCoord Coordinate { get; }
     public int Height { get; }
     public bool IsPassable { get; }
+    public bool BlocksLineOfSight { get; }
 
-    public BattleTile(HexCoord coordinate, int height = 0, bool isPassable = true)
+    public BattleTile(HexCoord coordinate, int height = 0, bool isPassable = true,
+        bool blocksLineOfSight = false)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(height);
         Coordinate = coordinate;
         Height = height;
         IsPassable = isPassable;
+        BlocksLineOfSight = blocksLineOfSight;
     }
 }
