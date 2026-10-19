@@ -46,7 +46,7 @@ public static class BattleRules
         for (var step = 1; step < distance; step++)
         {
             var tile = map.GetTile(Interpolate(start, end, (double)step / distance));
-            if (tile is null || tile.BlocksLineOfSight || !tile.IsPassable ||
+            if (tile is null || tile.BlocksLineOfSight ||
                 tile.Height > startHeight + ((double)endHeight - startHeight) * step / distance)
             {
                 return false;

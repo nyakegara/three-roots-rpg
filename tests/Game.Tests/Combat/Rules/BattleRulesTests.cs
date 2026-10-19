@@ -6,6 +6,19 @@ namespace Game.Tests.Combat.Rules;
 
 public sealed class BattleRulesTests
 {
+    [Theory]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    public void CanAttack_ObstacleUsesExplicitSightFlag(bool blocksSight, bool expected)
+    {
+        var attacker = Unit("archer", BattleSide.Player, new HexCoord(0, 0), range: 3);
+        var target = Unit("target", BattleSide.Enemy, new HexCoord(2, 0));
+        var map = new BattleMap([new BattleTile(new(0, 0)),
+            new BattleTile(new(1, 0), isPassable: false, blocksLineOfSight: blocksSight), new BattleTile(new(2, 0))]);
+        Assert.Equal(expected, BattleRules.CanAttack(attacker, target, map));
+        Assert.False(map.GetTile(new HexCoord(1, 0))!.IsPassable);
+    }
+
     [Fact]
     public void GetEffectiveRange_HigherAttacker_AddsTwoCells()
     {
