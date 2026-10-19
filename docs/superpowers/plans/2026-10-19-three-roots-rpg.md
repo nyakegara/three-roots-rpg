@@ -115,13 +115,13 @@
 - [x] Добавить карту обучения; запустить тесты и загрузить файл из каталога `content/maps`.
 - [x] Закоммитить `feat(content): load validated maps from json`.
 
-### Задача 6: квесты, экономика, найм и развитие героя
+### Task 6: квесты, экономика, найм и развитие героя
 
 **Файлы:** `Campaign/Campaign.cs`, `Quest.cs`, `QuestChoice.cs`, `Hero/Hero.cs`, `Skill.cs`, `Artifact.cs`, `Economy/RecruitmentSite.cs`, `Economy/EconomyRules.cs`; тесты `Campaign/`, `Economy/`, `Hero/`.
 
 **Интерфейсы:** `Campaign.ApplyChoice(string questId, string choiceId) -> ChoiceResult`; `EconomyRules.TryRecruit(Hero hero, RecruitmentSite site, string unitTypeId, int count) -> RecruitmentResult`; `Hero.GainExperience(int amount)` и `Hero.LearnSkill(string skillId) -> bool`.
 
-- [ ] Написать тесты на последствия выбора для золота/репутации, скидку или запрет найма по репутации, лимит пяти отрядов, выдачу очка навыка при повышении уровня и бонус артефакта.
+- [ ] Написать тесты на последствия выбора для золота/репутации, изменение цены найма без запрета по репутации, лимит пяти отрядов, выдачу очка навыка при повышении уровня и бонус артефакта.
 - [ ] Запустить тесты и проверить падение на отсутствующей доменной логике.
 - [ ] Реализовать простые классы с явными правилами, без общей базы, строительной экономики и разветвлённого дерева навыков.
 - [ ] Прогнать тесты на нулевое/недостаточное золото, максимальную армию и повторное применение одного выбора.
