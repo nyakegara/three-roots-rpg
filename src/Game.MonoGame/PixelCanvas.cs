@@ -39,8 +39,11 @@ internal sealed class PixelCanvas : IDisposable
             _batch.Draw(_pixel, new Rectangle(x, y, width, height), Tint(color));
     }
 
-    public void Texture(Texture2D texture, Rectangle destination) =>
-        _batch.Draw(texture, destination, Tint(Color.White));
+    public void Texture(Texture2D texture, Rectangle destination, float opacity = 1f)
+    {
+        opacity = float.IsFinite(opacity) ? Math.Clamp(opacity, 0f, 1f) : 0f;
+        _batch.Draw(texture, destination, Tint(Color.White * opacity));
+    }
 
     public void Texture(Texture2D texture, Rectangle source, Rectangle destination) =>
         _batch.Draw(texture, destination, source, Tint(Color.White));

@@ -20,6 +20,8 @@ internal sealed class AssetCatalog : IDisposable
     public const string RootGreenhouse = "poi.flora.root-greenhouse";
     public const string SunnyClearing = "poi.flora.sunny-clearing";
     public const string SporeCircle = "poi.flora.spore-circle";
+    public const string BattlefieldForestDay = "battlefield.forest.day";
+    public const string BattlefieldForestNight = "battlefield.forest.night";
     private readonly Dictionary<string, TextureAsset> _textures = new();
 
     public AssetCatalog(GraphicsDevice device)
@@ -28,7 +30,8 @@ internal sealed class AssetCatalog : IDisposable
                      AncientOak, ForestTree, Treasure, AdventureGround,
                      "unit.flora.sprout", "unit.flora.thorn-guard", "unit.flora.ember-bloom",
                      "unit.flora.pod-slinger", "unit.flora.root-warden",
-                     RootGreenhouse, SunnyClearing, SporeCircle })
+                     RootGreenhouse, SunnyClearing, SporeCircle,
+                     BattlefieldForestDay, BattlefieldForestNight })
         {
             var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", key + ".png");
             if (!File.Exists(path))
@@ -69,12 +72,14 @@ internal sealed class AssetCatalog : IDisposable
         }
     }
 
-    public bool TryDraw(PixelCanvas canvas, string key, Rectangle destination)
+    public bool HasAsset(string key) => _textures.ContainsKey(key);
+
+    public bool TryDraw(PixelCanvas canvas, string key, Rectangle destination, float opacity = 1f)
     {
         if (!_textures.TryGetValue(key, out var asset))
             return false;
 
-        canvas.Texture(asset.Texture, destination);
+        canvas.Texture(asset.Texture, destination, opacity);
         return true;
     }
 

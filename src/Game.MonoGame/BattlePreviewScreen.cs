@@ -158,8 +158,7 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
 
     public void Draw()
     {
-        using (_canvas.PushTint(BattleLighting.AmbientTint(_nightBlend)))
-            BattlefieldBackdrop.Draw(_canvas, _seed, _nightBlend);
+        BattlefieldBackdrop.Draw(_canvas, _assets, _nightBlend);
 
         if (_showGrid)
         {
