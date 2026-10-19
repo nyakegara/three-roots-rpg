@@ -138,8 +138,23 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             if (!assets.TryDraw(canvas, AssetCatalog.AncientOak, rect)) ExplorationArt.DrawAncientOak(canvas, (int)p.X, (int)p.Y + 10);
             DrawQuestMarker((int)p.X + 55, (int)p.Y - 151);
         }
-        else canvas.Rect((int)p.X - 6, (int)p.Y - 40, 12, 16, new Color(226, 195, 117));
+        else if (point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase))
+        {
+            var assetKey = RecruitmentPointArt.GetAssetKey(point.RecruitmentSiteId);
+            if (assetKey is not null)
+            {
+                var bounds = new Rectangle((int)p.X - 48, (int)p.Y - 78, 96, 96);
+                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 14, 72, 14, Ink * 0.78f);
+                if (!assets.TryDrawCropped(canvas, assetKey, bounds))
+                    DrawRecruitmentFallback(p);
+            }
+            else DrawRecruitmentFallback(p);
+        }
+        else DrawRecruitmentFallback(p);
     }
+
+    private void DrawRecruitmentFallback(WorldVector2 p) =>
+        canvas.Rect((int)p.X - 6, (int)p.Y - 40, 12, 16, new Color(226, 195, 117));
 
     private void DrawHero(WorldVector2 p)
     {

@@ -17,6 +17,9 @@ internal sealed class AssetCatalog : IDisposable
     public const string ForestTree = "terrain.forest-tree";
     public const string Treasure = "poi.treasure";
     public const string AdventureGround = "exploration.ground";
+    public const string RootGreenhouse = "poi.flora.root-greenhouse";
+    public const string SunnyClearing = "poi.flora.sunny-clearing";
+    public const string SporeCircle = "poi.flora.spore-circle";
     private readonly Dictionary<string, TextureAsset> _textures = new();
 
     public AssetCatalog(GraphicsDevice device)
@@ -24,7 +27,8 @@ internal sealed class AssetCatalog : IDisposable
         foreach (var key in new[] { FloraHero, HumanGuard, Rock, FloraPortrait,
                      AncientOak, ForestTree, Treasure, AdventureGround,
                      "unit.flora.sprout", "unit.flora.thorn-guard", "unit.flora.ember-bloom",
-                     "unit.flora.pod-slinger", "unit.flora.root-warden" })
+                     "unit.flora.pod-slinger", "unit.flora.root-warden",
+                     RootGreenhouse, SunnyClearing, SporeCircle })
         {
             var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", key + ".png");
             if (!File.Exists(path))
