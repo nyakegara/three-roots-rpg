@@ -25,6 +25,7 @@ dotnet test ThreeRoots.sln
 - `tests/Game.Tests` — автоматические проверки правил.
 - `content` — кампании, карты и изображения.
 - `docs/superpowers` — согласованный дизайн и план реализации курсовой.
+- `docs/github-templates.md` — какие формы появляются при создании задач и Pull Request на GitHub.
 
 ## Git для этого проекта
 

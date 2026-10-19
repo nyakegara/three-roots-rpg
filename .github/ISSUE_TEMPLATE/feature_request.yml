@@ -1,0 +1,32 @@
+name: Предложить игровую функцию
+description: Предложи механику или улучшение курсового проекта.
+title: "[Функция]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Какую задачу игрока решает предложение?
+      description: Опиши, что сейчас неудобно или чего не хватает.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Как это должно работать?
+      description: Приведи пример поведения игры или короткий сценарий.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Как понять, что функция готова?
+      description: Перечисли проверяемые результаты.
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: Идеи, референсы или ограничения
+      description: Укажи игры, изображения или ограничения, если они важны.
+    validations:
+      required: false
