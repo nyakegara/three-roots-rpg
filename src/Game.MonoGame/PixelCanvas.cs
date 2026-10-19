@@ -9,6 +9,7 @@ internal sealed class PixelCanvas : IDisposable
     private readonly Texture2D _pixel;
     private readonly SpriteBatch _batch;
     private readonly GraphicsDevice _device;
+    private Color _tint = Color.White;
 
     public PixelCanvas(GraphicsDevice device, SpriteBatch batch)
     {
@@ -25,17 +26,26 @@ internal sealed class PixelCanvas : IDisposable
         return new ClipScope(_device, previous);
     }
 
+    public IDisposable PushTint(Color tint)
+    {
+        var previous = _tint;
+        _tint = BattleLighting.TintPreservingAlpha(_tint, tint);
+        return new TintScope(this, previous);
+    }
+
     public void Rect(int x, int y, int width, int height, Color color)
     {
         if (width > 0 && height > 0)
-            _batch.Draw(_pixel, new Rectangle(x, y, width, height), color);
+            _batch.Draw(_pixel, new Rectangle(x, y, width, height), Tint(color));
     }
 
     public void Texture(Texture2D texture, Rectangle destination) =>
-        _batch.Draw(texture, destination, Color.White);
+        _batch.Draw(texture, destination, Tint(Color.White));
 
     public void Texture(Texture2D texture, Rectangle source, Rectangle destination) =>
-        _batch.Draw(texture, destination, source, Color.White);
+        _batch.Draw(texture, destination, source, Tint(Color.White));
+
+    private Color Tint(Color color) => BattleLighting.TintPreservingAlpha(color, _tint);
 
     public void Frame(int x, int y, int width, int height, Color color, int thickness = 2)
     {
@@ -104,5 +114,10 @@ internal sealed class PixelCanvas : IDisposable
     private sealed class ClipScope(GraphicsDevice device, Rectangle previous) : IDisposable
     {
         public void Dispose() => device.ScissorRectangle = previous;
+    }
+
+    private sealed class TintScope(PixelCanvas canvas, Color previous) : IDisposable
+    {
+        public void Dispose() => canvas._tint = previous;
     }
 }

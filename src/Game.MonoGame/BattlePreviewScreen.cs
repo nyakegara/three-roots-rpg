@@ -1,4 +1,5 @@
 using Game.Core.Combat;
+using Game.Core.Combat.Generation;
 using Game.Core.Combat.Pathfinding;
 using Game.Core.Geometry;
 using Microsoft.Xna.Framework;
@@ -23,10 +24,16 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
     private readonly AssetCatalog _assets;
     private readonly Action _exit;
     private readonly HexLayout _layout = new();
-    private readonly BattleMap _map;
-    private readonly IReadOnlyList<BattleTile> _drawOrder;
+    private BattleMap _map = null!;
+    private IReadOnlyList<BattleTile> _drawOrder = Array.Empty<BattleTile>();
     private readonly bool _previewDescent;
-    private readonly HashSet<HexCoord> _occupied = [Offset(9, 5)];
+    private readonly HashSet<HexCoord> _occupied = [];
+    private readonly Dictionary<HexCoord, BattlefieldPropKind> _propsByCoordinate = [];
+    private HexCoord _playerStart;
+    private HexCoord _enemyStart;
+    private int _seed;
+    private float _nightBlend;
+    private float _nightTarget;
     private MovementSelection _movement = null!;
     private HexCoord _start => _movement.Position;
     private HexCoord? _destination => _movement.Destination;
@@ -39,36 +46,44 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
     private static readonly int[] SharedEdgeByNeighbor = [1, 0, 5, 4, 3, 2];
 
     public BattlePreviewScreen(PixelCanvas canvas, AssetCatalog assets, Action exit,
-        bool showGrid = true, bool previewDescent = false)
+        bool showGrid = true, bool previewDescent = false, int seed = 1729, bool night = false)
     {
         _canvas = canvas;
         _assets = assets;
         _exit = exit;
         _font = new PixelFont(canvas);
-        _map = CreateDemoMap();
         _previewDescent = previewDescent;
-        _drawOrder = _map.Tiles.OrderBy(t => t.Coordinate.R)
-            .ThenBy(t => t.Coordinate.Q).ToArray();
         _showGrid = showGrid;
+        _seed = seed;
+        _nightBlend = _nightTarget = night ? 1f : 0f;
+        if (_previewDescent)
+            LoadDescentFixture();
+        else
+            GenerateField(seed);
         _hover = showGrid ? (previewDescent ? Offset(2, 5) : Offset(8, 2)) : null;
-        Reset();
+        ResetMovement();
     }
 
     public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
         _mousePosition = mouse.Position;
         _hover = mouse.Y < 600 ? _layout.HitTest(mouse.Position, _drawOrder) : null;
+        _nightBlend = BattleLighting.AdvanceFade(_nightBlend, _nightTarget, elapsedSeconds);
         if (keyboard.IsKeyDown(Keys.R) && !_previousKeyboard.IsKeyDown(Keys.R))
-            Reset();
+            ResetMovement();
         if (keyboard.IsKeyDown(Keys.G) && !_previousKeyboard.IsKeyDown(Keys.G))
             _showGrid = !_showGrid;
+        if (keyboard.IsKeyDown(Keys.N) && !_previousKeyboard.IsKeyDown(Keys.N))
+            _nightTarget = _nightTarget == 0f ? 1f : 0f;
+        if (!_previewDescent && keyboard.IsKeyDown(Keys.F5) && !_previousKeyboard.IsKeyDown(Keys.F5))
+            GenerateField(NextSeed(_seed));
 
         var clicked = mouse.LeftButton == ButtonState.Pressed &&
                       _previousMouse.LeftButton == ButtonState.Released;
         if (clicked && WithinButton(mouse.Position, 1080))
             _showGrid = !_showGrid;
         else if (clicked && WithinButton(mouse.Position, 1150))
-            Reset();
+            ResetMovement();
         else if (clicked && WithinButton(mouse.Position, 1220))
             _exit();
         else if (clicked && _hover is { } coordinate)
@@ -83,11 +98,43 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
     private static bool WithinButton(Point point, int centerX) =>
         (point.X - centerX) * (point.X - centerX) + (point.Y - 657) * (point.Y - 657) <= 24 * 24;
 
-    private void Reset()
+    private void ResetMovement() =>
+        _movement = new MovementSelection(_map, _playerStart, _occupied);
+
+    private void LoadDescentFixture()
     {
-        var start = _previewDescent ? Offset(8, 3) : Offset(2, 5);
-        _movement = new MovementSelection(_map, start, _occupied);
+        _map = CreateDemoMap();
+        _playerStart = Offset(8, 3);
+        _enemyStart = Offset(9, 5);
+        _propsByCoordinate.Clear();
+        _occupied.Clear();
+        _occupied.Add(_enemyStart);
+        SetDrawOrder();
     }
+
+    private void GenerateField(int seed)
+    {
+        var field = new BattlefieldGenerator().Generate(seed);
+        _seed = field.Seed;
+        _map = field.Map;
+        _playerStart = field.PlayerStart;
+        _enemyStart = field.EnemyStart;
+        _propsByCoordinate.Clear();
+        foreach (var prop in field.Props)
+            _propsByCoordinate.Add(prop.Coordinate, prop.Kind);
+        _occupied.Clear();
+        _occupied.Add(_enemyStart);
+        SetDrawOrder();
+        _hover = null;
+        ResetMovement();
+    }
+
+    private void SetDrawOrder() =>
+        _drawOrder = _map.Tiles.OrderBy(tile => tile.Coordinate.R)
+            .ThenBy(tile => tile.Coordinate.Q).ToArray();
+
+    private static int NextSeed(int seed) =>
+        seed == int.MaxValue ? int.MinValue : seed + 1;
 
     private static HexCoord Offset(int column, int row) => new(column - row / 2, row);
 
@@ -111,10 +158,17 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
 
     public void Draw()
     {
-        FantasyArt.DrawLandscape(_canvas);
+        using (_canvas.PushTint(BattleLighting.AmbientTint(_nightBlend)))
+            BattlefieldBackdrop.Draw(_canvas, _seed, _nightBlend);
 
         if (_showGrid)
-            DrawElevation();
+        {
+            using (_canvas.PushTint(BattleLighting.AmbientTint(_nightBlend)))
+                DrawElevationSurface();
+        }
+
+        // Height walls remain visible even when the tactical grid is hidden.
+        DrawElevationEdges();
 
         if (_showGrid)
             foreach (var tile in _drawOrder)
@@ -125,15 +179,27 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
             _canvas.Outline(_layout.Corners(_map.GetTile(hover)!, 3),
                 Translucent(221, 214, 157, 155), 1);
 
-        // Paint rear-to-front so bodies stand naturally among the terrain props.
+        // Terrain props receive the full ambient night tint.
+        using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
         foreach (var tile in _drawOrder)
         {
             var center = _layout.Center(tile);
             var x = (int)center.X;
             var y = (int)center.Y;
-            if (!tile.IsPassable)
+            if (_propsByCoordinate.TryGetValue(tile.Coordinate, out var kind))
+                BattlefieldPropArt.Draw(_canvas, kind, x, y);
+            else if (!tile.IsPassable)
                 DrawRock(x, y);
-            else if (_occupied.Contains(tile.Coordinate))
+        }
+
+        // Moonlit fill keeps combatants readable against the darker field.
+        using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
+        foreach (var tile in _drawOrder)
+        {
+            var center = _layout.Center(tile);
+            var x = (int)center.X;
+            var y = (int)center.Y;
+            if (_occupied.Contains(tile.Coordinate))
                 DrawGuard(x, y);
             else if (tile.Coordinate == _start)
                 DrawHero(x, y);
@@ -168,19 +234,22 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
         Ellipse((int)target.X, (int)target.Y + 3, 5, 2, color);
     }
 
-    private void DrawElevation()
+    private void DrawElevationSurface()
     {
         foreach (var tile in _drawOrder)
         {
             var tint = tile.Height switch
             {
-                0 => Translucent(62, 91, 54, 48),
-                1 => Translucent(162, 143, 74, 50),
-                _ => Translucent(221, 180, 91, 61)
+                0 => Translucent(62, 91, 54, 34),
+                1 => Translucent(176, 143, 68, 78),
+                _ => Translucent(239, 184, 75, 110)
             };
             _canvas.Polygon(_layout.Corners(tile, 4), tint);
         }
+    }
 
+    private void DrawElevationEdges()
+    {
         foreach (var tile in _drawOrder)
         {
             var corners = _layout.Corners(tile);
@@ -199,9 +268,9 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
                 var inward = Vector2.Normalize(_layout.Center(tile) - midpoint);
 
                 // A dark earthen face with a thin grass rim marks only actual level changes.
-                _canvas.Line(first, second, Translucent(45, 52, 33, 225), 3 + difference);
+                _canvas.Line(first, second, Translucent(83, 56, 36, 238), 3 + difference);
                 _canvas.Line(first + inward * 2, second + inward * 2,
-                    Translucent(143, 161, 88, 205), 1);
+                    Translucent(163, 171, 94, 215), 1);
             }
         }
     }
@@ -253,16 +322,13 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
             ? $"КЛЕТКА: ВЫСОТА {hoveredTile.Height}"
             : "ГЕРОЙ";
         _font.Draw(header, 143, 631, Text, 2);
-        var message = _hover is { } h && _occupied.Contains(h) ? "ЭТА КЛЕТКА ЗАНЯТА" :
-            _hover is { } cell && _map.GetTile(cell) is { IsPassable: false } ? "КАМНИ ПРЕГРАЖДАЮТ ПУТЬ" :
-            _destination is null ? "ВЫБЕРИТЕ КЛЕТКУ" :
-            !_path.IsReachable ? "СЮДА НЕ ПРОЙТИ" :
-            _path.Cost == 0 ? "ГЕРОЙ УЖЕ ЗДЕСЬ" : $"ПУТЬ: {CellCount(_path.Cost)}";
+        var message = DescribeCurrentMessage();
         _font.Draw(message, 143, 665, Muted, 2);
         if (_hover is { } hoveredCoordinate && _map.GetTile(hoveredCoordinate) is { } hoveredCell)
             DrawElevationChange(hoveredCell);
 
         _font.Draw("ЛКМ - ПУТЬ / ЕЩЁ РАЗ - ИДТИ", 489, 651, Muted, 2);
+        _font.Draw("F5 - НОВОЕ ПОЛЕ    N - ДЕНЬ / НОЧЬ", 489, 676, Muted, 1);
 
         DrawRoundButton(1080, 0, "СЕТКА", _showGrid);
         DrawRoundButton(1150, 1, "СБРОС", false);
@@ -284,6 +350,39 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
 
         _font.Draw(DescribeRangeChange(change), 143, 697,
             change.LostRangeBonusTargetCount > 0 ? Highlight : Text, 1);
+    }
+
+    private string DescribeHoveredCell(HexCoord coordinate)
+    {
+        if (_propsByCoordinate.TryGetValue(coordinate, out var kind))
+        {
+            return kind switch
+            {
+                BattlefieldPropKind.Rock => "КАМЕНЬ ПРЕГРАЖДАЕТ ПУТЬ",
+                BattlefieldPropKind.FallenLog => "БРЕВНО ПРЕГРАЖДАЕТ ПУТЬ",
+                BattlefieldPropKind.Shrub => "КУСТЫ: МОЖНО ПРОЙТИ",
+                _ => "ВЫБЕРИТЕ КЛЕТКУ"
+            };
+        }
+
+        return _map.GetTile(coordinate) is { IsPassable: false }
+            ? "КАМЕНЬ ПРЕГРАЖДАЕТ ПУТЬ"
+            : "ВЫБЕРИТЕ КЛЕТКУ";
+    }
+
+    private string DescribeCurrentMessage()
+    {
+        if (_hover is { } hovered && _occupied.Contains(hovered))
+            return "ЭТА КЛЕТКА ЗАНЯТА";
+
+        if (_destination is { })
+        {
+            if (!_path.IsReachable)
+                return "СЮДА НЕ ПРОЙТИ";
+            return _path.Cost == 0 ? "ГЕРОЙ УЖЕ ЗДЕСЬ" : $"ПУТЬ: {CellCount(_path.Cost)}";
+        }
+
+        return _hover is { } cell ? DescribeHoveredCell(cell) : "ВЫБЕРИТЕ КЛЕТКУ";
     }
 
     private static string DescribeRangeChange(ElevationChangePreview change)

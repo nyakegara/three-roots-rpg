@@ -14,6 +14,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private readonly bool _previewDescent;
     private readonly bool _previewQuestHover;
     private readonly string? _previewRecruitmentSiteId;
+    private readonly int _battleSeed;
+    private readonly bool _night;
     private SpriteBatch _spriteBatch = null!;
     private PixelCanvas _canvas = null!;
     private AssetCatalog _assets = null!;
@@ -21,13 +23,16 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private RenderTarget2D _frame = null!;
 
     public Game1(string? screenshotPath = null, bool battlePreview = false,
-        bool previewDescent = false, bool previewQuestHover = false, string? previewRecruitmentSiteId = null)
+        bool previewDescent = false, bool previewQuestHover = false, string? previewRecruitmentSiteId = null,
+        int battleSeed = 1729, bool night = false)
     {
         _screenshotPath = screenshotPath;
         _battlePreview = battlePreview;
         _previewDescent = previewDescent;
         _previewQuestHover = previewQuestHover;
         _previewRecruitmentSiteId = previewRecruitmentSiteId;
+        _battleSeed = battleSeed;
+        _night = night;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -47,7 +52,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _assets = new AssetCatalog(GraphicsDevice);
         if (_battlePreview)
         {
-            _screen = new BattlePreviewScreen(_canvas, _assets, Exit, true, _previewDescent);
+            _screen = new BattlePreviewScreen(_canvas, _assets, Exit, true, _previewDescent, _battleSeed, _night);
         }
         else
         {
