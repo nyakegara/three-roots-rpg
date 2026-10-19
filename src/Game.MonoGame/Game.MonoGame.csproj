@@ -17,5 +17,11 @@
     <Content Include="..\..\content\maps\*.json"
              Link="Content\maps\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\campaigns\*.json"
+             Link="Content\campaigns\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\units\*.json"
+             Link="Content\units\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

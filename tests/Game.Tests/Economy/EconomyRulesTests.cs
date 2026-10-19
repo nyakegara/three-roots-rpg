@@ -7,6 +7,19 @@ namespace Game.Tests.Economy;
 
 public sealed class EconomyRulesTests
 {
+    [Theory]
+    [InlineData(2, 80)]
+    [InlineData(-2, 120)]
+    public void GetAdjustedUnitCost_UsesReputationPriceForDisplay(int reputation, int expected)
+    {
+        var hero = new HeroModel("hero", "Hero", startingGold: 500, initialReputation: reputation);
+        var offer = new RecruitmentOffer("flora.guard", 100, 5);
+
+        var price = new EconomyRules().GetAdjustedUnitCost(hero, offer);
+
+        Assert.Equal(expected, price);
+    }
+
     private readonly EconomyRules _rules = new();
 
     [Fact]

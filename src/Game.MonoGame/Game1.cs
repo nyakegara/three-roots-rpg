@@ -13,6 +13,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private readonly bool _battlePreview;
     private readonly bool _previewDescent;
     private readonly bool _previewQuestHover;
+    private readonly bool _previewRecruitment;
     private SpriteBatch _spriteBatch = null!;
     private PixelCanvas _canvas = null!;
     private AssetCatalog _assets = null!;
@@ -20,12 +21,13 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private RenderTarget2D _frame = null!;
 
     public Game1(string? screenshotPath = null, bool battlePreview = false,
-        bool previewDescent = false, bool previewQuestHover = false)
+        bool previewDescent = false, bool previewQuestHover = false, bool previewRecruitment = false)
     {
         _screenshotPath = screenshotPath;
         _battlePreview = battlePreview;
         _previewDescent = previewDescent;
         _previewQuestHover = previewQuestHover;
+        _previewRecruitment = previewRecruitment;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -43,28 +45,41 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
         _assets = new AssetCatalog(GraphicsDevice);
-        _screen = _battlePreview
-            ? new BattlePreviewScreen(_canvas, _assets, Exit, true, _previewDescent)
-            : new ExplorationScreen(_canvas, _assets, LoadTutorialMap(), _previewQuestHover);
+        if (_battlePreview)
+        {
+            _screen = new BattlePreviewScreen(_canvas, _assets, Exit, true, _previewDescent);
+        }
+        else
+        {
+            var (campaign, units) = LoadFloraCampaign();
+            _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
+                _previewQuestHover, _previewRecruitment);
+        }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
             SurfaceFormat.Color, DepthFormat.None);
     }
 
-    private static Game.Core.World.WorldMap LoadTutorialMap()
+    private static (CampaignDefinition Campaign, UnitCatalog Units) LoadFloraCampaign()
     {
-        var path = Path.Combine(AppContext.BaseDirectory, "Content", "maps", "tutorial.json");
-        var result = new MapLoader().Load(path);
-        if (result.Success && result.Map is not null)
-            return result.Map;
+        var root = Path.Combine(AppContext.BaseDirectory, "Content");
+        var unitsPath = Path.Combine(root, "units", "units.json");
+        var unitsResult = UnitCatalog.Load(unitsPath);
+        if (!unitsResult.Success || unitsResult.Catalog is null)
+            throw new InvalidOperationException("Cannot load troop catalog: " + string.Join("; ", unitsResult.Errors));
+
+        var campaignPath = Path.Combine(root, "campaigns", "flora-01.json");
+        var campaignResult = new CampaignLoader(unitsResult.Catalog).Load(campaignPath);
+        if (campaignResult.Success && campaignResult.Definition is not null)
+            return (campaignResult.Definition, unitsResult.Catalog);
 
         throw new InvalidOperationException(
-            "Cannot load the tutorial campaign map: " + string.Join("; ", result.Errors));
+            "Cannot load the flora campaign: " + string.Join("; ", campaignResult.Errors));
     }
 
     protected override void Update(GameTime gameTime)
     {
         var keyboard = Keyboard.GetState();
-        if (keyboard.IsKeyDown(Keys.Escape))
+        if (keyboard.IsKeyDown(Keys.Escape) && _screen is not ExplorationScreen { HasOpenRecruitmentScreen: true })
             Exit();
 
         if (_screenshotPath is null)

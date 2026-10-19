@@ -1,7 +1,10 @@
 using Game.Core.Campaigns;
 using Game.Core.Characters;
+using Game.Core.Combat;
+using Game.Core.Geometry;
 using Game.Core.Economy;
 using Game.Core.Persistence;
+using Game.Core.World;
 using HeroModel = Game.Core.Characters.Hero;
 using Xunit;
 
@@ -9,6 +12,24 @@ namespace Game.Tests.Campaigns;
 
 public sealed class CampaignTests
 {
+    [Fact]
+    public void RecruitmentSite_CanOnlyBeOpenedAfterTwoClickMovementReachesItsPoint()
+    {
+        var start = new HexCoord(0, 0);
+        var destination = new HexCoord(1, 0);
+        var point = new WorldPointOfInterest("greenhouse", "recruitment", "Greenhouse", destination, "greenhouse");
+        var site = new RecruitmentSite("greenhouse", [new RecruitmentOffer("flora.guard", 10, 3)]);
+        var campaign = new Campaign(new HeroModel("hero", "Hero", 100), [], [site]);
+        var movement = new MovementSelection(new BattleMap([
+            new BattleTile(start), new BattleTile(destination)]), start);
+
+        Assert.False(movement.Select(destination));
+        Assert.False(campaign.TryGetRecruitmentSiteAt(point, movement.Position, out _));
+        Assert.True(movement.Select(destination));
+        Assert.True(campaign.TryGetRecruitmentSiteAt(point, movement.Position, out var openedSite));
+        Assert.Same(site, openedSite);
+    }
+
     [Fact]
     public void RecruitmentStockSnapshot_IncludesEveryOfferIncludingDepletedOnes()
     {

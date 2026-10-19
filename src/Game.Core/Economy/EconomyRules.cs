@@ -7,6 +7,15 @@ public sealed class EconomyRules
 {
     private const int ReputationPriceChangePercent = 10;
 
+    public int? GetAdjustedUnitCost(Hero hero, RecruitmentOffer offer)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(offer);
+        var pricePercent = 100 - hero.Reputation * ReputationPriceChangePercent;
+        var calculatedUnitCost = Math.Max(1L, ((long)offer.BaseUnitCost * pricePercent + 99) / 100);
+        return calculatedUnitCost > int.MaxValue ? null : (int)calculatedUnitCost;
+    }
+
     public RecruitmentResult TryRecruit(Hero hero, RecruitmentSite site, string unitTypeId, int count)
     {
         ArgumentNullException.ThrowIfNull(hero);
@@ -22,14 +31,13 @@ public sealed class EconomyRules
             return new RecruitmentResult(false, $"Unit type '{unitTypeId}' is not available at '{site.Id}'.");
         }
 
-        var pricePercent = 100 - hero.Reputation * ReputationPriceChangePercent;
-        var calculatedUnitCost = Math.Max(1L, ((long)offer.BaseUnitCost * pricePercent + 99) / 100);
-        if (calculatedUnitCost > int.MaxValue)
+        var unitCostValue = GetAdjustedUnitCost(hero, offer);
+        if (unitCostValue is null)
         {
             return new RecruitmentResult(false, "The adjusted unit price is too large.");
         }
 
-        var unitCost = (int)calculatedUnitCost;
+        var unitCost = unitCostValue.Value;
         var totalCost = (long)unitCost * count;
         if (totalCost > int.MaxValue || !hero.Army.CanAdd(unitTypeId, count))
         {

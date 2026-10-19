@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using Game.Core.Characters;
+using Game.Core.Geometry;
 using Game.Core.Economy;
 using Game.Core.Persistence;
+using Game.Core.World;
 
 namespace Game.Core.Campaigns;
 
@@ -21,6 +23,19 @@ public sealed class Campaign
     public IReadOnlyDictionary<string, string> SelectedChoiceIds =>
         new Dictionary<string, string>(_selectedChoiceIds, StringComparer.Ordinal);
     public IReadOnlyList<RecruitmentSite> RecruitmentSites => _recruitmentSiteView;
+
+    public bool TryGetRecruitmentSiteAt(WorldPointOfInterest point, HexCoord heroPosition,
+        out RecruitmentSite? site)
+    {
+        ArgumentNullException.ThrowIfNull(point);
+        site = null;
+        if (!point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase) ||
+            point.Coordinate != heroPosition || string.IsNullOrWhiteSpace(point.RecruitmentSiteId))
+            return false;
+
+        site = _recruitmentSites.GetValueOrDefault(point.RecruitmentSiteId);
+        return site is not null;
+    }
 
     public Campaign(Hero hero, IEnumerable<Quest> quests, IEnumerable<RecruitmentSite>? recruitmentSites = null)
     {
