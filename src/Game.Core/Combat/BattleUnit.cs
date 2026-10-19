@@ -25,6 +25,7 @@ public sealed class BattleUnit
     public bool IsRanged { get; }
     public bool IsHero { get; }
     public UnitAbility Ability { get; }
+    public AttackMode AttackMode { get; private set; } = AttackMode.Hammer;
     public bool IsAlive => _remainingHitPoints > 0;
 
     public BattleUnit(string id, BattleSide side, HexCoord position, int count,
@@ -61,6 +62,8 @@ public sealed class BattleUnit
     }
 
     internal long TotalDamage => (long)Count * DamagePerCreature;
+
+    internal void SetAttackMode(AttackMode mode) => AttackMode = mode;
 
     internal void MoveTo(BattleTile tile)
     {

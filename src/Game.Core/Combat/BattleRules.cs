@@ -8,7 +8,10 @@ public static class BattleRules
     {
         ArgumentNullException.ThrowIfNull(attacker);
         ArgumentNullException.ThrowIfNull(target);
-        return attacker.Range + (attacker.Height > target.Height ? 2 : 0);
+        var baseRange = attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire
+            ? 4 : attacker.Range;
+        return baseRange + (attacker.Height > target.Height && (attacker.IsRanged ||
+            attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire) ? 2 : 0);
     }
 
     public static bool CanAttack(BattleUnit attacker, BattleUnit target, BattleMap map)
@@ -25,7 +28,8 @@ public static class BattleRules
         }
 
         var distance = attacker.Position.DistanceTo(target.Position);
-        if (!attacker.IsRanged)
+        if (!attacker.IsRanged && !(attacker.Ability == UnitAbility.RadiantModes &&
+                                     attacker.AttackMode == AttackMode.HolyFire))
         {
             return distance == 1;
         }

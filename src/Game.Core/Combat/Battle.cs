@@ -161,13 +161,28 @@ public sealed class Battle
             return false;
         }
 
-        target.ApplyDamage(attacker.TotalDamage);
+        // The hunter is trained to close on bowmen and other ranged formations.
+        var rangedTarget = target.IsRanged || target.Ability == UnitAbility.RadiantModes &&
+            target.AttackMode == AttackMode.HolyFire;
+        var damage = attacker.Ability == UnitAbility.Hunter && rangedTarget
+            ? checked(attacker.TotalDamage * 3 / 2) : attacker.TotalDamage;
+        target.ApplyDamage(damage);
         if (attacker.Ability == UnitAbility.ConvertOnHit && target.IsAlive && _random.Next(8) == 0)
         {
             target.ConvertTo(attacker.Side);
         }
 
         _hasAttacked[unitId] = true;
+        return true;
+    }
+
+    public bool TrySetAttackMode(string unitId, AttackMode mode)
+    {
+        if (IsFinished || !Enum.IsDefined(mode)) return false;
+        var unit = GetActiveUnit(unitId);
+        if (unit is null || unit.Ability != UnitAbility.RadiantModes ||
+            _hasAttacked.GetValueOrDefault(unitId) || unit.AttackMode == mode) return false;
+        unit.SetAttackMode(mode);
         return true;
     }
 

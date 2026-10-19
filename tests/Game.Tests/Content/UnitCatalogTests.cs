@@ -19,7 +19,10 @@ public sealed class UnitCatalogTests : IDisposable
         var units = Assert.IsType<UnitCatalog>(result.Catalog).Units;
         Assert.Equal(UnitAbility.HealAlly, units.Single(unit => unit.Id == "flora.sprout").Ability);
         Assert.Equal(UnitAbility.ConvertOnHit, units.Single(unit => unit.Id == "flora.root-warden").Ability);
-        Assert.All(units.Where(unit => unit.Id is not "flora.sprout" and not "flora.root-warden"),
+        Assert.Equal(UnitAbility.Hunter, units.Single(unit => unit.Id == "human.order-hunter").Ability);
+        Assert.Equal(UnitAbility.RadiantModes, units.Single(unit => unit.Id == "human.inquisitor").Ability);
+        Assert.All(units.Where(unit => unit.Id is not "flora.sprout" and not "flora.root-warden" and
+            not "human.order-hunter" and not "human.inquisitor"),
             unit => Assert.Equal(UnitAbility.None, unit.Ability));
     }
 
@@ -32,10 +35,11 @@ public sealed class UnitCatalogTests : IDisposable
 
         Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
         var units = Assert.IsType<UnitCatalog>(result.Catalog).Units;
-        Assert.Equal(15, units.Count);
+        Assert.Equal(17, units.Count);
         Assert.Equal(new[]
         {
-            "human.banner-knight", "human.field-medic", "human.longbow", "human.militia", "human.spearman",
+            "human.banner-knight", "human.field-medic", "human.inquisitor", "human.longbow", "human.militia",
+            "human.order-hunter", "human.spearman",
             "undead.ash-vessel", "undead.grave-gardener", "undead.hourless", "undead.porcelain-choir", "undead.refrain"
         }, units.Where(unit => unit.FactionId != "flora").Select(unit => unit.Id).Order(StringComparer.Ordinal));
 

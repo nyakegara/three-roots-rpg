@@ -48,6 +48,9 @@ public sealed class BattleInteraction
         return true;
     }
 
+    public bool TrySetAttackMode(AttackMode mode) => IsPlayerTurn &&
+        Battle.TrySetAttackMode(Battle.ActiveUnit!.Id, mode);
+
     public bool TryHeal(string targetId)
     {
         if (!IsPlayerTurn || !Battle.TryHeal(Battle.ActiveUnit!.Id, targetId))
@@ -74,6 +77,7 @@ public sealed class BattleInteraction
         {
             BattleActionType.Move when action.Destination is { } destination => Battle.Move(unit.Id, destination),
             BattleActionType.Attack when action.TargetId is { } target => Battle.Attack(unit.Id, target),
+            BattleActionType.SetAttackMode when action.Mode is { } mode => Battle.TrySetAttackMode(unit.Id, mode),
             _ => false
         };
         if (!applied)

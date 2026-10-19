@@ -5,5 +5,7 @@ public enum UnitAbility
 {
     None,
     HealAlly,
-    ConvertOnHit
+    ConvertOnHit,
+    Hunter,
+    RadiantModes
 }

@@ -20,6 +20,14 @@ public sealed class BattleAi
 
         if (!battle.HasAttacked(unitId))
         {
+            if (unit.Ability == UnitAbility.RadiantModes)
+            {
+                // Keep the hammer against adjacent enemies; use fire when a clear shot is available.
+                var desired = battle.GetEnemies(unit.Side).Any(enemy =>
+                    unit.Position.DistanceTo(enemy.Position) == 1) ? AttackMode.Hammer : AttackMode.HolyFire;
+                if (desired != unit.AttackMode)
+                    return BattleAction.SetMode(desired);
+            }
             var target = battle.GetEnemies(unit.Side)
                 .Where(enemy => BattleRules.CanAttack(unit, enemy, battle.Map))
                 .OrderBy(enemy => enemy.Count)
