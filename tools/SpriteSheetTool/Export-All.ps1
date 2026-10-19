@@ -6,15 +6,15 @@ $documentation = Join-Path $repository 'docs/art/animations'
 $sourceDirectory = Join-Path $documentation 'sources'
 $outputDirectory = Join-Path $repository 'content/art/animations'
 $previewDirectory = Join-Path $documentation 'previews'
-$requiredSources = @('hero.base.source.png','hero.rotation4.source.png','hero.se.source.png','hero.walk.north.source.png','hero.walk.se.source.png','hero.walk.south.source.png','thorn-guard.source.png','sprout.source.png','sprout.heal.source.png','ember-bloom.source.png','pod-slinger.source.png','root-warden.source.png')
+$requiredSources = @('hero.base.source.png','hero.rotation4.source.png','hero.se.source.png','hero.walk.north.source.png','hero.walk.se.source.png','hero.walk.south.source.png','hero.idle.source.png','thorn-guard.source.png','sprout.source.png','sprout.heal.source.png','ember-bloom.source.png','pod-slinger.source.png','root-warden.source.png')
 foreach ($name in $requiredSources) {
  if (!(Test-Path -LiteralPath (Join-Path $sourceDirectory $name))) { throw "Missing selected source: $name" }
 }
-if (@(Get-ChildItem -LiteralPath $sourceDirectory -Filter '*.png' -File).Count -ne 12) { throw 'Source archive must contain exactly twelve selected/historical PNGs.' }
+if (@(Get-ChildItem -LiteralPath $sourceDirectory -Filter '*.png' -File).Count -ne 13) { throw 'Source archive must contain exactly thirteen selected/historical PNGs.' }
 $sourcesBefore = @{}
 foreach ($name in $requiredSources) { $sourcesBefore[$name] = (Get-FileHash -LiteralPath (Join-Path $sourceDirectory $name) -Algorithm SHA256).Hash }
 $specifications = @(
- @{Name='hero.flora.walk';Source='hero.base.source.png';Kind='hero';Box='0,8,64,64';RowMap='hero.rows.json';Ability='ability';AnchorMode='cell';HeroTwoFrame=$true},
+ @{Name='hero.flora.walk';Source='hero.base.source.png';Kind='hero';Box='0,8,64,64';RowMap='hero.rows.json';Ability='ability';AnchorMode='cell';HeroCompactWalk=$true},
  @{Name='unit.flora.thorn-guard.actions';Source='thorn-guard.source.png';Kind='unit';Box='8,16,48,56';Ability='ability'},
  @{Name='unit.flora.sprout.actions';Source='sprout.source.png';Kind='support';Box='8,8,48,64';RowMap='sprout.rows.json';Ability='heal'},
  @{Name='unit.flora.ember-bloom.actions';Source='ember-bloom.source.png';Kind='unit';Box='8,8,48,64';Ability='ability'},
@@ -22,8 +22,8 @@ $specifications = @(
  @{Name='unit.flora.root-warden.actions';Source='root-warden.source.png';Kind='support';Box='8,8,48,64';Ability='conversion-hit'}
 )
 $heroMap=Get-Content -LiteralPath (Join-Path $documentation 'hero.rows.json') -Raw|ConvertFrom-Json
-$se=@($heroMap|Where-Object {$_.targetRow -eq 3});$idle=@($heroMap|Where-Object {$_.targetRow -eq 8})
-if($se.Count -ne 1 -or $idle.Count -ne 1 -or $se[0].source -ne $idle[0].source -or $se[0].sourceRow -ne 0 -or $idle[0].sourceRow -ne 0 -or $se[0].sourceScale -ne $idle[0].sourceScale){throw 'Install the approved two-frame hero row map: idle row8 must reuse SE walk source row0 and the same sourceScale.'}
+$idle=@($heroMap|Where-Object {$_.targetRow -eq 8})
+if($idle.Count -ne 1 -or $idle[0].sourceColumns -ne 1 -or $idle[0].sourceRows -ne 1 -or $idle[0].sourceRow -ne 0 -or [IO.Path]::GetFileName($idle[0].source) -ne 'hero.idle.source.png'){throw 'Install the approved compact hero row map: idle row8 must use the neutral hero.idle.source.png1x1source.'}
 $unitHashesBefore=@{}
 if($HeroOnly){foreach($specification in $specifications|Where-Object {$_.Kind -ne 'hero'}){foreach($extension in @('.png','.json')){$path=Join-Path $outputDirectory ($specification.Name+$extension);$unitHashesBefore[$path]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash};$path=Join-Path $previewDirectory ($specification.Name+'.contact.png');$unitHashesBefore[$path]=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash}}
 dotnet build (Join-Path $PSScriptRoot 'SpriteSheetTool.csproj') --nologo
@@ -33,7 +33,7 @@ foreach ($specification in $specifications) {
  if($HeroOnly -and $specification.Kind -ne 'hero'){continue}
  $arguments = @('--components','--source',(Join-Path $sourceDirectory $specification.Source),'--output',(Join-Path $outputDirectory ($specification.Name+'.png')),'--kind',$specification.Kind,'--id',$specification.Name,'--content-box',$specification.Box,'--alpha-cutoff','128','--align-bottom','72','--ability-name',$specification.Ability)
  if($specification.AnchorMode){$arguments+=@('--anchor-mode',$specification.AnchorMode)}
- if($specification.HeroTwoFrame){$arguments+='--hero-two-frame'}
+ if($specification.HeroCompactWalk){$arguments+='--hero-compact-walk'}
  $arguments+=@('--contact-strip',(Join-Path $previewDirectory ($specification.Name+'.contact.png')))
  if ($specification.RowMap) { $arguments += @('--row-map',(Join-Path $documentation $specification.RowMap)) }
  & dotnet $tool @arguments
@@ -61,10 +61,10 @@ try {
   if($mode -ne $expectedMode){throw "Wrong anchor mode: $($specification.Name)"}
   if (!$metadata.unpacking.enabled -or $metadata.cell.width -ne 64 -or $metadata.cell.height -ne 80 -or $metadata.anchor.x -ne 32 -or $metadata.anchor.y -ne 72) { throw 'Wrong unpacking/frame contract.' }
   if($specification.Kind -eq 'hero'){
-   if(!$metadata.heroTwoFrame -or $metadata.columns -ne 2 -or $metadata.rows -ne 9 -or $metadata.width -ne 128 -or $metadata.height -ne 720 -or $metadata.unpacking.frames.Count -ne 18 -or $metadata.usedFrameCount -ne 17 -or $metadata.clips.Count -ne 9){throw 'Wrong two-frame hero contract.'}
-   $used=@();for($row=0;$row -lt 8;$row++){$clip=$metadata.clips[$row];if($clip.frames.Count -ne 2 -or $clip.frames[0] -ne $row*2 -or $clip.frames[1] -ne $row*2+1 -or $clip.frameMs -ne 220 -or !$clip.loop){throw 'Wrong two-frame walk clip.'};$used+=$clip.frames}
-   $idleClip=$metadata.clips[8];if($idleClip.frames.Count -ne 1 -or $idleClip.frames[0] -ne 16 -or $idleClip.loop){throw 'Idle must use only frame16 without looping.'};$used+=$idleClip.frames
-   if(@($used|Select-Object -Unique).Count -ne 17 -or $used -contains 17){throw 'Wrong used hero slots.'}
+   if(!$metadata.heroCompactWalk -or $metadata.columns -ne 4 -or $metadata.rows -ne 9 -or $metadata.width -ne 256 -or $metadata.height -ne 720 -or $metadata.unpacking.frames.Count -ne 36 -or $metadata.usedFrameCount -ne 29 -or $metadata.clips.Count -ne 9){throw 'Wrong compact hero contract.'}
+   $used=@();for($row=0;$row -lt 8;$row++){$clip=$metadata.clips[$row];$count=if($row -in @(0,4)){2}else{4};$ms=if($count -eq 2){220}else{110};if($clip.frames.Count -ne $count -or $clip.frameMs -ne $ms -or !$clip.loop){throw 'Wrong compact walk clip.'};for($index=0;$index -lt $count;$index++){if($clip.frames[$index] -ne $row*4+$index){throw 'Wrong compact clip index.'}};$used+=$clip.frames}
+   $idleClip=$metadata.clips[8];if($idleClip.frames.Count -ne 1 -or $idleClip.frames[0] -ne 32 -or $idleClip.loop){throw 'Idle must use only frame32 without looping.'};$used+=$idleClip.frames
+   if(@($used|Select-Object -Unique).Count -ne 29){throw 'Wrong used hero slots.'}
   }
   $null=Resolve-RepositoryPath $outputDirectory $metadata.source.image
   $sourceInfo=@{};$rowGrounds=@{};$rowOffsets=@{}
@@ -88,9 +88,9 @@ try {
     $registrationY=[double]$metadata.registration[$frame.frame].translationY
     $pivotY=if($null -ne $frame.pivotY){[double]$frame.pivotY}else{[double]$frame.primaryBottom}
     if($specification.Kind -eq 'hero'){
-     $destinationRow=[int][Math]::Floor($frame.frame/2);$expectedColumn=if($destinationRow -eq 8 -or $frame.frame%2 -eq 0){0}else{3};$info=$sourceInfo[$frame.source]
+     $destinationRow=[int][Math]::Floor($frame.frame/4);$destinationColumn=$frame.frame%4;$expectedColumn=if($destinationRow -eq 8){0}elseif($destinationRow -in @(0,4)){@(0,3,0,3)[$destinationColumn]}else{@(0,1,3,4)[$destinationColumn]};$info=$sourceInfo[$frame.source]
      if($frame.sourceColumn -ne $expectedColumn -or $frame.sourceFrame%$info.Columns -ne $expectedColumn){throw 'Hero sampled the wrong source column.'}
-     if($destinationRow -eq 8){$seFrame=$metadata.unpacking.frames[6];if($frame.source -ne $seFrame.source -or $frame.sourceFrame -ne $seFrame.sourceFrame -or $frame.scale -ne $seFrame.scale){throw 'Idle provenance differs from SE walk column0.'}}
+     if($destinationRow -eq 8){if($info.Columns -ne 1 -or $info.Rows -ne 1 -or $frame.sourceFrame -ne 0 -or [IO.Path]::GetFileName($frame.source) -ne 'hero.idle.source.png'){throw 'Idle provenance is not the neutral1x1source.'}}elseif($info.Columns -ne 6){throw 'Walk source grid is not six columns.'}
     }
     if($mode -eq 'cell'){
      $info=$sourceInfo[$frame.source];$cw=[double]$info.Width/$info.Columns;$column=$frame.sourceFrame%$info.Columns;$key=$frame.source+'#'+[Math]::Floor($frame.sourceFrame/$info.Columns)
@@ -111,11 +111,11 @@ try {
     if($mode -eq 'body' -and $bottom -ne 72){throw "Wrong visible body baseline: $($specification.Name), frame$($frame.frame)"}
     if($bottom -lt 1 -or $bottom -gt 72 -or $bottom -ne $metadata.registration[$frame.frame].registeredBottomExclusive){throw "Wrong registered bottom: $($specification.Name), frame$($frame.frame)"}
    }
-   if($specification.Kind -eq 'hero'){for($y=0;$y -lt 80;$y++){for($x=0;$x -lt 64;$x++){$idlePixel=$image.GetPixel($x,640+$y).ToArgb();if($idlePixel -ne $image.GetPixel(64+$x,640+$y).ToArgb() -or $idlePixel -ne $image.GetPixel($x,240+$y).ToArgb()){throw 'Idle is not a static duplicate of SE column0.'}}}}
+   if($specification.Kind -eq 'hero'){for($y=0;$y -lt 80;$y++){for($x=0;$x -lt 64;$x++){$idlePixel=$image.GetPixel($x,640+$y).ToArgb();foreach($column in 1..3){if($idlePixel -ne $image.GetPixel($column*64+$x,640+$y).ToArgb()){throw 'Neutral idle slots differ.'}};foreach($row in @(0,4)){foreach($column in 0..1){if($image.GetPixel($column*64+$x,$row*80+$y).ToArgb() -ne $image.GetPixel(($column+2)*64+$x,$row*80+$y).ToArgb()){throw 'Unused N/S slots are not duplicates.'}}}}}}
   }finally{$image.Dispose()}
  }
 }finally{foreach($image in $sourceImages.Values){$image.Dispose()}}
 foreach($name in $requiredSources){if((Get-FileHash -LiteralPath (Join-Path $sourceDirectory $name) -Algorithm SHA256).Hash -ne $sourcesBefore[$name]){throw "Source archive was modified: $name"}}
 foreach($path in $unitHashesBefore.Keys){if((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $unitHashesBefore[$path]){throw "HeroOnly modified a unit file: $path"}}
-if($frames -ne 74){throw "Expected74 total slots, found$frames"}
-"PASS: 6 portable atlases verified; 12 unchanged archived sources; $frames total slots (hero18/17used); $opaquePixels native opaque RGB samples; binary alpha; body/cell ground contract; constant source scales; no clipping; HeroOnly=$HeroOnly; unit hashes preserved=$($unitHashesBefore.Count)."
+if($frames -ne 92){throw "Expected92 total slots, found$frames"}
+"PASS: 6 portable atlases verified; 13 unchanged archived sources; $frames total slots (hero36/29used); $opaquePixels native opaque RGB samples; binary alpha; body/cell ground contract; constant source scales; no clipping; HeroOnly=$HeroOnly; unit hashes preserved=$($unitHashesBefore.Count)."

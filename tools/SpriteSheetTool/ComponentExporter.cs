@@ -16,9 +16,12 @@ static class ComponentExporter
         if (anchorMode is not ("body" or "cell")) throw new ArgumentException("--anchor-mode must be body or cell.");
         if (kind is not ("hero" or "unit" or "support")) throw new ArgumentException("Invalid kind.");
         var heroTwoFrame = options.ContainsKey("--hero-two-frame");
+        var heroCompactWalk=options.ContainsKey("--hero-compact-walk");
         if(heroTwoFrame&&kind!="hero")throw new ArgumentException("--hero-two-frame is only valid with --kind hero.");
+        if(heroCompactWalk&&kind!="hero")throw new ArgumentException("--hero-compact-walk is only valid with --kind hero.");
+        if(heroCompactWalk&&heroTwoFrame)throw new ArgumentException("Select either --hero-compact-walk or --hero-two-frame.");
         var sourceColumns = kind == "hero" ? 6 : 4;
-        var columns = heroTwoFrame ? 2 : sourceColumns; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : 2;
+        var columns = heroCompactWalk?4:heroTwoFrame ? 2 : sourceColumns; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : 2;
         var cutoff = int.Parse(options.GetValueOrDefault("--alpha-cutoff") ?? "128");
         if (cutoff is < 1 or > 255) throw new ArgumentException("Component alpha cutoff must be1–255.");
         var box = (options.GetValueOrDefault("--content-box") ?? "8,8,48,64").Split(',').Select(int.Parse).ToArray();
@@ -49,7 +52,8 @@ static class ComponentExporter
                 var target = entry.GetProperty("targetRow").GetInt32(); var row = entry.GetProperty("sourceRow").GetInt32();
                 var cols = entry.TryGetProperty("sourceColumns", out var c) ? c.GetInt32() : sourceColumns;
                 var rs = entry.TryGetProperty("sourceRows", out var r) ? r.GetInt32() : rows;
-                if (target < 0 || target >= rows || row < 0 || row >= rs || cols != sourceColumns || !mappedRows.Add(target)) throw new ArgumentException("Invalid component row map.");
+                var compactIdleSource=heroCompactWalk&&target==8&&cols==1&&rs==1&&row==0;
+                if (target < 0 || target >= rows || row < 0 || row >= rs || (cols != sourceColumns&&!compactIdleSource) || !mappedRows.Add(target)) throw new ArgumentException("Invalid component row map.");
                 var path = Path.GetFullPath(entry.GetProperty("source").GetString()!, Path.GetDirectoryName(Path.GetFullPath(mapPath))!);
                 var atlas = Load(path, cols, rs);
                 if (entry.TryGetProperty("sourceScale", out var requestedScale))
@@ -64,14 +68,16 @@ static class ComponentExporter
                 bindings[target] = new Binding(atlas, row);
             }
         }
+        if(heroCompactWalk&&(bindings[8].Atlas.Columns!=1||bindings[8].Atlas.Rows!=1||bindings[8].SourceRow!=0))throw new ArgumentException("Compact idle row8 requires a dedicated1x1neutral source.");
         using var output = new Bitmap(columns * 64, rows * 80, PixelFormat.Format32bppArgb);
         var frameRecords = new List<object>(); var registration = new List<object>(); var diagnostics = new List<object>();
         var stripLabels = new List<string>();
         for (var frame = 0; frame < columns * rows; frame++)
         {
             var binding = bindings[frame / columns]; var atlas = binding.Atlas;
-            var selectedColumn=heroTwoFrame?(frame/columns==8?0:frame%columns*3):frame%columns;
-            var group = atlas.Groups[binding.SourceRow * sourceColumns + selectedColumn]; var main = group.Main;
+            var destinationRow=frame/columns;var destinationColumn=frame%columns;
+            var selectedColumn=heroCompactWalk?(destinationRow==8?0:destinationRow is 0 or 4?(destinationColumn%2)*3:new[]{0,1,3,4}[destinationColumn]):heroTwoFrame?(destinationRow==8?0:destinationColumn*3):destinationColumn;
+            var group = atlas.Groups[binding.SourceRow * atlas.Columns + selectedColumn]; var main = group.Main;
             var sampled = new Color[64, 80]; var primaryBottom = 0; var sampledBodyPixels = 0;
             for (var y = 0; y < 80; y++)
             for (var x = 0; x < 64; x++)
@@ -125,15 +131,15 @@ static class ComponentExporter
             copy = Path.GetFullPath(copy); Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
             if (!copy.Equals(sourcePath, StringComparison.OrdinalIgnoreCase)) File.Copy(sourcePath, copy, true);
         }
-        object Clip(string name, int first, int count, bool loop, int? hit) => new { name, frames = Enumerable.Range(first, count).ToArray(), frameMs, loop, impactFrame = hit };
-        var clips = kind == "hero" ? new[] {"N","NE","E","SE","S","SW","W","NW","IdleSE"}.Select((direction, row) => Clip(row == 8 ? "idle.SE" : "walk." + direction, row * columns, heroTwoFrame&&row==8?1:columns, !(heroTwoFrame&&row==8), null)).ToArray()
+        object Clip(string name, int first, int count, bool loop, int? hit, int? duration=null) => new { name, frames = Enumerable.Range(first, count).ToArray(), frameMs=duration??frameMs, loop, impactFrame = hit };
+        var clips = kind == "hero" ? new[] {"N","NE","E","SE","S","SW","W","NW","IdleSE"}.Select((direction, row) => Clip(row == 8 ? "idle.SE" : "walk." + direction, row * columns, heroCompactWalk?(row==8?1:row is 0 or 4?2:4):heroTwoFrame&&row==8?1:columns, !((heroCompactWalk||heroTwoFrame)&&row==8), null,heroCompactWalk&&row is 0 or 4?frameMs*2:frameMs)).ToArray()
             : kind == "support" ? new[] { Clip("attack", 0, 8, false, impact), Clip(options.GetValueOrDefault("--ability-name") ?? "ability", 8, 8, false, impact) }
             : new[] { Clip("attack", 0, 8, false, impact) };
         var metadata = new {
             schemaVersion = 2, id, image = Path.GetFileName(outputPath), kind, width = output.Width, height = output.Height, columns, rows,
             cell = new { width = 64, height = 80 }, anchor = new { x = 32, y = baseline },
             contentBox = new { x = box[0], y = box[1], width = box[2], height = box[3] }, alphaCutoff = cutoff, alignBottom = baseline, anchorMode,
-            frameOrder = "row-major", heroTwoFrame, usedFrameCount=heroTwoFrame?17:columns*rows, unusedSlots=heroTwoFrame?new[]{17}:Array.Empty<int>(), clips, frameDiagnostics = diagnostics, registration,
+            frameOrder = "row-major", heroTwoFrame, heroCompactWalk, usedFrameCount=heroCompactWalk?29:heroTwoFrame?17:columns*rows, unusedSlots=heroCompactWalk?new[]{2,3,18,19,33,34,35}:heroTwoFrame?new[]{17}:Array.Empty<int>(), clips, frameDiagnostics = diagnostics, registration,
             sourceBorderDiagnostics = Array.Empty<object>(),
             unpacking = new {
                 enabled = true, connectivity = 8, majorMinAreaFraction = .1, majorMinHeightFraction = .35,

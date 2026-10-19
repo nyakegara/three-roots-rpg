@@ -8,12 +8,13 @@ try
     var options = new Dictionary<string, string>(StringComparer.Ordinal);
     for (var i = 0; i < args.Length; i++)
     {
-        if (args[i] is "--allow-opaque" or "--components" or "--hero-two-frame") { options[args[i]] = "true"; continue; }
+        if (args[i] is "--allow-opaque" or "--components" or "--hero-two-frame" or "--hero-compact-walk") { options[args[i]] = "true"; continue; }
         if (!args[i].StartsWith("--") || i + 1 >= args.Length) throw new ArgumentException("Use --name value pairs.");
         options.Add(args[i], args[++i]);
     }
     PathSafety.Validate(options);
     if(options.ContainsKey("--hero-two-frame")&&!options.ContainsKey("--components"))throw new ArgumentException("--hero-two-frame requires --components and --kind hero.");
+    if(options.ContainsKey("--hero-compact-walk")&&!options.ContainsKey("--components"))throw new ArgumentException("--hero-compact-walk requires --components and --kind hero.");
     if (options.ContainsKey("--components")) return ComponentExporter.Run(options);
     string Required(string key) => options.TryGetValue(key, out var value) ? value : throw new ArgumentException($"Missing {key}");
     int Number(string key, int fallback) => options.TryGetValue(key, out var value) ? int.Parse(value) : fallback;
