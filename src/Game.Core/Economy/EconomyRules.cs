@@ -36,6 +36,11 @@ public sealed class EconomyRules
             return new RecruitmentResult(false, "The army cannot accept this recruitment.", unitCost);
         }
 
+        if (offer.RemainingStock < count)
+        {
+            return new RecruitmentResult(false, "The recruitment site does not have enough stock.", unitCost, (int)totalCost);
+        }
+
         if (hero.Gold < totalCost)
         {
             return new RecruitmentResult(false, "The hero does not have enough gold.", unitCost, (int)totalCost);
@@ -52,6 +57,7 @@ public sealed class EconomyRules
             return new RecruitmentResult(false, "Recruitment could not be completed.", unitCost, (int)totalCost);
         }
 
+        offer.ConsumeStock(count);
         return new RecruitmentResult(true, "Recruitment completed.", unitCost, (int)totalCost);
     }
 }

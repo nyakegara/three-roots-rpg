@@ -9,6 +9,70 @@ public sealed class EconomyRulesTests
 {
     private readonly EconomyRules _rules = new();
 
+    [Fact]
+    public void TryRecruit_Success_ChargesAdjustedCostAndConsumesExactStock()
+    {
+        var hero = new HeroModel("hero", "Hero", startingGold: 500, initialReputation: 2);
+        var offer = new RecruitmentOffer("flora.scout", 100, 7);
+        var site = new RecruitmentSite("village", [offer]);
+
+        var result = _rules.TryRecruit(hero, site, "flora.scout", 3);
+
+        Assert.True(result.Success);
+        Assert.Equal(80, result.UnitCost);
+        Assert.Equal(240, result.TotalCost);
+        Assert.Equal(260, hero.Gold);
+        Assert.Single(hero.Army.Stacks);
+        Assert.Equal(3, hero.Army.Stacks.Single().Count);
+        Assert.Equal(4, offer.RemainingStock);
+    }
+
+    [Fact]
+    public void TryRecruit_InsufficientStock_LeavesGoldArmyAndStockUnchanged()
+    {
+        var hero = new HeroModel("hero", "Hero", startingGold: 500);
+        var offer = new RecruitmentOffer("flora.scout", 10, 2);
+        var site = new RecruitmentSite("village", [offer]);
+
+        var result = _rules.TryRecruit(hero, site, "flora.scout", 3);
+
+        Assert.False(result.Success);
+        Assert.Equal(500, hero.Gold);
+        Assert.Empty(hero.Army.Stacks);
+        Assert.Equal(2, offer.RemainingStock);
+    }
+
+    [Fact]
+    public void TryRecruit_FullArmy_LeavesGoldArmyAndStockUnchanged()
+    {
+        var hero = new HeroModel("hero", "Hero", startingGold: 500);
+        var offers = Enumerable.Range(1, 6)
+            .Select(index => new RecruitmentOffer($"unit-{index}", 10, 4)).ToArray();
+        var site = new RecruitmentSite("village", offers);
+        for (var index = 1; index <= 5; index++)
+        {
+            Assert.True(_rules.TryRecruit(hero, site, $"unit-{index}", 1).Success);
+        }
+
+        var result = _rules.TryRecruit(hero, site, "unit-6", 1);
+
+        Assert.False(result.Success);
+        Assert.Equal(450, hero.Gold);
+        Assert.Equal(5, hero.Army.Stacks.Count);
+        Assert.All(hero.Army.Stacks, stack => Assert.Equal(1, stack.Count));
+        Assert.Equal(4, offers[5].RemainingStock);
+    }
+
+    [Theory]
+    [InlineData(0, 1)]
+    [InlineData(-1, 1)]
+    [InlineData(1, 0)]
+    [InlineData(1, -1)]
+    public void RecruitmentOffer_NonpositivePriceOrStock_IsRejected(int price, int stock)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(() => new RecruitmentOffer("flora.scout", price, stock));
+    }
+
     [Theory]
     [InlineData(2, 80)]
     [InlineData(-2, 120)]
@@ -57,7 +121,7 @@ public sealed class EconomyRulesTests
     }
 
     [Fact]
-    public void TryRecruit_InsufficientGold_LeavesGoldAndArmyUnchanged()
+    public void TryRecruit_InsufficientGold_LeavesGoldArmyAndStockUnchanged()
     {
         var hero = new HeroModel("hero", "Hero", startingGold: 9);
         var site = Site(("human.guard", 10));
@@ -67,6 +131,7 @@ public sealed class EconomyRulesTests
         Assert.False(result.Success);
         Assert.Equal(9, hero.Gold);
         Assert.Empty(hero.Army.Stacks);
+        Assert.Equal(10, site.GetOffer("human.guard")!.RemainingStock);
     }
 
     [Fact]
@@ -95,5 +160,5 @@ public sealed class EconomyRulesTests
     }
 
     private static RecruitmentSite Site(params (string UnitTypeId, int BaseUnitCost)[] offers) =>
-        new("village", offers.Select(offer => new RecruitmentOffer(offer.UnitTypeId, offer.BaseUnitCost)));
+        new("village", offers.Select(offer => new RecruitmentOffer(offer.UnitTypeId, offer.BaseUnitCost, 10)));
 }

@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace Game.Core.Economy;
 
-/// <summary>A recruitment location with an unlimited supply of its listed unit types.</summary>
+/// <summary>A recruitment location with finite supplies of its listed unit types.</summary>
 public sealed class RecruitmentSite
 {
     private readonly Dictionary<string, RecruitmentOffer> _offers;
