@@ -9,16 +9,19 @@ internal static class Program
         var battlePreview = false;
         var previewDescent = false;
         var previewQuestHover = false;
-        var previewRecruitment = false;
+        string? previewRecruitmentSiteId = null;
         if (args.Length != 0)
         {
             if (args.Length != 2 || args[0] is not
                 ("--screenshot" or "--screenshot-quest-hover" or
-                    "--screenshot-grid" or "--screenshot-grid-descent" or "--screenshot-recruitment") ||
+                    "--screenshot-grid" or "--screenshot-grid-descent" or
+                    "--screenshot-recruitment" or "--screenshot-recruitment-sun" or
+                    "--screenshot-recruitment-spore") ||
                 !Path.IsPathFullyQualified(args[1]))
             {
                 throw new ArgumentException(
                     "Usage: Game.MonoGame [--screenshot | --screenshot-quest-hover | --screenshot-recruitment | " +
+                    "--screenshot-recruitment-sun | --screenshot-recruitment-spore | " +
                     "--screenshot-grid | " +
                     "--screenshot-grid-descent] <absolute PNG path>");
             }
@@ -27,11 +30,17 @@ internal static class Program
             battlePreview = args[0] is "--screenshot-grid" or "--screenshot-grid-descent";
             previewDescent = args[0] == "--screenshot-grid-descent";
             previewQuestHover = args[0] == "--screenshot-quest-hover";
-            previewRecruitment = args[0] == "--screenshot-recruitment";
+            previewRecruitmentSiteId = args[0] switch
+            {
+                "--screenshot-recruitment" => "root-greenhouse",
+                "--screenshot-recruitment-sun" => "sunny-clearing",
+                "--screenshot-recruitment-spore" => "spore-circle",
+                _ => null
+            };
         }
 
         using var game = new Game1(screenshotPath, battlePreview, previewDescent,
-            previewQuestHover, previewRecruitment);
+            previewQuestHover, previewRecruitmentSiteId);
         game.Run();
     }
 }

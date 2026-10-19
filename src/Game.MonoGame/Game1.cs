@@ -13,7 +13,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private readonly bool _battlePreview;
     private readonly bool _previewDescent;
     private readonly bool _previewQuestHover;
-    private readonly bool _previewRecruitment;
+    private readonly string? _previewRecruitmentSiteId;
     private SpriteBatch _spriteBatch = null!;
     private PixelCanvas _canvas = null!;
     private AssetCatalog _assets = null!;
@@ -21,13 +21,13 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private RenderTarget2D _frame = null!;
 
     public Game1(string? screenshotPath = null, bool battlePreview = false,
-        bool previewDescent = false, bool previewQuestHover = false, bool previewRecruitment = false)
+        bool previewDescent = false, bool previewQuestHover = false, string? previewRecruitmentSiteId = null)
     {
         _screenshotPath = screenshotPath;
         _battlePreview = battlePreview;
         _previewDescent = previewDescent;
         _previewQuestHover = previewQuestHover;
-        _previewRecruitment = previewRecruitment;
+        _previewRecruitmentSiteId = previewRecruitmentSiteId;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -53,7 +53,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         {
             var (campaign, units) = LoadFloraCampaign();
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
-                _previewQuestHover, _previewRecruitment);
+                _previewQuestHover, _previewRecruitmentSiteId);
         }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
             SurfaceFormat.Color, DepthFormat.None);

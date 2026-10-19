@@ -19,6 +19,7 @@ internal sealed class ExplorationScreen : IGameScreen
     private static readonly Color Bronze = new(141, 107, 59);
 
     private readonly PixelCanvas _canvas;
+    private readonly AssetCatalog _assets;
     private readonly PixelFont _font;
     private readonly WorldMap _map;
     private readonly IReadOnlyList<WorldTile> _tiles;
@@ -46,23 +47,24 @@ internal sealed class ExplorationScreen : IGameScreen
     }
 
     public ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, CampaignDefinition definition,
-        UnitCatalog units, bool previewQuestHover = false, bool previewRecruitment = false)
+        UnitCatalog units, bool previewQuestHover = false, string? previewRecruitmentSiteId = null)
         : this(canvas, assets, definition.Map, definition.CreateGameState(), units,
-            previewQuestHover, previewRecruitment)
+            previewQuestHover, previewRecruitmentSiteId)
     {
     }
 
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Campaign campaign,
-        UnitCatalog units, bool previewQuestHover, bool previewRecruitment)
-        : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitment)
+        UnitCatalog units, bool previewQuestHover, string? previewRecruitmentSiteId)
+        : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId)
     {
     }
 
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Hero hero,
-        Campaign? campaign, UnitCatalog? units, bool previewQuestHover, bool previewRecruitment = false)
+        Campaign? campaign, UnitCatalog? units, bool previewQuestHover, string? previewRecruitmentSiteId = null)
     {
         ArgumentNullException.ThrowIfNull(map);
         _canvas = canvas;
+        _assets = assets;
         _map = map;
         _hero = hero;
         _campaign = campaign;
@@ -86,10 +88,11 @@ internal sealed class ExplorationScreen : IGameScreen
         if (previewQuestHover)
             _hover = map.PointsOfInterest.FirstOrDefault(point =>
                 !point.Type.Equals("treasure", StringComparison.OrdinalIgnoreCase))?.Coordinate;
-        if (previewRecruitment && campaign is not null && units is not null)
+        if (previewRecruitmentSiteId is not null && campaign is not null && units is not null)
         {
             var recruitmentPoint = map.PointsOfInterest.FirstOrDefault(point =>
-                point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase));
+                point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase) &&
+                point.RecruitmentSiteId == previewRecruitmentSiteId);
             if (recruitmentPoint is not null &&
                 campaign.TryGetRecruitmentSiteAt(recruitmentPoint, recruitmentPoint.Coordinate, out var site) &&
                 site is not null)
@@ -151,7 +154,7 @@ internal sealed class ExplorationScreen : IGameScreen
             _campaign is not null && _units is not null &&
             _campaign.TryGetRecruitmentSiteAt(point, _movement.Position, out var site) && site is not null)
         {
-            _recruitmentScreen = new RecruitmentScreen(_canvas, _hero, site, _units, point.Name,
+            _recruitmentScreen = new RecruitmentScreen(_canvas, _hero, site, _units, _assets, point.Name,
                 () => _recruitmentScreen = null);
             return;
         }

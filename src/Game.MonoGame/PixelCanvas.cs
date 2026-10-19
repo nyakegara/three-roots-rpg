@@ -34,6 +34,9 @@ internal sealed class PixelCanvas : IDisposable
     public void Texture(Texture2D texture, Rectangle destination) =>
         _batch.Draw(texture, destination, Color.White);
 
+    public void Texture(Texture2D texture, Rectangle source, Rectangle destination) =>
+        _batch.Draw(texture, destination, source, Color.White);
+
     public void Frame(int x, int y, int width, int height, Color color, int thickness = 2)
     {
         Rect(x, y, width, thickness, color);
