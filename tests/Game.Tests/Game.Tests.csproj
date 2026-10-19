@@ -17,4 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Game.Core\Game.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\content\maps\**\*.json" Link="content\maps\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

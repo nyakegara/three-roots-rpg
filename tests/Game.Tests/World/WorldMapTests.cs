@@ -123,4 +123,13 @@ public sealed class WorldMapTests
 
         Assert.Throws<ArgumentException>(() => new WorldMap(tiles));
     }
+
+    [Fact]
+    public void MetadataConstructor_OmittedPointsOfInterest_UsesEmptyList()
+    {
+        var map = new WorldMap("test", "Test", 1, 1, new HexCoord(0, 0),
+            new[] { new WorldTile(new HexCoord(0, 0)) });
+
+        Assert.Empty(map.PointsOfInterest);
+    }
 }
