@@ -2,11 +2,15 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
+public enum BattleCaptureStage { Opening, Healing, Result }
+
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
 public sealed record GameLaunchOptions
 {
     public string? ScreenshotPath { get; init; }
     public bool BattlePreview { get; init; }
+    public bool PlayableCombat { get; init; }
+    public BattleCaptureStage CombatCapture { get; init; }
     public bool PreviewDescent { get; init; }
     public bool PreviewQuestHover { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
@@ -37,11 +41,16 @@ public sealed record GameLaunchOptions
                     night = true;
                     break;
                 case "--battle":
+                case "--combat":
                     SetMode(argument);
                     break;
                 case "--screenshot":
                 case "--screenshot-quest-hover":
                 case "--screenshot-grid":
+                case "--screenshot-combat":
+                case "--screenshot-combat-night":
+                case "--screenshot-combat-heal":
+                case "--screenshot-combat-result":
                 case "--screenshot-grid-descent":
                 case "--screenshot-recruitment":
                 case "--screenshot-recruitment-sun":
@@ -57,8 +66,10 @@ public sealed record GameLaunchOptions
         }
 
         var battle = mode is "--battle" or "--screenshot-grid" or "--screenshot-grid-descent";
-        if ((hasSeed || night) && !battle)
-            throw new ArgumentException("--seed and --night require a battle preview.");
+        var combat = mode is "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
+            or "--screenshot-combat-heal" or "--screenshot-combat-result";
+        if ((hasSeed || night) && !battle && !combat)
+            throw new ArgumentException("--seed and --night require --battle, --combat or their screenshot modes.");
         if (hasSeed && mode == "--screenshot-grid-descent")
             throw new ArgumentException("The fixed descent fixture does not accept a generated seed.");
 
@@ -66,6 +77,13 @@ public sealed record GameLaunchOptions
         {
             ScreenshotPath = screenshot,
             BattlePreview = battle,
+            PlayableCombat = combat,
+            CombatCapture = mode switch
+            {
+                "--screenshot-combat-heal" => BattleCaptureStage.Healing,
+                "--screenshot-combat-result" => BattleCaptureStage.Result,
+                _ => BattleCaptureStage.Opening
+            },
             PreviewDescent = mode == "--screenshot-grid-descent",
             PreviewQuestHover = mode == "--screenshot-quest-hover",
             PreviewRecruitmentSiteId = mode switch
@@ -76,7 +94,7 @@ public sealed record GameLaunchOptions
                 _ => null
             },
             BattleSeed = seed,
-            Night = night
+            Night = night || mode == "--screenshot-combat-night"
         };
 
         void SetMode(string requested)

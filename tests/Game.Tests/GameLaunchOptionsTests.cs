@@ -5,6 +5,25 @@ namespace Game.Tests;
 
 public sealed class GameLaunchOptionsTests
 {
+    [Theory]
+    [InlineData("--combat")]
+    [InlineData("--screenshot-combat")]
+    [InlineData("--screenshot-combat-night")]
+    [InlineData("--screenshot-combat-heal")]
+    [InlineData("--screenshot-combat-result")]
+    public void PlayableCombatIsDistinctFromTerrainPreview(string mode)
+    {
+        var args = mode == "--combat" ? new[] { mode, "--seed", "42" }
+            : new[] { mode, Path.Combine(Path.GetTempPath(), "combat.png"), "--seed", "42" };
+        var options = GameLaunchOptions.Parse(args);
+        Assert.True(options.PlayableCombat);
+        Assert.False(options.BattlePreview);
+        Assert.Equal(42, options.BattleSeed);
+        Assert.Equal(mode.EndsWith("-night"), options.Night);
+        Assert.Equal(mode.EndsWith("-heal") ? BattleCaptureStage.Healing :
+            mode.EndsWith("-result") ? BattleCaptureStage.Result : BattleCaptureStage.Opening, options.CombatCapture);
+    }
+
     [Fact]
     public void NoArgumentsKeepsExplorationAsDefault()
     {

@@ -16,6 +16,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private readonly string? _previewRecruitmentSiteId;
     private readonly int _battleSeed;
     private readonly bool _night;
+    private readonly bool _playableCombat;
+    private readonly BattleCaptureStage _combatCapture;
     private SpriteBatch _spriteBatch = null!;
     private PixelCanvas _canvas = null!;
     private AssetCatalog _assets = null!;
@@ -24,7 +26,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
 
     public Game1(string? screenshotPath = null, bool battlePreview = false,
         bool previewDescent = false, bool previewQuestHover = false, string? previewRecruitmentSiteId = null,
-        int battleSeed = 1729, bool night = false)
+        int battleSeed = 1729, bool night = false, bool playableCombat = false,
+        BattleCaptureStage combatCapture = BattleCaptureStage.Opening)
     {
         _screenshotPath = screenshotPath;
         _battlePreview = battlePreview;
@@ -33,6 +36,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _previewRecruitmentSiteId = previewRecruitmentSiteId;
         _battleSeed = battleSeed;
         _night = night;
+        _playableCombat = playableCombat;
+        _combatCapture = combatCapture;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -50,7 +55,12 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
         _assets = new AssetCatalog(GraphicsDevice);
-        if (_battlePreview)
+        if (_playableCombat)
+        {
+            var units = LoadUnitCatalog();
+            _screen = new BattleScreen(_canvas, _assets, units, _battleSeed, _night, Exit, _combatCapture);
+        }
+        else if (_battlePreview)
         {
             _screen = new BattlePreviewScreen(_canvas, _assets, Exit, true, _previewDescent, _battleSeed, _night);
         }
@@ -67,18 +77,25 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private static (CampaignDefinition Campaign, UnitCatalog Units) LoadFloraCampaign()
     {
         var root = Path.Combine(AppContext.BaseDirectory, "Content");
+        var units = LoadUnitCatalog();
+        var campaignPath = Path.Combine(root, "campaigns", "flora-01.json");
+        var campaignResult = new CampaignLoader(units).Load(campaignPath);
+        if (campaignResult.Success && campaignResult.Definition is not null)
+            return (campaignResult.Definition, units);
+
+        throw new InvalidOperationException(
+            "Cannot load the flora campaign: " + string.Join("; ", campaignResult.Errors));
+    }
+
+    private static UnitCatalog LoadUnitCatalog()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "Content");
         var unitsPath = Path.Combine(root, "units", "units.json");
         var unitsResult = UnitCatalog.Load(unitsPath);
         if (!unitsResult.Success || unitsResult.Catalog is null)
             throw new InvalidOperationException("Cannot load troop catalog: " + string.Join("; ", unitsResult.Errors));
 
-        var campaignPath = Path.Combine(root, "campaigns", "flora-01.json");
-        var campaignResult = new CampaignLoader(unitsResult.Catalog).Load(campaignPath);
-        if (campaignResult.Success && campaignResult.Definition is not null)
-            return (campaignResult.Definition, unitsResult.Catalog);
-
-        throw new InvalidOperationException(
-            "Cannot load the flora campaign: " + string.Join("; ", campaignResult.Errors));
+        return unitsResult.Catalog;
     }
 
     protected override void Update(GameTime gameTime)

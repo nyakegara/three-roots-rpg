@@ -2,6 +2,7 @@ using Game.Core.Combat;
 using Game.Core.Combat.Generation;
 using Game.Core.Combat.Pathfinding;
 using Game.Core.Geometry;
+using Game.MonoGame.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -23,9 +24,10 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
     private readonly PixelFont _font;
     private readonly AssetCatalog _assets;
     private readonly Action _exit;
-    private readonly HexLayout _layout = new();
+    private BattlefieldRenderer _battlefield = null!;
+    private HexLayout _layout => _battlefield.Layout;
     private BattleMap _map = null!;
-    private IReadOnlyList<BattleTile> _drawOrder = Array.Empty<BattleTile>();
+    private IReadOnlyList<BattleTile> _drawOrder => _battlefield.DrawOrder;
     private readonly bool _previewDescent;
     private readonly HashSet<HexCoord> _occupied = [];
     private readonly Dictionary<HexCoord, BattlefieldPropKind> _propsByCoordinate = [];
@@ -43,7 +45,6 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
     private KeyboardState _previousKeyboard;
     private Point _mousePosition;
     private bool _showGrid;
-    private static readonly int[] SharedEdgeByNeighbor = [1, 0, 5, 4, 3, 2];
 
     public BattlePreviewScreen(PixelCanvas canvas, AssetCatalog assets, Action exit,
         bool showGrid = true, bool previewDescent = false, int seed = 1729, bool night = false)
@@ -67,7 +68,7 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
     public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
         _mousePosition = mouse.Position;
-        _hover = mouse.Y < 600 ? _layout.HitTest(mouse.Position, _drawOrder) : null;
+        _hover = mouse.Y < 600 ? _battlefield.HitTest(mouse.Position) : null;
         _nightBlend = BattleLighting.AdvanceFade(_nightBlend, _nightTarget, elapsedSeconds);
         if (keyboard.IsKeyDown(Keys.R) && !_previousKeyboard.IsKeyDown(Keys.R))
             ResetMovement();
@@ -109,7 +110,7 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
         _propsByCoordinate.Clear();
         _occupied.Clear();
         _occupied.Add(_enemyStart);
-        SetDrawOrder();
+        RebuildBattlefield();
     }
 
     private void GenerateField(int seed)
@@ -124,14 +125,14 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
             _propsByCoordinate.Add(prop.Coordinate, prop.Kind);
         _occupied.Clear();
         _occupied.Add(_enemyStart);
-        SetDrawOrder();
+        RebuildBattlefield();
         _hover = null;
         ResetMovement();
     }
 
-    private void SetDrawOrder() =>
-        _drawOrder = _map.Tiles.OrderBy(tile => tile.Coordinate.R)
-            .ThenBy(tile => tile.Coordinate.Q).ToArray();
+    private void RebuildBattlefield() =>
+        _battlefield = new BattlefieldRenderer(_canvas, _assets, _map,
+            _propsByCoordinate.Select(prop => new BattlefieldProp(prop.Key, prop.Value)).ToArray());
 
     private static int NextSeed(int seed) =>
         seed == int.MaxValue ? int.MinValue : seed + 1;
@@ -158,38 +159,14 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
 
     public void Draw()
     {
-        BattlefieldBackdrop.Draw(_canvas, _assets, _nightBlend);
-
-        if (_showGrid)
-        {
-            using (_canvas.PushTint(BattleLighting.AmbientTint(_nightBlend)))
-                DrawElevationSurface();
-        }
-
-        // Height walls remain visible even when the tactical grid is hidden.
-        DrawElevationEdges();
-
-        if (_showGrid)
-            foreach (var tile in _drawOrder)
-                _canvas.Outline(_layout.Corners(tile, 1), Translucent(188, 193, 133, 85), 1);
+        _battlefield.DrawTerrain(_showGrid, _nightBlend);
 
         DrawPath();
         if (_hover is { } hover && hover != _destination)
             _canvas.Outline(_layout.Corners(_map.GetTile(hover)!, 3),
                 Translucent(221, 214, 157, 155), 1);
 
-        // Terrain props receive the full ambient night tint.
-        using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
-        foreach (var tile in _drawOrder)
-        {
-            var center = _layout.Center(tile);
-            var x = (int)center.X;
-            var y = (int)center.Y;
-            if (_propsByCoordinate.TryGetValue(tile.Coordinate, out var kind))
-                BattlefieldPropArt.Draw(_canvas, kind, x, y);
-            else if (!tile.IsPassable)
-                DrawRock(x, y);
-        }
+        _battlefield.DrawProps(_nightBlend);
 
         // Moonlit fill keeps combatants readable against the darker field.
         using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
@@ -233,47 +210,6 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
         Ellipse((int)target.X, (int)target.Y + 3, 5, 2, color);
     }
 
-    private void DrawElevationSurface()
-    {
-        foreach (var tile in _drawOrder)
-        {
-            var tint = tile.Height switch
-            {
-                0 => Translucent(62, 91, 54, 34),
-                1 => Translucent(176, 143, 68, 78),
-                _ => Translucent(239, 184, 75, 110)
-            };
-            _canvas.Polygon(_layout.Corners(tile, 4), tint);
-        }
-    }
-
-    private void DrawElevationEdges()
-    {
-        foreach (var tile in _drawOrder)
-        {
-            var corners = _layout.Corners(tile);
-            var neighbors = tile.Coordinate.GetNeighbors();
-            for (var direction = 0; direction < neighbors.Count; direction++)
-            {
-                var neighbor = _map.GetTile(neighbors[direction]);
-                if (neighbor is null || tile.Height <= neighbor.Height)
-                    continue;
-
-                var edge = SharedEdgeByNeighbor[direction];
-                var first = corners[edge];
-                var second = corners[(edge + 1) % corners.Length];
-                var difference = tile.Height - neighbor.Height;
-                var midpoint = (first + second) / 2;
-                var inward = Vector2.Normalize(_layout.Center(tile) - midpoint);
-
-                // A dark earthen face with a thin grass rim marks only actual level changes.
-                _canvas.Line(first, second, Translucent(83, 56, 36, 238), 3 + difference);
-                _canvas.Line(first + inward * 2, second + inward * 2,
-                    Translucent(163, 171, 94, 215), 1);
-            }
-        }
-    }
-
     private void DrawHero(int x, int y)
     {
         Ellipse(x, y + 18, 24, 8, Translucent(39, 48, 23, 140));
@@ -287,12 +223,6 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
         Ellipse(x, y + 18, 24, 8, Translucent(39, 48, 23, 140));
         if (!_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
             FantasyArt.DrawGuard(_canvas, x, y);
-    }
-
-    private void DrawRock(int x, int y)
-    {
-        if (!_assets.TryDraw(_canvas, AssetCatalog.Rock, new Rectangle(x - 28, y - 28, 56, 48)))
-            FantasyArt.DrawRock(_canvas, x, y);
     }
 
     private void DrawHud()
