@@ -44,21 +44,21 @@
 - `AdventureMapCamera(Vector2 viewportSize, Vector2 worldSize, Vector2 initialPosition)` exposes `Vector2 Position`, `Update(Vector2 pointer, float elapsedSeconds)`, `ToScreen(Vector2 worldPosition)`, and `ToWorld(Vector2 screenPosition)`.
 - Edge scrolling uses a 20-pixel edge band and 360 world pixels per second; camera position is clamped to `[0, worldSize - viewportSize]` on each axis. Pointers outside the map viewport and nonpositive elapsed time do not move it.
 
-- [ ] **Step 1: Write failing projection and camera tests**
+- [x] **Step 1: Write failing projection and camera tests**
 
   Cover the five cases in Review Focus, plus known isometric neighbor positions and elevation offset. Verify picking after `camera.ToWorld(camera.ToScreen(projection.Project(...)))`.
 
-- [ ] **Step 2: Run the focused tests and verify they fail for missing types**
+- [x] **Step 2: Run the focused tests and verify they fail for missing types**
 
   Run: `dotnet test tests/Game.Tests/Game.Tests.csproj --configuration Debug --filter "FullyQualifiedName~AdventureMapProjectionTests|FullyQualifiedName~AdventureMapCameraTests"`
 
   Expected: compile failure because the projection and camera types do not exist yet.
 
-- [ ] **Step 3: Implement the pure geometry types**
+- [x] **Step 3: Implement the pure geometry types**
 
   Keep all calculations on `System.Numerics.Vector2`; do not reference MonoGame types. Clamp after every edge-scroll update and make `ToWorld` the inverse of `ToScreen`.
 
-- [ ] **Step 4: Run the focused tests and verify they pass**
+- [x] **Step 4: Run the focused tests and verify they pass**
 
   Run: `dotnet test tests/Game.Tests/Game.Tests.csproj --configuration Debug --filter "FullyQualifiedName~AdventureMapProjectionTests|FullyQualifiedName~AdventureMapCameraTests"`
 
@@ -117,15 +117,15 @@
 - Draw order is ground, terrain zones, route, then scenery/points-of-interest/hero sorted together by projected foot Y, followed by the hover marker. This lets foreground objects overlap the hero correctly.
 - Terrain and object textures are optional overrides with stable keys in `AssetCatalog`; missing assets use pixel-art fallbacks.
 
-- [ ] **Step 1: Capture the existing exploration view as a visual baseline**
+- [x] **Step 1: Capture the existing exploration view as a visual baseline**
 
   Run `dotnet run --project src/Game.MonoGame/Game.MonoGame.csproj --configuration Debug -- --screenshot C:\Temp\exploration-before.png` and verify the frame is saved.
 
-- [ ] **Step 2: Implement the continuous ground and depth-sorted object renderer**
+- [x] **Step 2: Implement the continuous ground and depth-sorted object renderer**
 
   Remove visible tile polygons, hex outlines, elevation-edge markers, and terrain-height hover text from exploration rendering. Retain terrain and elevation data for route/blocking and scenic hill placement. Clip all map layers to the map viewport through `PixelCanvas.PushClip`; keep the battle renderer unchanged.
 
-- [ ] **Step 3: Capture the renderer result and inspect it at 1280×720**
+- [x] **Step 3: Capture the renderer result and inspect it at 1280×720**
 
   Expected: no visible hex field; terrain spans beyond the viewport and has distinct grass, forest, hill, water, rock, hero, quest, and treasure silhouettes.
 
@@ -144,11 +144,11 @@
 - `ExplorationHud(PixelCanvas canvas, AssetCatalog assets).Draw(Hero hero, WorldPointOfInterest? hoveredPoint, string actionText)` reads `Hero.Name`, `Hero.Gold`, and `Hero.Army.Stacks`; it draws only in screen coordinates and never applies the map camera transform.
 - The lower wood/bronze bar shows the portrait, five army slots, gold, and map/quest commands; hover name and action fit within the same bar. It does not add a route sidebar.
 
-- [ ] **Step 1: Implement the fixed five-slot layout and HUD draw call**
+- [x] **Step 1: Implement the fixed five-slot layout and HUD draw call**
 
   Keep empty slots visible and draw occupied slots from the supplied hero's stack list.
 
-- [ ] **Step 2: Capture the tutorial HUD at 1280×720 and inspect its bounds and text fit**
+- [x] **Step 2: Capture the tutorial HUD at 1280×720 and inspect its bounds and text fit**
 
   Expected: every label, slot, portrait, and command stays inside the fixed lower panel without overlapping the map viewport.
 
@@ -170,15 +170,15 @@
 - `MovementSelection` remains the only authority for first-click preview and second-click confirmation. Camera movement never changes `MovementSelection.Position`.
 - Until a campaign loader supplies the selected protagonist, `Game1.LoadTutorialHero()` returns `new Hero("tutorial-hero", "Герой")` and the HUD displays this existing `Game.Core` model.
 
-- [ ] **Step 1: Run existing movement tests as the route confirmation baseline**
+- [x] **Step 1: Run existing movement tests as the route confirmation baseline**
 
   Run `dotnet test tests/Game.Tests/Game.Tests.csproj --configuration Debug --filter FullyQualifiedName~MovementSelectionTests` and confirm first-click preview/second-click confirmation still passes.
 
-- [ ] **Step 2: Integrate edge scrolling, picking, route preview, and the fixed HUD**
+- [x] **Step 2: Integrate edge scrolling, picking, route preview, and the fixed HUD**
 
   Remove the exploration `G` grid toggle. Keep battle grid controls and battle screenshot switches intact. Initialize the camera around the tutorial start and clamp it to map bounds.
 
-- [ ] **Step 3: Run the full test suite and launch the interactive game**
+- [x] **Step 3: Run the full test suite and launch the interactive game**
 
   Run `dotnet test ThreeRoots.sln --configuration Debug`, then `dotnet run --project src/Game.MonoGame/Game.MonoGame.csproj --configuration Debug`.
 
@@ -201,7 +201,7 @@
 - Screenshot mode captures the ordinary map state and a hovered quest state from the actual MonoGame renderer.
 - The visual reviewer checks the two screenshots against the design spec; the user reviews the screenshots before any next UI element starts.
 
-- [ ] **Step 1: Run complete Release build, tests, and whitespace checks**
+- [x] **Step 1: Run complete Release build, tests, and whitespace checks**
 
   Run: `dotnet build ThreeRoots.sln --configuration Release`
 
@@ -211,11 +211,11 @@
 
   Expected: all pass; investigate and repair any failure before continuing.
 
-- [ ] **Step 2: Capture and review actual application screenshots**
+- [x] **Step 2: Capture and review actual application screenshots**
 
   Capture a clean map and a hovered POI. Send both to the visual quality subagent and fix any blocking readability, camera, layering, or HUD defects.
 
-- [ ] **Step 3: Update the README and screenshot artifacts**
+- [x] **Step 3: Update the README and screenshot artifacts**
 
   Document edge scrolling, map selection, battle separation, and asset replacement. Include only the final captures.
 

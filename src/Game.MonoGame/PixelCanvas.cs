@@ -8,12 +8,21 @@ internal sealed class PixelCanvas : IDisposable
 {
     private readonly Texture2D _pixel;
     private readonly SpriteBatch _batch;
+    private readonly GraphicsDevice _device;
 
     public PixelCanvas(GraphicsDevice device, SpriteBatch batch)
     {
+        _device = device;
         _batch = batch;
         _pixel = new Texture2D(device, 1, 1);
         _pixel.SetData(new[] { Color.White });
+    }
+
+    public IDisposable PushClip(Rectangle rectangle)
+    {
+        var previous = _device.ScissorRectangle;
+        _device.ScissorRectangle = Rectangle.Intersect(previous, rectangle);
+        return new ClipScope(_device, previous);
     }
 
     public void Rect(int x, int y, int width, int height, Color color)
@@ -88,4 +97,9 @@ internal sealed class PixelCanvas : IDisposable
     }
 
     public void Dispose() => _pixel.Dispose();
+
+    private sealed class ClipScope(GraphicsDevice device, Rectangle previous) : IDisposable
+    {
+        public void Dispose() => device.ScissorRectangle = previous;
+    }
 }

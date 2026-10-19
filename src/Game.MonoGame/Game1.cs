@@ -78,7 +78,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         GraphicsDevice.SetRenderTarget(_frame);
         GraphicsDevice.Clear(ExplorationScreen.Background);
         _spriteBatch.Begin(samplerState: SamplerState.PointClamp,
-            blendState: BlendState.AlphaBlend);
+            blendState: BlendState.AlphaBlend,
+            rasterizerState: ScissorRasterizer);
         _screen.Draw();
         _spriteBatch.End();
         GraphicsDevice.SetRenderTarget(null);
@@ -98,6 +99,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             Exit();
         }
     }
+
+    private static readonly RasterizerState ScissorRasterizer = new() { ScissorTestEnable = true };
 
     protected override void UnloadContent()
     {
