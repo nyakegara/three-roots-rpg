@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using Game.Core.Characters;
+using Game.Core.Economy;
+using Game.Core.Persistence;
 
 namespace Game.Core.Campaigns;
 
@@ -10,14 +12,17 @@ public sealed class Campaign
     private readonly HashSet<string> _completedQuestIds = new(StringComparer.Ordinal);
     private readonly Dictionary<string, string> _selectedChoiceIds = new(StringComparer.Ordinal);
     private readonly ReadOnlyCollection<Quest> _questView;
+    private readonly Dictionary<string, RecruitmentSite> _recruitmentSites;
+    private readonly ReadOnlyCollection<RecruitmentSite> _recruitmentSiteView;
 
     public Hero Hero { get; }
     public IReadOnlyList<Quest> Quests => _questView;
     public IReadOnlySet<string> CompletedQuestIds => _completedQuestIds.ToHashSet(StringComparer.Ordinal);
     public IReadOnlyDictionary<string, string> SelectedChoiceIds =>
         new Dictionary<string, string>(_selectedChoiceIds, StringComparer.Ordinal);
+    public IReadOnlyList<RecruitmentSite> RecruitmentSites => _recruitmentSiteView;
 
-    public Campaign(Hero hero, IEnumerable<Quest> quests)
+    public Campaign(Hero hero, IEnumerable<Quest> quests, IEnumerable<RecruitmentSite>? recruitmentSites = null)
     {
         ArgumentNullException.ThrowIfNull(hero);
         ArgumentNullException.ThrowIfNull(quests);
@@ -33,6 +38,47 @@ public sealed class Campaign
         }
 
         _questView = Array.AsReadOnly(_quests.Values.ToArray());
+        _recruitmentSites = new Dictionary<string, RecruitmentSite>(StringComparer.Ordinal);
+        foreach (var site in recruitmentSites ?? [])
+        {
+            ArgumentNullException.ThrowIfNull(site);
+            if (!_recruitmentSites.TryAdd(site.Id, site))
+                throw new ArgumentException($"Campaign contains duplicate recruitment site id '{site.Id}'.", nameof(recruitmentSites));
+        }
+        _recruitmentSiteView = Array.AsReadOnly(_recruitmentSites.Values.ToArray());
+    }
+
+    public IReadOnlyList<SavedRecruitmentStock> GetRecruitmentStockSnapshot() => Array.AsReadOnly(
+        _recruitmentSites.Values.SelectMany(site => site.Offers.Select(offer =>
+            new SavedRecruitmentStock(site.Id, offer.UnitTypeId, offer.RemainingStock))).ToArray());
+
+    public RecruitmentStockRestoreResult TryRestoreRecruitmentStock(IReadOnlyList<SavedRecruitmentStock> savedStocks)
+    {
+        if (savedStocks is null)
+            return new RecruitmentStockRestoreResult(false, "Recruitment stock is required.");
+
+        var expected = _recruitmentSites.Values.SelectMany(site => site.Offers.Select(offer =>
+            (SiteId: site.Id, UnitId: offer.UnitTypeId, Offer: offer))).ToArray();
+        if (savedStocks.Count != expected.Length)
+            return new RecruitmentStockRestoreResult(false, "Saved recruitment stock is incomplete or contains unknown offers.");
+
+        var values = new Dictionary<(string SiteId, string UnitId), int>();
+        foreach (var saved in savedStocks)
+        {
+            if (saved is null || string.IsNullOrWhiteSpace(saved.SiteId) || string.IsNullOrWhiteSpace(saved.UnitId) ||
+                !values.TryAdd((saved.SiteId, saved.UnitId), saved.RemainingStock))
+                return new RecruitmentStockRestoreResult(false, "Saved recruitment stock contains duplicate or invalid keys.");
+        }
+
+        foreach (var (siteId, unitId, offer) in expected)
+        {
+            if (!values.TryGetValue((siteId, unitId), out var stock) || stock < 0 || stock > offer.StartingStock)
+                return new RecruitmentStockRestoreResult(false, $"Saved stock for '{siteId}/{unitId}' is missing or outside its valid range.");
+        }
+
+        foreach (var (siteId, unitId, offer) in expected)
+            offer.RestoreStock(values[(siteId, unitId)]);
+        return new RecruitmentStockRestoreResult(true, "Recruitment stock restored.");
     }
 
     public ChoiceResult ApplyChoice(string questId, string choiceId)
@@ -69,3 +115,5 @@ public sealed class Campaign
         return new ChoiceResult(true, "Choice applied.", choice);
     }
 }
+
+public sealed record RecruitmentStockRestoreResult(bool Success, string Message);

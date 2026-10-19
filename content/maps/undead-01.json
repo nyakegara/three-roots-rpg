@@ -1,0 +1,434 @@
+{
+  "id": "undead-01",
+  "name": "Сад без рассвета",
+  "width": 8,
+  "height": 7,
+  "start": {
+    "q": 0,
+    "r": 3
+  },
+  "tiles": [
+    {
+      "q": 0,
+      "r": 0,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 0,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 0,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 0,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 0,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 0,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 0,
+      "terrain": "black-water",
+      "height": 0,
+      "passable": false
+    },
+    {
+      "q": 7,
+      "r": 0,
+      "terrain": "black-water",
+      "height": 0,
+      "passable": false
+    },
+    {
+      "q": 0,
+      "r": 1,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 1,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 1,
+      "terrain": "name-stones",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 1,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 1,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 1,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 1,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 7,
+      "r": 1,
+      "terrain": "black-water",
+      "height": 0,
+      "passable": false
+    },
+    {
+      "q": 0,
+      "r": 2,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 2,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 2,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 2,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 2,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 2,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 2,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 7,
+      "r": 2,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 0,
+      "r": 3,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 3,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 3,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 3,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 3,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 3,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 3,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 7,
+      "r": 3,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 0,
+      "r": 4,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 4,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 4,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 4,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 4,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 4,
+      "terrain": "grave-garden",
+      "height": 1,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 4,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 7,
+      "r": 4,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 0,
+      "r": 5,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 5,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 5,
+      "terrain": "shale",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 5,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 5,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 5,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 5,
+      "terrain": "black-water",
+      "height": 0,
+      "passable": false
+    },
+    {
+      "q": 7,
+      "r": 5,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 0,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 1,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 2,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 3,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 4,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 5,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 6,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    },
+    {
+      "q": 7,
+      "r": 6,
+      "terrain": "ash-field",
+      "height": 0,
+      "passable": true
+    }
+  ],
+  "pointsOfInterest": [
+    {
+      "id": "name-garden",
+      "type": "quest",
+      "name": "Сад имён",
+      "q": 2,
+      "r": 1
+    },
+    {
+      "id": "root-vault",
+      "type": "quest",
+      "name": "Корни в склепе",
+      "q": 5,
+      "r": 2
+    },
+    {
+      "id": "last-refrain",
+      "type": "quest",
+      "name": "Последний перезвон",
+      "q": 6,
+      "r": 4
+    },
+    {
+      "id": "salt-cache",
+      "type": "treasure",
+      "name": "Соляной тайник",
+      "q": 1,
+      "r": 5
+    }
+  ]
+}
