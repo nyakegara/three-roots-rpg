@@ -145,7 +145,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             {
                 var bounds = new Rectangle((int)p.X - 48, (int)p.Y - 78, 96, 96);
                 FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 14, 72, 14, Ink * 0.78f);
-                if (!assets.TryDrawCropped(canvas, assetKey, bounds))
+                if (!assets.TryDraw(canvas, assetKey, bounds))
                     DrawRecruitmentFallback(p);
             }
             else DrawRecruitmentFallback(p);
