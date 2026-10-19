@@ -10,7 +10,7 @@ namespace Game.MonoGame;
 /// Visual/debug fixture only. Placements and elevations do not define campaign content
 /// or balance; eventual campaign maps will load from JSON.
 /// </summary>
-internal sealed class BattlePreviewScreen
+internal sealed class BattlePreviewScreen : Screens.IGameScreen
 {
     public static readonly Color Background = new(67, 89, 42);
     private static readonly Color Shadow = new(27, 24, 16);

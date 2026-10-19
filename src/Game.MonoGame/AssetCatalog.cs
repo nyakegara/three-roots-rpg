@@ -13,11 +13,15 @@ internal sealed class AssetCatalog : IDisposable
     public const string HumanGuard = "unit.human.guard";
     public const string Rock = "terrain.rock";
     public const string FloraPortrait = "portrait.flora";
+    public const string AncientOak = "terrain.old-oak";
+    public const string ForestTree = "terrain.forest-tree";
+    public const string Treasure = "poi.treasure";
     private readonly Dictionary<string, Texture2D> _textures = new();
 
     public AssetCatalog(GraphicsDevice device)
     {
-        foreach (var key in new[] { FloraHero, HumanGuard, Rock, FloraPortrait })
+        foreach (var key in new[] { FloraHero, HumanGuard, Rock, FloraPortrait,
+                     AncientOak, ForestTree, Treasure })
         {
             var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", key + ".png");
             if (!File.Exists(path))
