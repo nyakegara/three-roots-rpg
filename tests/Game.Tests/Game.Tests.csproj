@@ -19,5 +19,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\content\maps\**\*.json" Link="content\maps\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\content\campaigns\**\*.json" Link="content\campaigns\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\content\units\**\*.json" Link="content\units\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
