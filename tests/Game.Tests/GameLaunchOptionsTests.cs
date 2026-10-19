@@ -6,6 +6,20 @@ namespace Game.Tests;
 public sealed class GameLaunchOptionsTests
 {
     [Theory]
+    [InlineData("--screenshot-encounter-empty", CampaignCaptureStage.EmptyEncounter)]
+    [InlineData("--screenshot-encounter", CampaignCaptureStage.ReadyEncounter)]
+    [InlineData("--screenshot-campaign-battle", CampaignCaptureStage.Combat)]
+    [InlineData("--screenshot-campaign-result", CampaignCaptureStage.Result)]
+    [InlineData("--screenshot-after-encounter", CampaignCaptureStage.Returned)]
+    public void CampaignCaptureRemainsExplorationMode(string mode, CampaignCaptureStage stage)
+    {
+        var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "campaign.png")]);
+        Assert.Equal(stage, options.CampaignCapture);
+        Assert.False(options.PlayableCombat);
+        Assert.False(options.BattlePreview);
+    }
+
+    [Theory]
     [InlineData("--combat")]
     [InlineData("--screenshot-combat")]
     [InlineData("--screenshot-combat-night")]

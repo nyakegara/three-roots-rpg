@@ -1,6 +1,8 @@
 using Game.Core.Combat;
 using Game.Core.Combat.AI;
 using Game.Core.Combat.Pathfinding;
+using Game.Core.Campaigns;
+using Game.Core.Combat.Generation;
 using Game.Core.Content;
 using Game.Core.Geometry;
 using Game.MonoGame.Rendering;
@@ -9,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace Game.MonoGame.Screens;
 
-/// <summary>Playable sandbox battle. Rules and turn ownership remain in Game.Core.</summary>
+/// <summary>Playable tactical battle. Rules and turn ownership remain in Game.Core.</summary>
 internal sealed class BattleScreen : IGameScreen
 {
     private readonly PixelCanvas _canvas;
@@ -19,6 +21,9 @@ internal sealed class BattleScreen : IGameScreen
     private readonly BattleHud _hud;
     private readonly Action _exit;
     private readonly int _seed;
+    private readonly CampaignBattle? _campaignBattle;
+    private readonly Func<EncounterResolution>? _returnToMap;
+    private string? _resultError;
     private readonly AStarPathfinder _pathfinder = new();
     private BattleInteraction _interaction = null!;
     private BattlefieldRenderer _field = null!;
@@ -38,18 +43,13 @@ internal sealed class BattleScreen : IGameScreen
     private static readonly Color Red = new(210, 118, 89);
     private static readonly Rectangle RestartButton = new(444, 488, 186, 34);
     private static readonly Rectangle ExitButton = new(650, 488, 186, 34);
+    private static readonly Rectangle ReturnButton = new(517, 488, 246, 34);
 
     public BattleScreen(PixelCanvas canvas, AssetCatalog assets, UnitCatalog catalog,
         int seed, bool night, Action exit, BattleCaptureStage capture = BattleCaptureStage.Opening)
+        : this(canvas, assets, catalog, exit, night)
     {
-        _canvas = canvas;
-        _assets = assets;
-        _catalog = catalog;
-        _font = new PixelFont(canvas);
-        _hud = new BattleHud(canvas, assets, catalog);
-        _exit = exit;
         _seed = seed;
-        _nightBlend = _nightTarget = night ? 1f : 0f;
         Restart();
         if (capture != BattleCaptureStage.Opening)
         {
@@ -60,11 +60,39 @@ internal sealed class BattleScreen : IGameScreen
         }
     }
 
+    public BattleScreen(PixelCanvas canvas, AssetCatalog assets, UnitCatalog catalog, CampaignBattle session,
+        Func<EncounterResolution> returnToMap, Action exit, MouseState initialMouse, KeyboardState initialKeyboard)
+        : this(canvas, assets, catalog, exit, false)
+    {
+        _seed = session.Encounter.Seed;
+        _campaignBattle = session;
+        _returnToMap = returnToMap;
+        LoadBattle(session.Battle, session.Field);
+        _previousMouse = initialMouse;
+        _previousKeyboard = initialKeyboard;
+    }
+
+    private BattleScreen(PixelCanvas canvas, AssetCatalog assets, UnitCatalog catalog, Action exit, bool night)
+    {
+        _canvas = canvas;
+        _assets = assets;
+        _catalog = catalog;
+        _font = new PixelFont(canvas);
+        _hud = new BattleHud(canvas, assets, catalog);
+        _exit = exit;
+        _nightBlend = _nightTarget = night ? 1f : 0f;
+    }
+
     private void Restart()
     {
         var demo = BattleDemo.Create(_catalog, _seed);
-        _interaction = new BattleInteraction(demo.Battle);
-        _field = new BattlefieldRenderer(_canvas, _assets, demo.Field.Map, demo.Field.Props);
+        LoadBattle(demo.Battle, demo.Field);
+    }
+
+    private void LoadBattle(Battle battle, GeneratedBattlefield field)
+    {
+        _interaction = new BattleInteraction(battle);
+        _field = new BattlefieldRenderer(_canvas, _assets, field.Map, field.Props);
         _healMode = false;
         _hover = null;
         _opponentDelay = 0.7f;
@@ -82,9 +110,18 @@ internal sealed class BattleScreen : IGameScreen
 
         if (Battle.IsFinished)
         {
-            if (Pressed(Keys.R) || clicked && RestartButton.Contains(mouse.Position)) Restart();
-            else if (clicked && ExitButton.Contains(mouse.Position)) _exit();
+            if (_returnToMap is not null)
+            {
+                if (Pressed(Keys.Enter) || Pressed(Keys.Escape) || clicked && ReturnButton.Contains(mouse.Position))
+                {
+                    var result = _returnToMap();
+                    if (!result.Success) _resultError = "НЕ УДАЛОСЬ ПРИМЕНИТЬ ИТОГ. ПОВТОРИТЕ ВОЗВРАТ.";
+                }
+            }
+            else if (Pressed(Keys.R) || clicked && RestartButton.Contains(mouse.Position)) Restart();
+            else if (Pressed(Keys.Escape) || clicked && ExitButton.Contains(mouse.Position)) _exit();
         }
+        else if (Pressed(Keys.Escape)) _exit();
         else if (_interaction.IsPlayerTurn)
         {
             _opponentDelay = 0.7f;
@@ -186,13 +223,13 @@ internal sealed class BattleScreen : IGameScreen
         foreach (var unit in Battle.Units.Where(unit => unit.IsAlive).OrderBy(unit => unit.Position.R).ThenBy(unit => unit.Position.Q))
             DrawUnit(unit);
         var hovered = _hover is { } cell ? Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == cell) : null;
-        _hud.Draw(Battle, DescribeHover(hovered), hovered, _healMode, _showGrid);
+        _hud.Draw(Battle, Battle.IsFinished ? "БОЙ ЗАВЕРШЁН." : DescribeHover(hovered), hovered, _healMode, _showGrid);
         if (Battle.IsFinished) DrawResult();
     }
 
     private void DrawTacticalOverlay()
     {
-        if (_showGrid && !_healMode)
+        if (_showGrid && !_healMode && _interaction.IsPlayerTurn)
             foreach (var coordinate in _reachable)
             {
                 _canvas.Polygon(_field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 5), Green * 0.12f);
@@ -294,9 +331,21 @@ internal sealed class BattleScreen : IGameScreen
             _font.Draw(Name(unit), 402, 274 + index * 30, new Color(221, 211, 174), 2);
             _font.Draw($"{unit.Count} / {initial - unit.Count}", 732, 274 + index++ * 30, Gold, 2);
         }
-        _font.Draw("ПРОБНЫЙ БОЙ: АРМИЯ КАМПАНИИ НЕ ИЗМЕНЯЕТСЯ.", 402, 444, Gold, 1);
-        ResultButton(RestartButton, "R: ПОВТОРИТЬ");
-        ResultButton(ExitButton, "ESC: ВЫХОД");
+        if (_campaignBattle is not null)
+        {
+            var encounter = _campaignBattle.Encounter;
+            _font.Draw(_resultError ?? (Battle.Winner == BattleSide.Player
+                ? $"НАГРАДА: {encounter.GoldReward} ЗОЛОТА, {encounter.ExperienceReward} ОПЫТА."
+                : "ПОРАЖЕНИЕ: НАГРАДЫ НЕТ. ПОТЕРИ СОХРАНЯТСЯ."), 402, 444, Gold, 1);
+            _font.Draw("ВЫЖИВШИЕ ВЕРНУТСЯ В АРМИЮ ПОЛНОСТЬЮ ЗДОРОВЫМИ.", 402, 461, Gold, 1);
+            ResultButton(ReturnButton, "ENTER / ESC: НА КАРТУ");
+        }
+        else
+        {
+            _font.Draw("ПРОБНЫЙ БОЙ: АРМИЯ КАМПАНИИ НЕ ИЗМЕНЯЕТСЯ.", 402, 444, Gold, 1);
+            ResultButton(RestartButton, "R: ПОВТОРИТЬ");
+            ResultButton(ExitButton, "ESC: ВЫХОД");
+        }
     }
 
     private void ResultButton(Rectangle rect, string text)

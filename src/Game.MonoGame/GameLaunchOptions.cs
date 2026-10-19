@@ -3,6 +3,7 @@ using System.Globalization;
 namespace Game.MonoGame;
 
 public enum BattleCaptureStage { Opening, Healing, Result }
+public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
 public sealed record GameLaunchOptions
@@ -11,6 +12,7 @@ public sealed record GameLaunchOptions
     public bool BattlePreview { get; init; }
     public bool PlayableCombat { get; init; }
     public BattleCaptureStage CombatCapture { get; init; }
+    public CampaignCaptureStage CampaignCapture { get; init; }
     public bool PreviewDescent { get; init; }
     public bool PreviewQuestHover { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
@@ -46,6 +48,11 @@ public sealed record GameLaunchOptions
                     break;
                 case "--screenshot":
                 case "--screenshot-quest-hover":
+                case "--screenshot-encounter-empty":
+                case "--screenshot-encounter":
+                case "--screenshot-campaign-battle":
+                case "--screenshot-campaign-result":
+                case "--screenshot-after-encounter":
                 case "--screenshot-grid":
                 case "--screenshot-combat":
                 case "--screenshot-combat-night":
@@ -78,6 +85,15 @@ public sealed record GameLaunchOptions
             ScreenshotPath = screenshot,
             BattlePreview = battle,
             PlayableCombat = combat,
+            CampaignCapture = mode switch
+            {
+                "--screenshot-encounter-empty" => CampaignCaptureStage.EmptyEncounter,
+                "--screenshot-encounter" => CampaignCaptureStage.ReadyEncounter,
+                "--screenshot-campaign-battle" => CampaignCaptureStage.Combat,
+                "--screenshot-campaign-result" => CampaignCaptureStage.Result,
+                "--screenshot-after-encounter" => CampaignCaptureStage.Returned,
+                _ => CampaignCaptureStage.None
+            },
             CombatCapture = mode switch
             {
                 "--screenshot-combat-heal" => BattleCaptureStage.Healing,

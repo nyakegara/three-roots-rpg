@@ -32,13 +32,19 @@ internal sealed class ExplorationScreen : IGameScreen
     private readonly Campaign? _campaign;
     private readonly UnitCatalog? _units;
     private readonly MovementSelection _movement;
+    private readonly Action _exit;
+    private MouseState _currentMouse;
+    private KeyboardState _currentKeyboard;
     private MouseState _previousMouse;
     private KeyboardState _previousKeyboard;
     private HexCoord? _hover;
     private string? _interactionMessage;
     private RecruitmentScreen? _recruitmentScreen;
+    private EncounterScreen? _encounterScreen;
+    private BattleScreen? _battleScreen;
 
     public bool HasOpenRecruitmentScreen => _recruitmentScreen is not null;
+    public bool HasOpenModal => _recruitmentScreen is not null || _encounterScreen is not null || _battleScreen is not null;
 
     public ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map,
         bool previewQuestHover = false)
@@ -47,20 +53,23 @@ internal sealed class ExplorationScreen : IGameScreen
     }
 
     public ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, CampaignDefinition definition,
-        UnitCatalog units, bool previewQuestHover = false, string? previewRecruitmentSiteId = null)
+        UnitCatalog units, bool previewQuestHover = false, string? previewRecruitmentSiteId = null,
+        Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None)
         : this(canvas, assets, definition.Map, definition.CreateGameState(), units,
-            previewQuestHover, previewRecruitmentSiteId)
+            previewQuestHover, previewRecruitmentSiteId, exit, capture)
     {
     }
 
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Campaign campaign,
-        UnitCatalog units, bool previewQuestHover, string? previewRecruitmentSiteId)
-        : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId)
+        UnitCatalog units, bool previewQuestHover, string? previewRecruitmentSiteId, Action? exit,
+        CampaignCaptureStage capture)
+        : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId, exit, capture)
     {
     }
 
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Hero hero,
-        Campaign? campaign, UnitCatalog? units, bool previewQuestHover, string? previewRecruitmentSiteId = null)
+        Campaign? campaign, UnitCatalog? units, bool previewQuestHover, string? previewRecruitmentSiteId = null,
+        Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None)
     {
         ArgumentNullException.ThrowIfNull(map);
         _canvas = canvas;
@@ -69,6 +78,7 @@ internal sealed class ExplorationScreen : IGameScreen
         _hero = hero;
         _campaign = campaign;
         _units = units;
+        _exit = exit ?? (() => { });
         _font = new PixelFont(canvas);
         _tiles = map.Tiles.ToArray();
         _pointsByCoordinate = map.PointsOfInterest.GroupBy(point => point.Coordinate)
@@ -81,7 +91,7 @@ internal sealed class ExplorationScreen : IGameScreen
             _projection.WorldSize,
             new NumericsVector2(startPosition.X - 640, startPosition.Y - 300));
         _renderer = new AdventureMapRenderer(canvas, assets);
-        _hud = new ExplorationHud(canvas, assets);
+        _hud = new ExplorationHud(canvas, assets, units);
         var battleMap = new BattleMap(_tiles.Select(tile =>
             new BattleTile(tile.Coordinate, tile.Height, tile.IsPassable)));
         _movement = new MovementSelection(battleMap, start);
@@ -101,13 +111,39 @@ internal sealed class ExplorationScreen : IGameScreen
                 VisitPoint(recruitmentPoint);
             }
         }
+        if (capture != CampaignCaptureStage.None && campaign is not null && units is not null)
+        {
+            var encounter = campaign.Encounters.First();
+            var point = map.PointsOfInterest.Single(candidate => candidate.Id == encounter.PointOfInterestId);
+            if (capture != CampaignCaptureStage.EmptyEncounter) CampaignCaptureSetup.RecruitParty(campaign);
+            _movement = new MovementSelection(battleMap, point.Coordinate);
+            var position = _projection.Project(point.Coordinate, map.GetTile(point.Coordinate)!.Height);
+            _camera = new AdventureMapCamera(new NumericsVector2(1280, MapViewportHeight), _projection.WorldSize,
+                new NumericsVector2(position.X - 640, position.Y - 300));
+            _hover = point.Coordinate;
+            VisitPoint(point);
+            if (capture is CampaignCaptureStage.Combat or CampaignCaptureStage.Result or CampaignCaptureStage.Returned)
+            {
+                var session = StartEncounter(point);
+                if (session is null) throw new InvalidOperationException("Cannot start campaign capture encounter.");
+                if (capture is CampaignCaptureStage.Result or CampaignCaptureStage.Returned)
+                {
+                    BattleCaptureSetup.Advance(session.Battle, BattleCaptureStage.Result);
+                    if (capture == CampaignCaptureStage.Returned && !ReturnFromBattle(session).Success)
+                        throw new InvalidOperationException("Cannot resolve campaign capture encounter.");
+                }
+            }
+        }
     }
 
     public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
-        if (_recruitmentScreen is not null)
+        _currentMouse = mouse;
+        _currentKeyboard = keyboard;
+        IGameScreen? modal = _battleScreen ?? (IGameScreen?)_encounterScreen ?? _recruitmentScreen;
+        if (modal is not null)
         {
-            _recruitmentScreen.Update(mouse, keyboard, elapsedSeconds);
+            modal.Update(mouse, keyboard, elapsedSeconds);
             _previousMouse = mouse;
             _previousKeyboard = keyboard;
             return;
@@ -150,6 +186,21 @@ internal sealed class ExplorationScreen : IGameScreen
 
     private void VisitPoint(WorldPointOfInterest point)
     {
+        if (_campaign is not null && _units is not null)
+        {
+            var encounter = _campaign.Encounters.FirstOrDefault(candidate => candidate.PointOfInterestId == point.Id);
+            if (encounter is not null && !_campaign.CompletedEncounterIds.Contains(encounter.Id))
+            {
+                _encounterScreen = new EncounterScreen(_canvas, _assets, _units, _hero, encounter,
+                    () => StartEncounter(point), () => _encounterScreen = null, _currentMouse, _currentKeyboard);
+                return;
+            }
+            if (encounter is not null)
+            {
+                _interactionMessage = "ДОЗОР УЖЕ ПОБЕЖДЁН. ПУТЬ СВОБОДЕН.";
+                return;
+            }
+        }
         if (point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase) &&
             _campaign is not null && _units is not null &&
             _campaign.TryGetRecruitmentSiteAt(point, _movement.Position, out var site) && site is not null)
@@ -162,8 +213,39 @@ internal sealed class ExplorationScreen : IGameScreen
         _interactionMessage = $"ВЫ ПОДОШЛИ К МЕСТУ: {point.Name}";
     }
 
+    private CampaignBattle? StartEncounter(WorldPointOfInterest point)
+    {
+        var result = _campaign!.TryStartEncounter(point, _movement.Position, _units!);
+        if (!result.Success || result.Session is null)
+        {
+            _encounterScreen?.ShowError();
+            return null;
+        }
+        var session = result.Session;
+        _encounterScreen = null;
+        _battleScreen = new BattleScreen(_canvas, _assets, _units!, session,
+            () => ReturnFromBattle(session), _exit, _currentMouse, _currentKeyboard);
+        return session;
+    }
+
+    private EncounterResolution ReturnFromBattle(CampaignBattle session)
+    {
+        var result = _campaign!.ResolveEncounter(session);
+        if (!result.Success) return result;
+        _battleScreen = null;
+        _interactionMessage = result.Victory
+            ? $"ПОБЕДА: +{result.GoldAwarded} ЗОЛОТА, +{result.ExperienceAwarded} ОПЫТА. ПОТЕРИ СОХРАНЕНЫ."
+            : "ПОРАЖЕНИЕ. ПОТЕРИ СОХРАНЕНЫ. НОВЫХ БОЙЦОВ МОЖНО НАНЯТЬ.";
+        return result;
+    }
+
     public void Draw()
     {
+        if (_battleScreen is not null)
+        {
+            _battleScreen.Draw();
+            return;
+        }
         if (_recruitmentScreen is not null)
         {
             _recruitmentScreen.Draw();
@@ -176,6 +258,7 @@ internal sealed class ExplorationScreen : IGameScreen
         var hoveredPoint = _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var point)
             ? point : null;
         _hud.Draw(_hero, _hero.Army.Stacks, hoveredPoint, CurrentActionText(hoveredPoint));
+        _encounterScreen?.Draw();
     }
 
     private void DrawMapPlaque()

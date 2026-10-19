@@ -9,35 +9,17 @@ namespace Game.MonoGame;
 internal sealed class Game1 : Microsoft.Xna.Framework.Game
 {
     private readonly GraphicsDeviceManager _graphics;
-    private readonly string? _screenshotPath;
-    private readonly bool _battlePreview;
-    private readonly bool _previewDescent;
-    private readonly bool _previewQuestHover;
-    private readonly string? _previewRecruitmentSiteId;
-    private readonly int _battleSeed;
-    private readonly bool _night;
-    private readonly bool _playableCombat;
-    private readonly BattleCaptureStage _combatCapture;
+    private readonly GameLaunchOptions _options;
+    private KeyboardState _previousKeyboard;
     private SpriteBatch _spriteBatch = null!;
     private PixelCanvas _canvas = null!;
     private AssetCatalog _assets = null!;
     private IGameScreen _screen = null!;
     private RenderTarget2D _frame = null!;
 
-    public Game1(string? screenshotPath = null, bool battlePreview = false,
-        bool previewDescent = false, bool previewQuestHover = false, string? previewRecruitmentSiteId = null,
-        int battleSeed = 1729, bool night = false, bool playableCombat = false,
-        BattleCaptureStage combatCapture = BattleCaptureStage.Opening)
+    public Game1(GameLaunchOptions options)
     {
-        _screenshotPath = screenshotPath;
-        _battlePreview = battlePreview;
-        _previewDescent = previewDescent;
-        _previewQuestHover = previewQuestHover;
-        _previewRecruitmentSiteId = previewRecruitmentSiteId;
-        _battleSeed = battleSeed;
-        _night = night;
-        _playableCombat = playableCombat;
-        _combatCapture = combatCapture;
+        _options = options;
         _graphics = new GraphicsDeviceManager(this)
         {
             PreferredBackBufferWidth = 1280,
@@ -55,20 +37,20 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
         _assets = new AssetCatalog(GraphicsDevice);
-        if (_playableCombat)
+        if (_options.PlayableCombat)
         {
             var units = LoadUnitCatalog();
-            _screen = new BattleScreen(_canvas, _assets, units, _battleSeed, _night, Exit, _combatCapture);
+            _screen = new BattleScreen(_canvas, _assets, units, _options.BattleSeed, _options.Night, Exit, _options.CombatCapture);
         }
-        else if (_battlePreview)
+        else if (_options.BattlePreview)
         {
-            _screen = new BattlePreviewScreen(_canvas, _assets, Exit, true, _previewDescent, _battleSeed, _night);
+            _screen = new BattlePreviewScreen(_canvas, _assets, Exit, true, _options.PreviewDescent, _options.BattleSeed, _options.Night);
         }
         else
         {
             var (campaign, units) = LoadFloraCampaign();
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
-                _previewQuestHover, _previewRecruitmentSiteId);
+                _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture);
         }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
             SurfaceFormat.Color, DepthFormat.None);
@@ -101,11 +83,13 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     protected override void Update(GameTime gameTime)
     {
         var keyboard = Keyboard.GetState();
-        if (keyboard.IsKeyDown(Keys.Escape) && _screen is not ExplorationScreen { HasOpenRecruitmentScreen: true })
+        if (keyboard.IsKeyDown(Keys.Escape) && !_previousKeyboard.IsKeyDown(Keys.Escape) &&
+            _screen is not ExplorationScreen { HasOpenModal: true })
             Exit();
 
-        if (_screenshotPath is null)
+        if (_options.ScreenshotPath is null)
             _screen.Update(Mouse.GetState(), keyboard, (float)gameTime.ElapsedGameTime.TotalSeconds);
+        _previousKeyboard = keyboard;
 
         base.Update(gameTime);
     }
@@ -128,10 +112,10 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         _spriteBatch.End();
         base.Draw(gameTime);
 
-        if (_screenshotPath is not null)
+        if (_options.ScreenshotPath is not null)
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(_screenshotPath)!);
-            using var stream = File.Create(_screenshotPath);
+            Directory.CreateDirectory(Path.GetDirectoryName(_options.ScreenshotPath)!);
+            using var stream = File.Create(_options.ScreenshotPath);
             _frame.SaveAsPng(stream, _frame.Width, _frame.Height);
             Exit();
         }
