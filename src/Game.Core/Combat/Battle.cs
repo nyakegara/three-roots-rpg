@@ -145,10 +145,16 @@ public sealed class Battle
 
     public void EndActivation()
     {
-        if (ActiveUnit is not null)
+        if (ActiveUnit is null)
+        {
+            return;
+        }
+
+        do
         {
             _activationIndex++;
         }
+        while (_activationIndex < _initiative.Count && !_initiative[_activationIndex].IsAlive);
     }
 
     public IReadOnlyList<BattleUnit> GetEnemies(BattleSide side) => _units.Values

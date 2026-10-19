@@ -44,31 +44,46 @@ public sealed class BattleAi
 
         var occupied = battle.Units.Where(other => other.IsAlive && other.Id != unitId)
             .Select(other => other.Position).ToHashSet();
-        var candidates = new List<(HexCoord Coordinate, int PathCost, int Distance)>
-        {
-            (unit.Position, 0, enemies.Min(enemy => unit.Position.DistanceTo(enemy.Position)))
-        };
-
+        PathResult? bestPath = null;
         foreach (var tile in battle.Map.Tiles.OrderBy(tile => tile.Coordinate.Q).ThenBy(tile => tile.Coordinate.R))
         {
-            if (tile.Coordinate == unit.Position || occupied.Contains(tile.Coordinate))
+            if (!tile.IsPassable || occupied.Contains(tile.Coordinate) ||
+                !enemies.Any(enemy => CanAttackFrom(unit, tile, enemy, battle.Map)))
             {
                 continue;
             }
 
             var path = _pathfinder.FindPath(battle.Map, unit.Position, tile.Coordinate, occupied);
-            if (path.IsReachable && path.Cost <= unit.Movement)
+            if (path.IsReachable && path.Cost > 0 &&
+                (bestPath is null || path.Cost < bestPath.Cost ||
+                 (path.Cost == bestPath.Cost && IsEarlier(path.Coordinates[^1], bestPath.Coordinates[^1]))))
             {
-                candidates.Add((tile.Coordinate, path.Cost,
-                    enemies.Min(enemy => tile.Coordinate.DistanceTo(enemy.Position))));
+                bestPath = path;
             }
         }
 
-        var best = candidates.OrderBy(candidate => candidate.Distance)
-            .ThenBy(candidate => candidate.PathCost)
-            .ThenBy(candidate => candidate.Coordinate.Q)
-            .ThenBy(candidate => candidate.Coordinate.R)
-            .First();
-        return best.Coordinate == unit.Position ? BattleAction.End() : BattleAction.MoveTo(best.Coordinate);
+        if (bestPath is null || unit.Movement == 0)
+        {
+            return BattleAction.End();
+        }
+
+        var steps = Math.Min(unit.Movement, bestPath.Cost);
+        return BattleAction.MoveTo(bestPath.Coordinates[steps]);
     }
+
+    private static bool CanAttackFrom(BattleUnit attacker, BattleTile from, BattleUnit target, BattleMap map)
+    {
+        var distance = from.Coordinate.DistanceTo(target.Position);
+        if (!attacker.IsRanged)
+        {
+            return distance == 1;
+        }
+
+        var targetTile = map.GetTile(target.Position);
+        return targetTile is not null && distance <= attacker.Range + (from.Height > targetTile.Height ? 2 : 0) &&
+               BattleRules.HasLineOfSight(from.Coordinate, from.Height, target.Position, targetTile.Height, map);
+    }
+
+    private static bool IsEarlier(HexCoord left, HexCoord right) =>
+        left.Q < right.Q || (left.Q == right.Q && left.R < right.R);
 }

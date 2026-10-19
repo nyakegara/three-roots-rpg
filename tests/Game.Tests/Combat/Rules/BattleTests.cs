@@ -88,6 +88,22 @@ public sealed class BattleTests
     }
 
     [Fact]
+    public void EndActivation_SkipsUnitKilledBeforeItsInitiativeTurn()
+    {
+        var attacker = Unit("attacker", BattleSide.Player, new(0, 0), speed: 10, range: 2,
+            damage: 10, count: 1, hp: 10);
+        var doomed = Unit("doomed", BattleSide.Enemy, new(1, 0), speed: 5, count: 1, hp: 10);
+        var survivor = Unit("survivor", BattleSide.Enemy, new(3, 0), speed: 1);
+        var battle = CreateBattle(attacker, doomed, survivor);
+        battle.StartRound();
+
+        Assert.True(battle.Attack("attacker", "doomed"));
+        battle.EndActivation();
+
+        Assert.Equal("survivor", battle.ActiveUnit!.Id);
+    }
+
+    [Fact]
     public void HeroAbility_CanBeUsedOncePerRound_AndResetsNextRound()
     {
         var battle = CreateBattle(Unit("hero", BattleSide.Player, new(0, 0), isHero: true),
