@@ -68,7 +68,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             Exit();
 
         if (_screenshotPath is null)
-            _screen.Update(Mouse.GetState(), keyboard);
+            _screen.Update(Mouse.GetState(), keyboard, (float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }

@@ -59,10 +59,10 @@ internal sealed class ExplorationScreen : IGameScreen
                 !point.Type.Equals("treasure", StringComparison.OrdinalIgnoreCase))?.Coordinate;
     }
 
-    public void Update(MouseState mouse, KeyboardState keyboard)
+    public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
         var pointer = new NumericsVector2(mouse.X, mouse.Y);
-        _camera.Update(pointer, 1f / 60f);
+        _camera.Update(pointer, elapsedSeconds);
         if (mouse.Y < MapViewportHeight && mouse.X >= 0 && mouse.X < 1280)
         {
             _hover = _projection.TryPick(_camera.ToWorld(pointer), out var coordinate) ? coordinate : null;

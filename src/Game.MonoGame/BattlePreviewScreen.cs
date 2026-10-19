@@ -54,7 +54,7 @@ internal sealed class BattlePreviewScreen : Screens.IGameScreen
         Reset();
     }
 
-    public void Update(MouseState mouse, KeyboardState keyboard)
+    public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
         _mousePosition = mouse.Position;
         _hover = mouse.Y < 600 ? _layout.HitTest(mouse.Position, _drawOrder) : null;
