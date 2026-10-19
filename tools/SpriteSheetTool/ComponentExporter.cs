@@ -12,6 +12,8 @@ static class ComponentExporter
         var outputPath = Path.GetFullPath(options["--output"]);
         if (sourcePath.Equals(outputPath, StringComparison.OrdinalIgnoreCase)) throw new ArgumentException("Source and output must differ.");
         var kind = options["--kind"]; var id = options["--id"];
+        var anchorMode = options.GetValueOrDefault("--anchor-mode") ?? "body";
+        if (anchorMode is not ("body" or "cell")) throw new ArgumentException("--anchor-mode must be body or cell.");
         if (kind is not ("hero" or "unit" or "support")) throw new ArgumentException("Invalid kind.");
         var columns = kind == "hero" ? 6 : 4; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : 2;
         var cutoff = int.Parse(options.GetValueOrDefault("--alpha-cutoff") ?? "128");
@@ -28,7 +30,7 @@ static class ComponentExporter
         Atlas Load(string path, int cols, int rs)
         {
             path = Path.GetFullPath(path);
-            if (!atlases.TryGetValue(path, out var atlas)) atlases.Add(path, atlas = new Atlas(path, cols, rs, cutoff, box, baseline));
+            if (!atlases.TryGetValue(path, out var atlas)) atlases.Add(path, atlas = new Atlas(path, cols, rs, cutoff, box, baseline, anchorMode));
             else if (atlas.Columns != cols || atlas.Rows != rs) throw new ArgumentException("A source path cannot have multiple grid definitions.");
             return atlas;
         }
@@ -71,7 +73,7 @@ static class ComponentExporter
             for (var x = 0; x < 64; x++)
             {
                 var sx = (int)Math.Floor(group.PivotX + (x + .5 - 32) / atlas.Scale);
-                var sy = (int)Math.Floor(main.Bottom + (y + .5 - baseline) / atlas.Scale);
+                var sy = (int)Math.Floor(group.PivotY + (y + .5 - baseline) / atlas.Scale);
                 if (sx < 0 || sy < 0 || sx >= atlas.Width || sy >= atlas.Height) continue;
                 var label = atlas.Labels[sy * atlas.Width + sx];
                 if (!group.Ids.Contains(label)) continue;
@@ -79,7 +81,7 @@ static class ComponentExporter
                 if (label == main.Id) { primaryBottom = Math.Max(primaryBottom, y + 1); sampledBodyPixels++; }
             }
             if (sampledBodyPixels == 0) throw new InvalidOperationException($"Empty sampled primary body atframe{frame}.");
-            var dy = baseline - primaryBottom; var clipped = 0; var sourceClipped = 0;
+            var dy = anchorMode == "cell" ? 0 : baseline - primaryBottom; var clipped = 0; var sourceClipped = 0;
             var left = 64; var top = 80; var right = -1; var bottom = -1; var edge = 0;
             for (var y = 0; y < 80; y++)
             for (var x = 0; x < 64; x++)
@@ -95,19 +97,19 @@ static class ComponentExporter
             {
                 if (!group.Ids.Contains(atlas.Labels[sy * atlas.Width + sx])) continue;
                 var tx = (int)Math.Floor(32 + (sx + .5 - group.PivotX) * atlas.Scale);
-                var ty = (int)Math.Floor(baseline + (sy + .5 - main.Bottom) * atlas.Scale) + dy;
+                var ty = (int)Math.Floor(baseline + (sy + .5 - group.PivotY) * atlas.Scale) + dy;
                 if (tx < 0 || tx >= 64 || ty < 0 || ty >= 80) sourceClipped++;
             }
             if (clipped > 0 || sourceClipped > 0) Console.WriteLine($"CLIPPING REVIEW frame{frame}: native{clipped}, source{sourceClipped}");
-            registration.Add(new { frame, translationY = dy, originalBottomExclusive = primaryBottom, registeredBottomExclusive = baseline, clippedOpaquePixels = clipped });
+            registration.Add(new { frame, translationY = dy, originalBottomExclusive = primaryBottom, registeredBottomExclusive = primaryBottom + dy, clippedOpaquePixels = clipped });
             diagnostics.Add(new { frame, empty = false, visibleBounds = new { left, top, right, bottom }, edgePixels = edge });
             frameRecords.Add(new {
                 frame, source = Path.GetRelativePath(Path.GetDirectoryName(outputPath)!, atlas.Path).Replace('\\', '/'), sourceFrame = group.Frame,
                 primaryComponent = main.Id, componentIds = group.Ids.Order().ToArray(),
                 sourceCropBounds = new { left = group.Left, top = group.Top, right = group.Right, bottom = group.Bottom },
                 primaryBounds = new { left = main.Left, top = main.Top, right = main.Right, bottom = main.Bottom },
-                scale = atlas.Scale, pivotX = group.PivotX, primaryBottom = main.Bottom,
-                transform = new { offsetX = 32 - group.PivotX * atlas.Scale, offsetY = baseline - main.Bottom * atlas.Scale + dy },
+                scale = atlas.Scale, pivotX = group.PivotX, pivotY = group.PivotY, primaryBottom = main.Bottom,
+                transform = new { offsetX = 32 - group.PivotX * atlas.Scale, offsetY = baseline - group.PivotY * atlas.Scale + dy },
                 nativeBounds = new { left, top, rightExclusive = right + 1, bottomExclusive = bottom + 1 },
                 translatedClipping = clipped, sourcePixelsProjectedOutsideFrame = sourceClipped
             });
@@ -126,14 +128,15 @@ static class ComponentExporter
         var metadata = new {
             schemaVersion = 2, id, image = Path.GetFileName(outputPath), kind, width = output.Width, height = output.Height, columns, rows,
             cell = new { width = 64, height = 80 }, anchor = new { x = 32, y = baseline },
-            contentBox = new { x = box[0], y = box[1], width = box[2], height = box[3] }, alphaCutoff = cutoff, alignBottom = baseline,
+            contentBox = new { x = box[0], y = box[1], width = box[2], height = box[3] }, alphaCutoff = cutoff, alignBottom = baseline, anchorMode,
             frameOrder = "row-major", clips, frameDiagnostics = diagnostics, registration,
             sourceBorderDiagnostics = Array.Empty<object>(),
             unpacking = new {
                 enabled = true, connectivity = 8, majorMinAreaFraction = .1, majorMinHeightFraction = .35,
                 attachment = "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
-                pivot = "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+                pivot = anchorMode == "cell" ? "source cell-center X; common max primary bottom across source row Y; no per-frame normalization" : "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
                 scale = "one constant scale per source path, fitting maximum anchored group extents into content box",
+                sampling = "sourceX=floor(pivotX+(x+0.5-anchorX)/scale); sourceY=floor(pivotY+(y-translationY+0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
                 sources = atlases.Values.Select(a => new {
                     source = Path.GetRelativePath(Path.GetDirectoryName(outputPath)!, a.Path).Replace('\\', '/'),
                     a.Width, a.Height, a.Columns, a.Rows, expected = a.Columns * a.Rows, primaryComponents = a.Groups.Count,
@@ -168,7 +171,7 @@ static class ComponentExporter
     { public int Width => Right-Left; public int Height => Bottom-Top; }
     sealed class Group(Part main, int frame, double pivotX)
     {
-        public Part Main = main; public int Frame = frame; public double PivotX = pivotX;
+        public Part Main = main; public int Frame = frame; public double PivotX = pivotX; public int PivotY = main.Bottom;
         public HashSet<int> Ids = [main.Id]; public int Left = main.Left, Top = main.Top, Right = main.Right, Bottom = main.Bottom;
         public void Add(Part part) { Ids.Add(part.Id); Left=Math.Min(Left,part.Left); Top=Math.Min(Top,part.Top); Right=Math.Max(Right,part.Right); Bottom=Math.Max(Bottom,part.Bottom); }
     }
@@ -178,7 +181,7 @@ static class ComponentExporter
         public List<Part> Components=[]; public Dictionary<int,Group> Groups=[]; public List<object> Attachments=[];
         public double Scale, FitScale; public long Transparent,Partial,Opaque;
         public Color Pixel(int x,int y) { var i=y*Stride+x*4; return Color.FromArgb(Bytes[i+3],Bytes[i+2],Bytes[i+1],Bytes[i]); }
-        public Atlas(string path,int columns,int rows,int cutoff,int[] box,int baseline)
+        public Atlas(string path,int columns,int rows,int cutoff,int[] box,int baseline,string anchorMode)
         {
             Path=path;Columns=columns;Rows=rows;using var image=new Bitmap(path);Width=image.Width;Height=image.Height;
             var data=image.LockBits(new Rectangle(0,0,Width,Height),ImageLockMode.ReadOnly,PixelFormat.Format32bppArgb);Stride=data.Stride;
@@ -207,6 +210,11 @@ static class ComponentExporter
                 for(var y=main.Bottom-(int)Math.Ceiling(main.Height*.15);y<main.Bottom;y++)for(var x=main.Left;x<main.Right;x++)if(Labels[y*Width+x]==main.Id){mass++;sum+=x+.5;}
                 Groups.Add(frame,new Group(main,frame,sum/mass));
             }
+            if(anchorMode=="cell")
+            {
+                var grounds=Groups.Values.GroupBy(g=>g.Frame/columns).ToDictionary(row=>row.Key,row=>row.Max(g=>g.Main.Bottom));
+                foreach(var group in Groups.Values){group.PivotX=(group.Frame%columns+.5)*cw;group.PivotY=grounds[group.Frame/columns];}
+            }
             double BoxDistance(Part a,Part b) {var dx=Math.Max(0,Math.Max(a.Left-b.Right,b.Left-a.Right));var dy=Math.Max(0,Math.Max(a.Top-b.Bottom,b.Top-a.Bottom));return Math.Sqrt(dx*dx+dy*dy);}
             var boundaryCache=new Dictionary<int,List<Point>>();
             List<Point> Boundary(Part part)
@@ -228,7 +236,7 @@ static class ComponentExporter
                 Attachments.Add(new {component=small.Id,small.Area,bounds=new{small.Left,small.Top,small.Right,small.Bottom},frame=chosen.group.Frame,bboxDistance=chosen.distance,ambiguous=ambiguity,far,assigned=!far});
                 if(far||ambiguity)Console.WriteLine($"ATTACHMENT REVIEW {System.IO.Path.GetFileName(path)}: component{small.Id}, frame{chosen.group.Frame}, far={far}, ambiguous={ambiguity}");
             }
-            var maxLeft=Groups.Values.Max(g=>g.PivotX-g.Left);var maxRight=Groups.Values.Max(g=>g.Right-g.PivotX);var maxAbove=Groups.Values.Max(g=>g.Main.Bottom-g.Top);var maxBelow=Groups.Values.Max(g=>g.Bottom-g.Main.Bottom);
+            var maxLeft=Groups.Values.Max(g=>g.PivotX-g.Left);var maxRight=Groups.Values.Max(g=>g.Right-g.PivotX);var maxAbove=Groups.Values.Max(g=>g.PivotY-g.Top);var maxBelow=Groups.Values.Max(g=>g.Bottom-g.PivotY);
             Scale=Math.Min(Math.Min((32-box[0])/maxLeft,(box[0]+box[2]-32)/maxRight),(baseline-box[1])/(double)maxAbove);
             if(maxBelow>0)Scale=Math.Min(Scale,(box[1]+box[3]-baseline)/(double)maxBelow);
             if(Scale<=0||!double.IsFinite(Scale))throw new InvalidOperationException($"{path}: effects extend below baseline/contentbox; needs explicit review.");

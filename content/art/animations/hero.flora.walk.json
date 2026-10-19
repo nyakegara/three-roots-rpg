@@ -16,13 +16,14 @@
     "y": 72
   },
   "contentBox": {
-    "x": 8,
+    "x": 0,
     "y": 8,
-    "width": 48,
+    "width": 64,
     "height": 64
   },
   "alphaCutoff": 128,
   "alignBottom": 72,
+  "anchorMode": "cell",
   "frameOrder": "row-major",
   "clips": [
     {
@@ -157,8 +158,8 @@
       "frame": 0,
       "empty": false,
       "visibleBounds": {
-        "left": 16,
-        "top": 17,
+        "left": 17,
+        "top": 16,
         "right": 49,
         "bottom": 71
       },
@@ -168,10 +169,10 @@
       "frame": 1,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 17,
-        "right": 49,
-        "bottom": 71
+        "left": 14,
+        "top": 16,
+        "right": 47,
+        "bottom": 70
       },
       "edgePixels": 0
     },
@@ -179,9 +180,9 @@
       "frame": 2,
       "empty": false,
       "visibleBounds": {
-        "left": 16,
-        "top": 17,
-        "right": 51,
+        "left": 14,
+        "top": 16,
+        "right": 47,
         "bottom": 71
       },
       "edgePixels": 0
@@ -190,10 +191,10 @@
       "frame": 3,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 18,
-        "right": 53,
-        "bottom": 71
+        "left": 14,
+        "top": 16,
+        "right": 47,
+        "bottom": 70
       },
       "edgePixels": 0
     },
@@ -201,9 +202,9 @@
       "frame": 4,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 17,
-        "right": 53,
+        "left": 14,
+        "top": 16,
+        "right": 47,
         "bottom": 71
       },
       "edgePixels": 0
@@ -212,9 +213,9 @@
       "frame": 5,
       "empty": false,
       "visibleBounds": {
-        "left": 16,
-        "top": 17,
-        "right": 53,
+        "left": 14,
+        "top": 16,
+        "right": 47,
         "bottom": 71
       },
       "edgePixels": 0
@@ -224,8 +225,8 @@
       "empty": false,
       "visibleBounds": {
         "left": 16,
-        "top": 16,
-        "right": 52,
+        "top": 15,
+        "right": 51,
         "bottom": 71
       },
       "edgePixels": 0
@@ -235,8 +236,8 @@
       "empty": false,
       "visibleBounds": {
         "left": 13,
-        "top": 17,
-        "right": 55,
+        "top": 15,
+        "right": 50,
         "bottom": 71
       },
       "edgePixels": 0
@@ -245,9 +246,9 @@
       "frame": 8,
       "empty": false,
       "visibleBounds": {
-        "left": 17,
-        "top": 16,
-        "right": 55,
+        "left": 13,
+        "top": 15,
+        "right": 50,
         "bottom": 71
       },
       "edgePixels": 0
@@ -256,9 +257,9 @@
       "frame": 9,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 17,
-        "right": 53,
+        "left": 14,
+        "top": 15,
+        "right": 51,
         "bottom": 71
       },
       "edgePixels": 0
@@ -267,9 +268,9 @@
       "frame": 10,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 18,
-        "right": 54,
+        "left": 13,
+        "top": 15,
+        "right": 50,
         "bottom": 71
       },
       "edgePixels": 0
@@ -278,9 +279,9 @@
       "frame": 11,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 17,
-        "right": 53,
+        "left": 13,
+        "top": 15,
+        "right": 48,
         "bottom": 71
       },
       "edgePixels": 0
@@ -289,9 +290,9 @@
       "frame": 12,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 13,
-        "right": 54,
+        "left": 14,
+        "top": 15,
+        "right": 49,
         "bottom": 71
       },
       "edgePixels": 0
@@ -300,9 +301,9 @@
       "frame": 13,
       "empty": false,
       "visibleBounds": {
-        "left": 15,
-        "top": 14,
-        "right": 52,
+        "left": 11,
+        "top": 15,
+        "right": 48,
         "bottom": 71
       },
       "edgePixels": 0
@@ -311,9 +312,9 @@
       "frame": 14,
       "empty": false,
       "visibleBounds": {
-        "left": 14,
-        "top": 14,
-        "right": 52,
+        "left": 11,
+        "top": 15,
+        "right": 47,
         "bottom": 71
       },
       "edgePixels": 0
@@ -322,15 +323,147 @@
       "frame": 15,
       "empty": false,
       "visibleBounds": {
-        "left": 16,
-        "top": 14,
-        "right": 53,
+        "left": 11,
+        "top": 15,
+        "right": 47,
         "bottom": 71
       },
       "edgePixels": 0
     },
     {
       "frame": 16,
+      "empty": false,
+      "visibleBounds": {
+        "left": 11,
+        "top": 15,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 17,
+      "empty": false,
+      "visibleBounds": {
+        "left": 10,
+        "top": 15,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 18,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 16,
+        "right": 51,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 19,
+      "empty": false,
+      "visibleBounds": {
+        "left": 17,
+        "top": 16,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 20,
+      "empty": false,
+      "visibleBounds": {
+        "left": 15,
+        "top": 16,
+        "right": 43,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 21,
+      "empty": false,
+      "visibleBounds": {
+        "left": 14,
+        "top": 16,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 22,
+      "empty": false,
+      "visibleBounds": {
+        "left": 15,
+        "top": 16,
+        "right": 42,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 23,
+      "empty": false,
+      "visibleBounds": {
+        "left": 14,
+        "top": 16,
+        "right": 42,
+        "bottom": 70
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 24,
+      "empty": false,
+      "visibleBounds": {
+        "left": 21,
+        "top": 15,
+        "right": 59,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 25,
+      "empty": false,
+      "visibleBounds": {
+        "left": 20,
+        "top": 15,
+        "right": 58,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 26,
+      "empty": false,
+      "visibleBounds": {
+        "left": 18,
+        "top": 15,
+        "right": 56,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 27,
+      "empty": false,
+      "visibleBounds": {
+        "left": 16,
+        "top": 15,
+        "right": 54,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 28,
       "empty": false,
       "visibleBounds": {
         "left": 14,
@@ -341,144 +474,12 @@
       "edgePixels": 0
     },
     {
-      "frame": 17,
-      "empty": false,
-      "visibleBounds": {
-        "left": 16,
-        "top": 15,
-        "right": 53,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 18,
-      "empty": false,
-      "visibleBounds": {
-        "left": 12,
-        "top": 12,
-        "right": 55,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 19,
-      "empty": false,
-      "visibleBounds": {
-        "left": 13,
-        "top": 12,
-        "right": 51,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 20,
-      "empty": false,
-      "visibleBounds": {
-        "left": 13,
-        "top": 13,
-        "right": 49,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 21,
-      "empty": false,
-      "visibleBounds": {
-        "left": 10,
-        "top": 13,
-        "right": 51,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 22,
-      "empty": false,
-      "visibleBounds": {
-        "left": 12,
-        "top": 13,
-        "right": 50,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 23,
-      "empty": false,
-      "visibleBounds": {
-        "left": 12,
-        "top": 12,
-        "right": 49,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 24,
-      "empty": false,
-      "visibleBounds": {
-        "left": 8,
-        "top": 20,
-        "right": 50,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 25,
-      "empty": false,
-      "visibleBounds": {
-        "left": 10,
-        "top": 19,
-        "right": 50,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 26,
-      "empty": false,
-      "visibleBounds": {
-        "left": 10,
-        "top": 20,
-        "right": 48,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 27,
-      "empty": false,
-      "visibleBounds": {
-        "left": 11,
-        "top": 19,
-        "right": 52,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
-      "frame": 28,
-      "empty": false,
-      "visibleBounds": {
-        "left": 12,
-        "top": 20,
-        "right": 53,
-        "bottom": 71
-      },
-      "edgePixels": 0
-    },
-    {
       "frame": 29,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 20,
-        "right": 49,
+        "left": 12,
+        "top": 15,
+        "right": 51,
         "bottom": 71
       },
       "edgePixels": 0
@@ -487,9 +488,9 @@
       "frame": 30,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 18,
-        "right": 53,
+        "left": 16,
+        "top": 15,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -498,9 +499,9 @@
       "frame": 31,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
-        "top": 18,
-        "right": 53,
+        "left": 15,
+        "top": 15,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -509,9 +510,9 @@
       "frame": 32,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
-        "top": 19,
-        "right": 51,
+        "left": 15,
+        "top": 15,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -520,9 +521,9 @@
       "frame": 33,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 19,
-        "right": 53,
+        "left": 13,
+        "top": 15,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -531,9 +532,9 @@
       "frame": 34,
       "empty": false,
       "visibleBounds": {
-        "left": 11,
-        "top": 20,
-        "right": 53,
+        "left": 15,
+        "top": 15,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -542,9 +543,9 @@
       "frame": 35,
       "empty": false,
       "visibleBounds": {
-        "left": 11,
-        "top": 19,
-        "right": 51,
+        "left": 15,
+        "top": 15,
+        "right": 57,
         "bottom": 71
       },
       "edgePixels": 0
@@ -553,9 +554,9 @@
       "frame": 36,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
-        "top": 19,
-        "right": 53,
+        "left": 15,
+        "top": 16,
+        "right": 61,
         "bottom": 71
       },
       "edgePixels": 0
@@ -564,9 +565,9 @@
       "frame": 37,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
-        "top": 18,
-        "right": 50,
+        "left": 11,
+        "top": 17,
+        "right": 58,
         "bottom": 71
       },
       "edgePixels": 0
@@ -575,9 +576,9 @@
       "frame": 38,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
+        "left": 12,
         "top": 17,
-        "right": 53,
+        "right": 58,
         "bottom": 71
       },
       "edgePixels": 0
@@ -586,9 +587,9 @@
       "frame": 39,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
-        "top": 18,
-        "right": 53,
+        "left": 11,
+        "top": 17,
+        "right": 57,
         "bottom": 71
       },
       "edgePixels": 0
@@ -599,7 +600,7 @@
       "visibleBounds": {
         "left": 10,
         "top": 17,
-        "right": 50,
+        "right": 57,
         "bottom": 71
       },
       "edgePixels": 0
@@ -608,9 +609,9 @@
       "frame": 41,
       "empty": false,
       "visibleBounds": {
-        "left": 11,
+        "left": 9,
         "top": 17,
-        "right": 50,
+        "right": 55,
         "bottom": 71
       },
       "edgePixels": 0
@@ -619,9 +620,9 @@
       "frame": 42,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 18,
-        "right": 50,
+        "left": 17,
+        "top": 17,
+        "right": 60,
         "bottom": 71
       },
       "edgePixels": 0
@@ -630,9 +631,9 @@
       "frame": 43,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 19,
-        "right": 53,
+        "left": 16,
+        "top": 17,
+        "right": 60,
         "bottom": 71
       },
       "edgePixels": 0
@@ -641,9 +642,9 @@
       "frame": 44,
       "empty": false,
       "visibleBounds": {
-        "left": 8,
-        "top": 21,
-        "right": 49,
+        "left": 14,
+        "top": 17,
+        "right": 58,
         "bottom": 71
       },
       "edgePixels": 0
@@ -652,9 +653,9 @@
       "frame": 45,
       "empty": false,
       "visibleBounds": {
-        "left": 11,
-        "top": 18,
-        "right": 51,
+        "left": 16,
+        "top": 17,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -663,9 +664,9 @@
       "frame": 46,
       "empty": false,
       "visibleBounds": {
-        "left": 11,
-        "top": 18,
-        "right": 53,
+        "left": 14,
+        "top": 17,
+        "right": 57,
         "bottom": 71
       },
       "edgePixels": 0
@@ -674,9 +675,9 @@
       "frame": 47,
       "empty": false,
       "visibleBounds": {
-        "left": 10,
-        "top": 19,
-        "right": 50,
+        "left": 12,
+        "top": 17,
+        "right": 54,
         "bottom": 71
       },
       "edgePixels": 0
@@ -685,9 +686,9 @@
       "frame": 48,
       "empty": false,
       "visibleBounds": {
-        "left": 8,
-        "top": 14,
-        "right": 49,
+        "left": 17,
+        "top": 16,
+        "right": 56,
         "bottom": 71
       },
       "edgePixels": 0
@@ -696,9 +697,9 @@
       "frame": 49,
       "empty": false,
       "visibleBounds": {
-        "left": 8,
-        "top": 14,
-        "right": 49,
+        "left": 19,
+        "top": 16,
+        "right": 59,
         "bottom": 71
       },
       "edgePixels": 0
@@ -707,9 +708,9 @@
       "frame": 50,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 14,
-        "right": 48,
+        "left": 19,
+        "top": 16,
+        "right": 58,
         "bottom": 71
       },
       "edgePixels": 0
@@ -718,9 +719,9 @@
       "frame": 51,
       "empty": false,
       "visibleBounds": {
-        "left": 8,
-        "top": 14,
-        "right": 49,
+        "left": 16,
+        "top": 16,
+        "right": 55,
         "bottom": 71
       },
       "edgePixels": 0
@@ -729,9 +730,9 @@
       "frame": 52,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 14,
-        "right": 49,
+        "left": 15,
+        "top": 16,
+        "right": 54,
         "bottom": 71
       },
       "edgePixels": 0
@@ -740,9 +741,9 @@
       "frame": 53,
       "empty": false,
       "visibleBounds": {
-        "left": 9,
-        "top": 14,
-        "right": 49,
+        "left": 12,
+        "top": 16,
+        "right": 51,
         "bottom": 71
       },
       "edgePixels": 0
@@ -759,8 +760,8 @@
     {
       "frame": 1,
       "translationY": 0,
-      "originalBottomExclusive": 72,
-      "registeredBottomExclusive": 72,
+      "originalBottomExclusive": 71,
+      "registeredBottomExclusive": 71,
       "clippedOpaquePixels": 0
     },
     {
@@ -773,8 +774,8 @@
     {
       "frame": 3,
       "translationY": 0,
-      "originalBottomExclusive": 72,
-      "registeredBottomExclusive": 72,
+      "originalBottomExclusive": 71,
+      "registeredBottomExclusive": 71,
       "clippedOpaquePixels": 0
     },
     {
@@ -913,8 +914,8 @@
     {
       "frame": 23,
       "translationY": 0,
-      "originalBottomExclusive": 72,
-      "registeredBottomExclusive": 72,
+      "originalBottomExclusive": 71,
+      "registeredBottomExclusive": 71,
       "clippedOpaquePixels": 0
     },
     {
@@ -1135,8 +1136,9 @@
     "majorMinAreaFraction": 0.1,
     "majorMinHeightFraction": 0.35,
     "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
-    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "pivot": "source cell-center X; common max primary bottom across source row Y; no per-frame normalization",
     "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sampling": "sourceX=floor(pivotX\u002B(x\u002B0.5-anchorX)/scale); sourceY=floor(pivotY\u002B(y-translationY\u002B0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
     "sources": [
       {
         "source": "../../../docs/art/animations/sources/hero.base.source.png",
@@ -1148,25 +1150,55 @@
         "primaryComponents": 54,
         "totalComponents": 54,
         "detachedComponents": 0,
-        "Scale": 0.3166519213755433,
-        "FitScale": 0.3166519213755433,
+        "Scale": 0.32989690721649484,
+        "FitScale": 0.32989690721649484,
         "Attachments": [],
         "sha256": "e90f609956a2048ad69d1f17e170e3cd5aa0569db0f5940874bf3a981eea9fe7"
       },
       {
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
-        "Width": 1374,
-        "Height": 1145,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "Width": 1536,
+        "Height": 1024,
+        "Columns": 6,
+        "Rows": 3,
+        "expected": 18,
+        "primaryComponents": 18,
+        "totalComponents": 18,
+        "detachedComponents": 0,
+        "Scale": 0.175,
+        "FitScale": 0.19571865443425077,
+        "Attachments": [],
+        "sha256": "15821895e0468660d05c8ffab67de33922e09f2ad4574f01ba9b62ceee6581f5"
+      },
+      {
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "Width": 2152,
+        "Height": 731,
+        "Columns": 6,
+        "Rows": 1,
+        "expected": 6,
+        "primaryComponents": 6,
+        "totalComponents": 6,
+        "detachedComponents": 0,
+        "Scale": 0.08296296296296296,
+        "FitScale": 0.09467455621301775,
+        "Attachments": [],
+        "sha256": "c4eaa470efd1add8492c79d44871b39a4cc3f8e13cbd90340a819840f37734a7"
+      },
+      {
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
+        "Width": 1536,
+        "Height": 1024,
         "Columns": 6,
         "Rows": 4,
         "expected": 24,
         "primaryComponents": 24,
         "totalComponents": 24,
         "detachedComponents": 0,
-        "Scale": 0.20550447294350616,
-        "FitScale": 0.20550447294350616,
+        "Scale": 0.22810590631364563,
+        "FitScale": 0.24615384615384617,
         "Attachments": [],
-        "sha256": "97d2cd3cf8dfbe81bc15d10d9831618b0003b7b3fcdb7b58fac6136a38cc46ea"
+        "sha256": "2ffa7dcaab8ab9a9068138c2b31f6b2782004ff9e2ff5602174292c4ec89e321"
       },
       {
         "source": "../../../docs/art/animations/sources/hero.se.source.png",
@@ -1178,8 +1210,8 @@
         "primaryComponents": 12,
         "totalComponents": 12,
         "detachedComponents": 0,
-        "Scale": 0.1486730473486681,
-        "FitScale": 0.1486730473486681,
+        "Scale": 0.1432225063938619,
+        "FitScale": 0.1588089330024814,
         "Attachments": [],
         "sha256": "2ce4af21cbce155c424ccd6a8f24f5b8e51cae84ad708d3893498794e9dac6c4"
       }
@@ -1187,34 +1219,35 @@
     "frames": [
       {
         "frame": 0,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 0,
-        "primaryComponent": 1,
+        "primaryComponent": 4,
         "componentIds": [
-          1
+          4
         ],
         "sourceCropBounds": {
-          "left": 20,
-          "top": 5,
-          "right": 126,
-          "bottom": 180
+          "left": 40,
+          "top": 8,
+          "right": 230,
+          "bottom": 328
         },
         "primaryBounds": {
-          "left": 20,
-          "top": 5,
-          "right": 126,
-          "bottom": 180
+          "left": 40,
+          "top": 8,
+          "right": 230,
+          "bottom": 328
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 69.70654911838791,
-        "primaryBottom": 180,
+        "scale": 0.175,
+        "pivotX": 128,
+        "pivotY": 329,
+        "primaryBottom": 328,
         "transform": {
-          "offsetX": 9.927287289203782,
-          "offsetY": 15.0026541524022
+          "offsetX": 9.600000000000001,
+          "offsetY": 14.425000000000004
         },
         "nativeBounds": {
-          "left": 16,
-          "top": 17,
+          "left": 17,
+          "top": 16,
           "rightExclusive": 50,
           "bottomExclusive": 72
         },
@@ -1223,71 +1256,73 @@
       },
       {
         "frame": 1,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 1,
-        "primaryComponent": 2,
+        "primaryComponent": 1,
         "componentIds": [
-          2
+          1
         ],
         "sourceCropBounds": {
-          "left": 167,
-          "top": 5,
-          "right": 276,
-          "bottom": 180
+          "left": 281,
+          "top": 7,
+          "right": 475,
+          "bottom": 322
         },
         "primaryBounds": {
-          "left": 167,
-          "top": 5,
-          "right": 276,
-          "bottom": 180
+          "left": 281,
+          "top": 7,
+          "right": 475,
+          "bottom": 322
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 219.2865168539326,
-        "primaryBottom": 180,
+        "scale": 0.175,
+        "pivotX": 384,
+        "pivotY": 329,
+        "primaryBottom": 322,
         "transform": {
-          "offsetX": -37.437496893548214,
-          "offsetY": 15.0026541524022
+          "offsetX": -35.19999999999999,
+          "offsetY": 14.425000000000004
         },
         "nativeBounds": {
-          "left": 15,
-          "top": 17,
-          "rightExclusive": 50,
-          "bottomExclusive": 72
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 48,
+          "bottomExclusive": 71
         },
         "translatedClipping": 0,
         "sourcePixelsProjectedOutsideFrame": 0
       },
       {
         "frame": 2,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 2,
-        "primaryComponent": 3,
+        "primaryComponent": 2,
         "componentIds": [
-          3
+          2
         ],
         "sourceCropBounds": {
-          "left": 319,
-          "top": 5,
-          "right": 432,
-          "bottom": 180
+          "left": 540,
+          "top": 7,
+          "right": 732,
+          "bottom": 328
         },
         "primaryBounds": {
-          "left": 319,
-          "top": 5,
-          "right": 432,
-          "bottom": 180
+          "left": 540,
+          "top": 7,
+          "right": 732,
+          "bottom": 328
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 369.6292875989446,
-        "primaryBottom": 180,
+        "scale": 0.175,
+        "pivotX": 640,
+        "pivotY": 329,
+        "primaryBottom": 328,
         "transform": {
-          "offsetX": -85.04382411487909,
-          "offsetY": 15.0026541524022
+          "offsetX": -80,
+          "offsetY": 14.425000000000004
         },
         "nativeBounds": {
-          "left": 16,
-          "top": 17,
-          "rightExclusive": 52,
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 48,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1295,71 +1330,73 @@
       },
       {
         "frame": 3,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 3,
-        "primaryComponent": 6,
+        "primaryComponent": 3,
         "componentIds": [
-          6
+          3
         ],
         "sourceCropBounds": {
-          "left": 467,
-          "top": 9,
-          "right": 588,
-          "bottom": 180
+          "left": 796,
+          "top": 7,
+          "right": 986,
+          "bottom": 324
         },
         "primaryBounds": {
-          "left": 467,
-          "top": 9,
-          "right": 588,
-          "bottom": 180
+          "left": 796,
+          "top": 7,
+          "right": 986,
+          "bottom": 324
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 519.9529032258065,
-        "primaryBottom": 180,
+        "scale": 0.175,
+        "pivotX": 896,
+        "pivotY": 329,
+        "primaryBottom": 324,
         "transform": {
-          "offsetX": -132.64408583124356,
-          "offsetY": 15.0026541524022
+          "offsetX": -124.79999999999998,
+          "offsetY": 14.425000000000004
         },
         "nativeBounds": {
-          "left": 15,
-          "top": 18,
-          "rightExclusive": 54,
-          "bottomExclusive": 72
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 48,
+          "bottomExclusive": 71
         },
         "translatedClipping": 0,
         "sourcePixelsProjectedOutsideFrame": 0
       },
       {
         "frame": 4,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 4,
-        "primaryComponent": 4,
+        "primaryComponent": 5,
         "componentIds": [
-          4
+          5
         ],
         "sourceCropBounds": {
-          "left": 625,
-          "top": 5,
-          "right": 747,
-          "bottom": 180
+          "left": 1048,
+          "top": 8,
+          "right": 1242,
+          "bottom": 329
         },
         "primaryBounds": {
-          "left": 625,
-          "top": 5,
-          "right": 747,
-          "bottom": 180
+          "left": 1048,
+          "top": 8,
+          "right": 1242,
+          "bottom": 329
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 677.468394437421,
-        "primaryBottom": 180,
+        "scale": 0.175,
+        "pivotX": 1152,
+        "pivotY": 329,
+        "primaryBottom": 329,
         "transform": {
-          "offsetX": -182.5216687698138,
-          "offsetY": 15.0026541524022
+          "offsetX": -169.6,
+          "offsetY": 14.425000000000004
         },
         "nativeBounds": {
-          "left": 15,
-          "top": 17,
-          "rightExclusive": 54,
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 48,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1367,35 +1404,36 @@
       },
       {
         "frame": 5,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 5,
-        "primaryComponent": 5,
+        "primaryComponent": 6,
         "componentIds": [
-          5
+          6
         ],
         "sourceCropBounds": {
-          "left": 784,
-          "top": 7,
-          "right": 905,
-          "bottom": 180
+          "left": 1306,
+          "top": 8,
+          "right": 1497,
+          "bottom": 328
         },
         "primaryBounds": {
-          "left": 784,
-          "top": 7,
-          "right": 905,
-          "bottom": 180
+          "left": 1306,
+          "top": 8,
+          "right": 1497,
+          "bottom": 328
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 835.7074175824176,
-        "primaryBottom": 180,
+        "scale": 0.175,
+        "pivotX": 1408,
+        "pivotY": 329,
+        "primaryBottom": 328,
         "transform": {
-          "offsetX": -232.62835948526606,
-          "offsetY": 15.0026541524022
+          "offsetX": -214.39999999999998,
+          "offsetY": 14.425000000000004
         },
         "nativeBounds": {
-          "left": 16,
-          "top": 17,
-          "rightExclusive": 54,
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 48,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1403,35 +1441,36 @@
       },
       {
         "frame": 6,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 6,
         "primaryComponent": 7,
         "componentIds": [
           7
         ],
         "sourceCropBounds": {
-          "left": 18,
-          "top": 184,
-          "right": 135,
-          "bottom": 361
+          "left": 35,
+          "top": 339,
+          "right": 243,
+          "bottom": 660
         },
         "primaryBounds": {
-          "left": 18,
-          "top": 184,
-          "right": 135,
-          "bottom": 361
+          "left": 35,
+          "top": 339,
+          "right": 243,
+          "bottom": 660
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 67.98441558441559,
-        "primaryBottom": 361,
+        "scale": 0.175,
+        "pivotX": 128,
+        "pivotY": 662,
+        "primaryBottom": 660,
         "transform": {
-          "offsetX": 10.472604181601373,
-          "offsetY": -42.311343616571136
+          "offsetX": 9.600000000000001,
+          "offsetY": -43.849999999999994
         },
         "nativeBounds": {
           "left": 16,
-          "top": 16,
-          "rightExclusive": 53,
+          "top": 15,
+          "rightExclusive": 52,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1439,35 +1478,36 @@
       },
       {
         "frame": 7,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 7,
-        "primaryComponent": 9,
+        "primaryComponent": 8,
         "componentIds": [
-          9
+          8
         ],
         "sourceCropBounds": {
-          "left": 161,
-          "top": 188,
-          "right": 294,
-          "bottom": 361
+          "left": 278,
+          "top": 339,
+          "right": 492,
+          "bottom": 660
         },
         "primaryBounds": {
-          "left": 161,
-          "top": 188,
-          "right": 294,
-          "bottom": 361
+          "left": 278,
+          "top": 339,
+          "right": 492,
+          "bottom": 660
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 219.7359843546284,
-        "primaryBottom": 361,
+        "scale": 0.175,
+        "pivotX": 384,
+        "pivotY": 662,
+        "primaryBottom": 660,
         "transform": {
-          "offsetX": -37.57982164123942,
-          "offsetY": -42.311343616571136
+          "offsetX": -35.19999999999999,
+          "offsetY": -43.849999999999994
         },
         "nativeBounds": {
           "left": 13,
-          "top": 17,
-          "rightExclusive": 56,
+          "top": 15,
+          "rightExclusive": 51,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1475,35 +1515,36 @@
       },
       {
         "frame": 8,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 8,
-        "primaryComponent": 8,
+        "primaryComponent": 9,
         "componentIds": [
-          8
+          9
         ],
         "sourceCropBounds": {
-          "left": 321,
-          "top": 184,
-          "right": 444,
-          "bottom": 361
+          "left": 530,
+          "top": 339,
+          "right": 750,
+          "bottom": 662
         },
         "primaryBounds": {
-          "left": 321,
-          "top": 184,
-          "right": 444,
-          "bottom": 361
+          "left": 530,
+          "top": 339,
+          "right": 750,
+          "bottom": 662
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 369.7626025791325,
-        "primaryBottom": 361,
+        "scale": 0.175,
+        "pivotX": 640,
+        "pivotY": 662,
+        "primaryBottom": 662,
         "transform": {
-          "offsetX": -85.08603855950373,
-          "offsetY": -42.311343616571136
+          "offsetX": -80,
+          "offsetY": -43.849999999999994
         },
         "nativeBounds": {
-          "left": 17,
-          "top": 16,
-          "rightExclusive": 56,
+          "left": 13,
+          "top": 15,
+          "rightExclusive": 51,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1511,35 +1552,36 @@
       },
       {
         "frame": 9,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 9,
         "primaryComponent": 10,
         "componentIds": [
           10
         ],
         "sourceCropBounds": {
-          "left": 475,
-          "top": 188,
-          "right": 598,
-          "bottom": 362
+          "left": 792,
+          "top": 339,
+          "right": 1008,
+          "bottom": 660
         },
         "primaryBounds": {
-          "left": 475,
-          "top": 188,
-          "right": 598,
-          "bottom": 362
+          "left": 792,
+          "top": 339,
+          "right": 1008,
+          "bottom": 660
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 527.4628055260362,
-        "primaryBottom": 362,
+        "scale": 0.175,
+        "pivotX": 896,
+        "pivotY": 662,
+        "primaryBottom": 660,
         "transform": {
-          "offsetX": -135.0221108239539,
-          "offsetY": -42.62799553794669
+          "offsetX": -124.79999999999998,
+          "offsetY": -43.849999999999994
         },
         "nativeBounds": {
-          "left": 15,
-          "top": 17,
-          "rightExclusive": 54,
+          "left": 14,
+          "top": 15,
+          "rightExclusive": 52,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1547,35 +1589,36 @@
       },
       {
         "frame": 10,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 10,
         "primaryComponent": 11,
         "componentIds": [
           11
         ],
         "sourceCropBounds": {
-          "left": 623,
-          "top": 189,
-          "right": 751,
-          "bottom": 361
+          "left": 1044,
+          "top": 339,
+          "right": 1263,
+          "bottom": 660
         },
         "primaryBounds": {
-          "left": 623,
-          "top": 189,
-          "right": 751,
-          "bottom": 361
+          "left": 1044,
+          "top": 339,
+          "right": 1263,
+          "bottom": 660
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 678.2111959287532,
-        "primaryBottom": 361,
+        "scale": 0.175,
+        "pivotX": 1152,
+        "pivotY": 662,
+        "primaryBottom": 660,
         "transform": {
-          "offsetX": -182.75687828924478,
-          "offsetY": -42.311343616571136
+          "offsetX": -169.6,
+          "offsetY": -43.849999999999994
         },
         "nativeBounds": {
-          "left": 15,
-          "top": 18,
-          "rightExclusive": 55,
+          "left": 13,
+          "top": 15,
+          "rightExclusive": 51,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -1583,574 +1626,35 @@
       },
       {
         "frame": 11,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
         "sourceFrame": 11,
         "primaryComponent": 12,
         "componentIds": [
           12
         ],
         "sourceCropBounds": {
-          "left": 779,
-          "top": 189,
-          "right": 903,
-          "bottom": 362
+          "left": 1299,
+          "top": 339,
+          "right": 1508,
+          "bottom": 660
         },
         "primaryBounds": {
-          "left": 779,
-          "top": 189,
-          "right": 903,
-          "bottom": 362
+          "left": 1299,
+          "top": 339,
+          "right": 1508,
+          "bottom": 660
         },
-        "scale": 0.3166519213755433,
-        "pivotX": 832.7698412698413,
-        "primaryBottom": 362,
+        "scale": 0.175,
+        "pivotX": 1408,
+        "pivotY": 662,
+        "primaryBottom": 660,
         "transform": {
-          "offsetX": -231.6981703017015,
-          "offsetY": -42.62799553794669
-        },
-        "nativeBounds": {
-          "left": 15,
-          "top": 17,
-          "rightExclusive": 54,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 12,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
-        "sourceFrame": 12,
-        "primaryComponent": 13,
-        "componentIds": [
-          13
-        ],
-        "sourceCropBounds": {
-          "left": 19,
-          "top": 363,
-          "right": 144,
-          "bottom": 548
-        },
-        "primaryBounds": {
-          "left": 19,
-          "top": 363,
-          "right": 144,
-          "bottom": 548
-        },
-        "scale": 0.3166519213755433,
-        "pivotX": 71.49775028121485,
-        "primaryBottom": 548,
-        "transform": {
-          "offsetX": 9.360099999424527,
-          "offsetY": -101.52525291379774
-        },
-        "nativeBounds": {
-          "left": 15,
-          "top": 13,
-          "rightExclusive": 55,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 13,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
-        "sourceFrame": 13,
-        "primaryComponent": 14,
-        "componentIds": [
-          14
-        ],
-        "sourceCropBounds": {
-          "left": 164,
-          "top": 367,
-          "right": 286,
-          "bottom": 549
-        },
-        "primaryBounds": {
-          "left": 164,
-          "top": 367,
-          "right": 286,
-          "bottom": 549
-        },
-        "scale": 0.3166519213755433,
-        "pivotX": 218.4309600862999,
-        "primaryBottom": 549,
-        "transform": {
-          "offsetX": -37.16658319923148,
-          "offsetY": -101.8419048351733
-        },
-        "nativeBounds": {
-          "left": 15,
-          "top": 14,
-          "rightExclusive": 53,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 14,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
-        "sourceFrame": 14,
-        "primaryComponent": 15,
-        "componentIds": [
-          15
-        ],
-        "sourceCropBounds": {
-          "left": 316,
-          "top": 367,
-          "right": 440,
-          "bottom": 550
-        },
-        "primaryBounds": {
-          "left": 316,
-          "top": 367,
-          "right": 440,
-          "bottom": 550
-        },
-        "scale": 0.3166519213755433,
-        "pivotX": 373.55708013172335,
-        "primaryBottom": 550,
-        "transform": {
-          "offsetX": -86.287567167148,
-          "offsetY": -102.15855675654882
-        },
-        "nativeBounds": {
-          "left": 14,
-          "top": 14,
-          "rightExclusive": 53,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 15,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
-        "sourceFrame": 15,
-        "primaryComponent": 16,
-        "componentIds": [
-          16
-        ],
-        "sourceCropBounds": {
-          "left": 472,
-          "top": 367,
-          "right": 592,
-          "bottom": 550
-        },
-        "primaryBounds": {
-          "left": 472,
-          "top": 367,
-          "right": 592,
-          "bottom": 550
-        },
-        "scale": 0.3166519213755433,
-        "pivotX": 523.9235668789809,
-        "primaryBottom": 550,
-        "transform": {
-          "offsetX": -133.90140410615726,
-          "offsetY": -102.15855675654882
-        },
-        "nativeBounds": {
-          "left": 16,
-          "top": 14,
-          "rightExclusive": 54,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 16,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
-        "sourceFrame": 16,
-        "primaryComponent": 18,
-        "componentIds": [
-          18
-        ],
-        "sourceCropBounds": {
-          "left": 623,
-          "top": 369,
-          "right": 747,
-          "bottom": 549
-        },
-        "primaryBounds": {
-          "left": 623,
-          "top": 369,
-          "right": 747,
-          "bottom": 549
-        },
-        "scale": 0.3166519213755433,
-        "pivotX": 680.7732696897375,
-        "primaryBottom": 549,
-        "transform": {
-          "offsetX": -183.5681638683663,
-          "offsetY": -101.8419048351733
-        },
-        "nativeBounds": {
-          "left": 14,
-          "top": 15,
-          "rightExclusive": 53,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 17,
-        "source": "../../../docs/art/animations/sources/hero.base.source.png",
-        "sourceFrame": 17,
-        "primaryComponent": 17,
-        "componentIds": [
-          17
-        ],
-        "sourceCropBounds": {
-          "left": 784,
-          "top": 368,
-          "right": 904,
-          "bottom": 549
-        },
-        "primaryBounds": {
-          "left": 784,
-          "top": 368,
-          "right": 904,
-          "bottom": 549
-        },
-        "scale": 0.3166519213755433,
-        "pivotX": 833.6842105263158,
-        "primaryBottom": 549,
-        "transform": {
-          "offsetX": -231.98770708361087,
-          "offsetY": -101.8419048351733
-        },
-        "nativeBounds": {
-          "left": 16,
-          "top": 15,
-          "rightExclusive": 54,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 18,
-        "source": "../../../docs/art/animations/sources/hero.se.source.png",
-        "sourceFrame": 0,
-        "primaryComponent": 1,
-        "componentIds": [
-          1
-        ],
-        "sourceCropBounds": {
-          "left": 61,
-          "top": 5,
-          "right": 355,
-          "bottom": 407
-        },
-        "primaryBounds": {
-          "left": 61,
-          "top": 5,
-          "right": 355,
-          "bottom": 407
-        },
-        "scale": 0.1486730473486681,
-        "pivotX": 196.53050052137644,
-        "primaryBottom": 407,
-        "transform": {
-          "offsetX": 2.7812115905279597,
-          "offsetY": 11.490069729092085
-        },
-        "nativeBounds": {
-          "left": 12,
-          "top": 12,
-          "rightExclusive": 56,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 19,
-        "source": "../../../docs/art/animations/sources/hero.se.source.png",
-        "sourceFrame": 1,
-        "primaryComponent": 2,
-        "componentIds": [
-          2
-        ],
-        "sourceCropBounds": {
-          "left": 411,
-          "top": 5,
-          "right": 675,
-          "bottom": 408
-        },
-        "primaryBounds": {
-          "left": 411,
-          "top": 5,
-          "right": 675,
-          "bottom": 408
-        },
-        "scale": 0.1486730473486681,
-        "pivotX": 541.4800846402788,
-        "primaryBottom": 408,
-        "transform": {
-          "offsetX": -48.503494262084985,
-          "offsetY": 11.341396681743419
+          "offsetX": -214.39999999999998,
+          "offsetY": -43.849999999999994
         },
         "nativeBounds": {
           "left": 13,
-          "top": 12,
-          "rightExclusive": 52,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 20,
-        "source": "../../../docs/art/animations/sources/hero.se.source.png",
-        "sourceFrame": 2,
-        "primaryComponent": 3,
-        "componentIds": [
-          3
-        ],
-        "sourceCropBounds": {
-          "left": 726,
-          "top": 7,
-          "right": 977,
-          "bottom": 407
-        },
-        "primaryBounds": {
-          "left": 726,
-          "top": 7,
-          "right": 977,
-          "bottom": 407
-        },
-        "scale": 0.1486730473486681,
-        "pivotX": 856.4281133083913,
-        "primaryBottom": 407,
-        "transform": {
-          "offsetX": -95.32777744062895,
-          "offsetY": 11.490069729092085
-        },
-        "nativeBounds": {
-          "left": 13,
-          "top": 13,
-          "rightExclusive": 50,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 21,
-        "source": "../../../docs/art/animations/sources/hero.se.source.png",
-        "sourceFrame": 3,
-        "primaryComponent": 4,
-        "componentIds": [
-          4
-        ],
-        "sourceCropBounds": {
-          "left": 1027,
-          "top": 7,
-          "right": 1310,
-          "bottom": 407
-        },
-        "primaryBounds": {
-          "left": 1027,
-          "top": 7,
-          "right": 1310,
-          "bottom": 407
-        },
-        "scale": 0.1486730473486681,
-        "pivotX": 1178.7425940752603,
-        "primaryBottom": 407,
-        "transform": {
-          "offsetX": -143.24725350084304,
-          "offsetY": 11.490069729092085
-        },
-        "nativeBounds": {
-          "left": 10,
-          "top": 13,
-          "rightExclusive": 52,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 22,
-        "source": "../../../docs/art/animations/sources/hero.se.source.png",
-        "sourceFrame": 4,
-        "primaryComponent": 6,
-        "componentIds": [
-          6
-        ],
-        "sourceCropBounds": {
-          "left": 1332,
-          "top": 8,
-          "right": 1594,
-          "bottom": 408
-        },
-        "primaryBounds": {
-          "left": 1332,
-          "top": 8,
-          "right": 1594,
-          "bottom": 408
-        },
-        "scale": 0.1486730473486681,
-        "pivotX": 1468.1210216635463,
-        "primaryBottom": 408,
-        "transform": {
-          "offsetX": -186.27002616735942,
-          "offsetY": 11.341396681743419
-        },
-        "nativeBounds": {
-          "left": 12,
-          "top": 13,
-          "rightExclusive": 51,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 23,
-        "source": "../../../docs/art/animations/sources/hero.se.source.png",
-        "sourceFrame": 5,
-        "primaryComponent": 5,
-        "componentIds": [
-          5
-        ],
-        "sourceCropBounds": {
-          "left": 1636,
-          "top": 7,
-          "right": 1889,
-          "bottom": 408
-        },
-        "primaryBounds": {
-          "left": 1636,
-          "top": 7,
-          "right": 1889,
-          "bottom": 408
-        },
-        "scale": 0.1486730473486681,
-        "pivotX": 1770.3660411780036,
-        "primaryBottom": 408,
-        "transform": {
-          "offsetX": -231.20571426453142,
-          "offsetY": 11.341396681743419
-        },
-        "nativeBounds": {
-          "left": 12,
-          "top": 12,
-          "rightExclusive": 50,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 24,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
-        "sourceFrame": 0,
-        "primaryComponent": 6,
-        "componentIds": [
-          6
-        ],
-        "sourceCropBounds": {
-          "left": 41,
-          "top": 28,
-          "right": 251,
-          "bottom": 279
-        },
-        "primaryBounds": {
-          "left": 41,
-          "top": 28,
-          "right": 251,
-          "bottom": 279
-        },
-        "scale": 0.20550447294350616,
-        "pivotX": 156.27647551276684,
-        "primaryBottom": 279,
-        "transform": {
-          "offsetX": -0.11551473371989118,
-          "offsetY": 14.664252048761782
-        },
-        "nativeBounds": {
-          "left": 8,
-          "top": 20,
-          "rightExclusive": 51,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 25,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
-        "sourceFrame": 1,
-        "primaryComponent": 1,
-        "componentIds": [
-          1
-        ],
-        "sourceCropBounds": {
-          "left": 276,
-          "top": 19,
-          "right": 476,
-          "bottom": 279
-        },
-        "primaryBounds": {
-          "left": 276,
-          "top": 19,
-          "right": 476,
-          "bottom": 279
-        },
-        "scale": 0.20550447294350616,
-        "pivotX": 381.23409669211196,
-        "primaryBottom": 279,
-        "transform": {
-          "offsetX": -46.34531210880613,
-          "offsetY": 14.664252048761782
-        },
-        "nativeBounds": {
-          "left": 10,
-          "top": 19,
-          "rightExclusive": 51,
-          "bottomExclusive": 72
-        },
-        "translatedClipping": 0,
-        "sourcePixelsProjectedOutsideFrame": 0
-      },
-      {
-        "frame": 26,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
-        "sourceFrame": 2,
-        "primaryComponent": 4,
-        "componentIds": [
-          4
-        ],
-        "sourceCropBounds": {
-          "left": 489,
-          "top": 25,
-          "right": 681,
-          "bottom": 279
-        },
-        "primaryBounds": {
-          "left": 489,
-          "top": 25,
-          "right": 681,
-          "bottom": 279
-        },
-        "scale": 0.20550447294350616,
-        "pivotX": 596.4372517871326,
-        "primaryBottom": 279,
-        "transform": {
-          "offsetX": -90.57052307238796,
-          "offsetY": 14.664252048761782
-        },
-        "nativeBounds": {
-          "left": 10,
-          "top": 20,
+          "top": 15,
           "rightExclusive": 49,
           "bottomExclusive": 72
         },
@@ -2158,36 +1662,592 @@
         "sourcePixelsProjectedOutsideFrame": 0
       },
       {
-        "frame": 27,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
-        "sourceFrame": 3,
+        "frame": 12,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "sourceFrame": 12,
+        "primaryComponent": 15,
+        "componentIds": [
+          15
+        ],
+        "sourceCropBounds": {
+          "left": 26,
+          "top": 675,
+          "right": 231,
+          "bottom": 1001
+        },
+        "primaryBounds": {
+          "left": 26,
+          "top": 675,
+          "right": 231,
+          "bottom": 1001
+        },
+        "scale": 0.175,
+        "pivotX": 128,
+        "pivotY": 1001,
+        "primaryBottom": 1001,
+        "transform": {
+          "offsetX": 9.600000000000001,
+          "offsetY": -103.17499999999998
+        },
+        "nativeBounds": {
+          "left": 14,
+          "top": 15,
+          "rightExclusive": 50,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 13,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "sourceFrame": 13,
+        "primaryComponent": 13,
+        "componentIds": [
+          13
+        ],
+        "sourceCropBounds": {
+          "left": 264,
+          "top": 674,
+          "right": 479,
+          "bottom": 1001
+        },
+        "primaryBounds": {
+          "left": 264,
+          "top": 674,
+          "right": 479,
+          "bottom": 1001
+        },
+        "scale": 0.175,
+        "pivotX": 384,
+        "pivotY": 1001,
+        "primaryBottom": 1001,
+        "transform": {
+          "offsetX": -35.19999999999999,
+          "offsetY": -103.17499999999998
+        },
+        "nativeBounds": {
+          "left": 11,
+          "top": 15,
+          "rightExclusive": 49,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 14,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "sourceFrame": 14,
+        "primaryComponent": 14,
+        "componentIds": [
+          14
+        ],
+        "sourceCropBounds": {
+          "left": 522,
+          "top": 674,
+          "right": 734,
+          "bottom": 1001
+        },
+        "primaryBounds": {
+          "left": 522,
+          "top": 674,
+          "right": 734,
+          "bottom": 1001
+        },
+        "scale": 0.175,
+        "pivotX": 640,
+        "pivotY": 1001,
+        "primaryBottom": 1001,
+        "transform": {
+          "offsetX": -80,
+          "offsetY": -103.17499999999998
+        },
+        "nativeBounds": {
+          "left": 11,
+          "top": 15,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 15,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "sourceFrame": 15,
+        "primaryComponent": 16,
+        "componentIds": [
+          16
+        ],
+        "sourceCropBounds": {
+          "left": 775,
+          "top": 675,
+          "right": 988,
+          "bottom": 1001
+        },
+        "primaryBounds": {
+          "left": 775,
+          "top": 675,
+          "right": 988,
+          "bottom": 1001
+        },
+        "scale": 0.175,
+        "pivotX": 896,
+        "pivotY": 1001,
+        "primaryBottom": 1001,
+        "transform": {
+          "offsetX": -124.79999999999998,
+          "offsetY": -103.17499999999998
+        },
+        "nativeBounds": {
+          "left": 11,
+          "top": 15,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 16,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "sourceFrame": 16,
+        "primaryComponent": 17,
+        "componentIds": [
+          17
+        ],
+        "sourceCropBounds": {
+          "left": 1031,
+          "top": 675,
+          "right": 1241,
+          "bottom": 1001
+        },
+        "primaryBounds": {
+          "left": 1031,
+          "top": 675,
+          "right": 1241,
+          "bottom": 1001
+        },
+        "scale": 0.175,
+        "pivotX": 1152,
+        "pivotY": 1001,
+        "primaryBottom": 1001,
+        "transform": {
+          "offsetX": -169.6,
+          "offsetY": -103.17499999999998
+        },
+        "nativeBounds": {
+          "left": 11,
+          "top": 15,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 17,
+        "source": "../../../docs/art/animations/sources/hero.walk.north.source.png",
+        "sourceFrame": 17,
+        "primaryComponent": 18,
+        "componentIds": [
+          18
+        ],
+        "sourceCropBounds": {
+          "left": 1284,
+          "top": 675,
+          "right": 1497,
+          "bottom": 1001
+        },
+        "primaryBounds": {
+          "left": 1284,
+          "top": 675,
+          "right": 1497,
+          "bottom": 1001
+        },
+        "scale": 0.175,
+        "pivotX": 1408,
+        "pivotY": 1001,
+        "primaryBottom": 1001,
+        "transform": {
+          "offsetX": -214.39999999999998,
+          "offsetY": -103.17499999999998
+        },
+        "nativeBounds": {
+          "left": 10,
+          "top": 15,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 18,
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "sourceFrame": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 21,
+          "top": 22,
+          "right": 421,
+          "bottom": 697
+        },
+        "primaryBounds": {
+          "left": 21,
+          "top": 22,
+          "right": 421,
+          "bottom": 697
+        },
+        "scale": 0.08296296296296296,
+        "pivotX": 179.33333333333334,
+        "pivotY": 698,
+        "primaryBottom": 697,
+        "transform": {
+          "offsetX": 17.121975308641975,
+          "offsetY": 14.091851851851857
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 16,
+          "rightExclusive": 52,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 19,
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "sourceFrame": 1,
         "primaryComponent": 2,
         "componentIds": [
           2
         ],
         "sourceCropBounds": {
-          "left": 705,
-          "top": 20,
-          "right": 910,
-          "bottom": 279
+          "left": 360,
+          "top": 22,
+          "right": 704,
+          "bottom": 697
         },
         "primaryBounds": {
-          "left": 705,
-          "top": 20,
-          "right": 910,
-          "bottom": 279
+          "left": 360,
+          "top": 22,
+          "right": 704,
+          "bottom": 697
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 808.7854001759015,
-        "primaryBottom": 279,
+        "scale": 0.08296296296296296,
+        "pivotX": 538,
+        "pivotY": 698,
+        "primaryBottom": 697,
         "transform": {
-          "offsetX": -134.20901738755134,
-          "offsetY": 14.664252048761782
+          "offsetX": -12.634074074074071,
+          "offsetY": 14.091851851851857
         },
         "nativeBounds": {
-          "left": 11,
-          "top": 19,
-          "rightExclusive": 53,
+          "left": 17,
+          "top": 16,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 20,
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "sourceFrame": 2,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 691,
+          "top": 22,
+          "right": 1037,
+          "bottom": 697
+        },
+        "primaryBounds": {
+          "left": 691,
+          "top": 22,
+          "right": 1037,
+          "bottom": 697
+        },
+        "scale": 0.08296296296296296,
+        "pivotX": 896.6666666666667,
+        "pivotY": 698,
+        "primaryBottom": 697,
+        "transform": {
+          "offsetX": -42.39012345679012,
+          "offsetY": 14.091851851851857
+        },
+        "nativeBounds": {
+          "left": 15,
+          "top": 16,
+          "rightExclusive": 44,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 21,
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "sourceFrame": 3,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 1044,
+          "top": 22,
+          "right": 1446,
+          "bottom": 698
+        },
+        "primaryBounds": {
+          "left": 1044,
+          "top": 22,
+          "right": 1446,
+          "bottom": 698
+        },
+        "scale": 0.08296296296296296,
+        "pivotX": 1255.3333333333335,
+        "pivotY": 698,
+        "primaryBottom": 698,
+        "transform": {
+          "offsetX": -72.14617283950618,
+          "offsetY": 14.091851851851857
+        },
+        "nativeBounds": {
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 22,
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "sourceFrame": 4,
+        "primaryComponent": 5,
+        "componentIds": [
+          5
+        ],
+        "sourceCropBounds": {
+          "left": 1410,
+          "top": 22,
+          "right": 1746,
+          "bottom": 697
+        },
+        "primaryBounds": {
+          "left": 1410,
+          "top": 22,
+          "right": 1746,
+          "bottom": 697
+        },
+        "scale": 0.08296296296296296,
+        "pivotX": 1614,
+        "pivotY": 698,
+        "primaryBottom": 697,
+        "transform": {
+          "offsetX": -101.9022222222222,
+          "offsetY": 14.091851851851857
+        },
+        "nativeBounds": {
+          "left": 15,
+          "top": 16,
+          "rightExclusive": 43,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 23,
+        "source": "../../../docs/art/animations/sources/hero.walk.se.source.png",
+        "sourceFrame": 5,
+        "primaryComponent": 6,
+        "componentIds": [
+          6
+        ],
+        "sourceCropBounds": {
+          "left": 1761,
+          "top": 22,
+          "right": 2108,
+          "bottom": 689
+        },
+        "primaryBounds": {
+          "left": 1761,
+          "top": 22,
+          "right": 2108,
+          "bottom": 689
+        },
+        "scale": 0.08296296296296296,
+        "pivotX": 1972.6666666666667,
+        "pivotY": 698,
+        "primaryBottom": 689,
+        "transform": {
+          "offsetX": -131.65827160493828,
+          "offsetY": 14.091851851851857
+        },
+        "nativeBounds": {
+          "left": 14,
+          "top": 16,
+          "rightExclusive": 43,
+          "bottomExclusive": 71
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 24,
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
+        "sourceFrame": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 81,
+          "top": 9,
+          "right": 251,
+          "bottom": 257
+        },
+        "primaryBounds": {
+          "left": 81,
+          "top": 9,
+          "right": 251,
+          "bottom": 257
+        },
+        "scale": 0.22810590631364563,
+        "pivotX": 128,
+        "pivotY": 257,
+        "primaryBottom": 257,
+        "transform": {
+          "offsetX": 2.802443991853359,
+          "offsetY": 13.376782077393074
+        },
+        "nativeBounds": {
+          "left": 21,
+          "top": 15,
+          "rightExclusive": 60,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 25,
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
+        "sourceFrame": 1,
+        "primaryComponent": 2,
+        "componentIds": [
+          2
+        ],
+        "sourceCropBounds": {
+          "left": 331,
+          "top": 9,
+          "right": 501,
+          "bottom": 257
+        },
+        "primaryBounds": {
+          "left": 331,
+          "top": 9,
+          "right": 501,
+          "bottom": 257
+        },
+        "scale": 0.22810590631364563,
+        "pivotX": 384,
+        "pivotY": 257,
+        "primaryBottom": 257,
+        "transform": {
+          "offsetX": -55.59266802443992,
+          "offsetY": 13.376782077393074
+        },
+        "nativeBounds": {
+          "left": 20,
+          "top": 15,
+          "rightExclusive": 59,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 26,
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
+        "sourceFrame": 2,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 579,
+          "top": 9,
+          "right": 749,
+          "bottom": 257
+        },
+        "primaryBounds": {
+          "left": 579,
+          "top": 9,
+          "right": 749,
+          "bottom": 257
+        },
+        "scale": 0.22810590631364563,
+        "pivotX": 640,
+        "pivotY": 257,
+        "primaryBottom": 257,
+        "transform": {
+          "offsetX": -113.98778004073321,
+          "offsetY": 13.376782077393074
+        },
+        "nativeBounds": {
+          "left": 18,
+          "top": 15,
+          "rightExclusive": 57,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 27,
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
+        "sourceFrame": 3,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 824,
+          "top": 9,
+          "right": 996,
+          "bottom": 257
+        },
+        "primaryBounds": {
+          "left": 824,
+          "top": 9,
+          "right": 996,
+          "bottom": 257
+        },
+        "scale": 0.22810590631364563,
+        "pivotX": 896,
+        "pivotY": 257,
+        "primaryBottom": 257,
+        "transform": {
+          "offsetX": -172.38289205702648,
+          "offsetY": 13.376782077393074
+        },
+        "nativeBounds": {
+          "left": 16,
+          "top": 15,
+          "rightExclusive": 55,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2195,35 +2255,36 @@
       },
       {
         "frame": 28,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 4,
         "primaryComponent": 5,
         "componentIds": [
           5
         ],
         "sourceCropBounds": {
-          "left": 929,
-          "top": 26,
-          "right": 1136,
-          "bottom": 279
+          "left": 1071,
+          "top": 9,
+          "right": 1244,
+          "bottom": 257
         },
         "primaryBounds": {
-          "left": 929,
-          "top": 26,
-          "right": 1136,
-          "bottom": 279
+          "left": 1071,
+          "top": 9,
+          "right": 1244,
+          "bottom": 257
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1027.846382556987,
-        "primaryBottom": 279,
+        "scale": 0.22810590631364563,
+        "pivotX": 1152,
+        "pivotY": 257,
+        "primaryBottom": 257,
         "transform": {
-          "offsetX": -179.22702911426302,
-          "offsetY": 14.664252048761782
+          "offsetX": -230.77800407331978,
+          "offsetY": 13.376782077393074
         },
         "nativeBounds": {
-          "left": 12,
-          "top": 20,
-          "rightExclusive": 54,
+          "left": 14,
+          "top": 15,
+          "rightExclusive": 53,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2231,35 +2292,36 @@
       },
       {
         "frame": 29,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 5,
-        "primaryComponent": 3,
+        "primaryComponent": 6,
         "componentIds": [
-          3
+          6
         ],
         "sourceCropBounds": {
-          "left": 1153,
-          "top": 24,
-          "right": 1352,
-          "bottom": 279
+          "left": 1321,
+          "top": 9,
+          "right": 1494,
+          "bottom": 257
         },
         "primaryBounds": {
-          "left": 1153,
-          "top": 24,
-          "right": 1352,
-          "bottom": 279
+          "left": 1321,
+          "top": 9,
+          "right": 1494,
+          "bottom": 257
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1263.69584120983,
-        "primaryBottom": 279,
+        "scale": 0.22810590631364563,
+        "pivotX": 1408,
+        "pivotY": 257,
+        "primaryBottom": 257,
         "transform": {
-          "offsetX": -227.69514780872674,
-          "offsetY": 14.664252048761782
+          "offsetX": -289.1731160896131,
+          "offsetY": 13.376782077393074
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 20,
-          "rightExclusive": 50,
+          "left": 12,
+          "top": 15,
+          "rightExclusive": 52,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2267,35 +2329,36 @@
       },
       {
         "frame": 30,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 6,
-        "primaryComponent": 8,
+        "primaryComponent": 7,
         "componentIds": [
-          8
+          7
         ],
         "sourceCropBounds": {
-          "left": 35,
-          "top": 302,
-          "right": 255,
-          "bottom": 563
+          "left": 56,
+          "top": 259,
+          "right": 250,
+          "bottom": 508
         },
         "primaryBounds": {
-          "left": 35,
-          "top": 302,
-          "right": 255,
-          "bottom": 563
+          "left": 56,
+          "top": 259,
+          "right": 250,
+          "bottom": 508
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 148.19964189794092,
-        "primaryBottom": 563,
+        "scale": 0.22810590631364563,
+        "pivotX": 128,
+        "pivotY": 509,
+        "primaryBottom": 508,
         "transform": {
-          "offsetX": 1.5443107013472996,
-          "offsetY": -43.69901826719396
+          "offsetX": 2.802443991853359,
+          "offsetY": -44.10590631364563
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 18,
-          "rightExclusive": 54,
+          "left": 16,
+          "top": 15,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2303,35 +2366,36 @@
       },
       {
         "frame": 31,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 7,
-        "primaryComponent": 7,
+        "primaryComponent": 8,
         "componentIds": [
-          7
+          8
         ],
         "sourceCropBounds": {
-          "left": 261,
-          "top": 298,
-          "right": 476,
-          "bottom": 563
+          "left": 309,
+          "top": 259,
+          "right": 508,
+          "bottom": 508
         },
         "primaryBounds": {
-          "left": 261,
-          "top": 298,
-          "right": 476,
-          "bottom": 563
+          "left": 309,
+          "top": 259,
+          "right": 508,
+          "bottom": 508
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 369.49869052815365,
-        "primaryBottom": 563,
+        "scale": 0.22810590631364563,
+        "pivotX": 384,
+        "pivotY": 509,
+        "primaryBottom": 508,
         "transform": {
-          "offsetX": -43.9336336503039,
-          "offsetY": -43.69901826719396
+          "offsetX": -55.59266802443992,
+          "offsetY": -44.10590631364563
         },
         "nativeBounds": {
-          "left": 10,
-          "top": 18,
-          "rightExclusive": 54,
+          "left": 15,
+          "top": 15,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2339,35 +2403,36 @@
       },
       {
         "frame": 32,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 8,
-        "primaryComponent": 11,
+        "primaryComponent": 9,
         "componentIds": [
-          11
+          9
         ],
         "sourceCropBounds": {
-          "left": 486,
-          "top": 306,
-          "right": 690,
-          "bottom": 563
+          "left": 564,
+          "top": 259,
+          "right": 762,
+          "bottom": 508
         },
         "primaryBounds": {
-          "left": 486,
-          "top": 306,
-          "right": 690,
-          "bottom": 563
+          "left": 564,
+          "top": 259,
+          "right": 762,
+          "bottom": 508
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 593.6520298260149,
-        "primaryBottom": 563,
+        "scale": 0.22810590631364563,
+        "pivotX": 640,
+        "pivotY": 509,
+        "primaryBottom": 508,
         "transform": {
-          "offsetX": -89.99814750123778,
-          "offsetY": -43.69901826719396
+          "offsetX": -113.98778004073321,
+          "offsetY": -44.10590631364563
         },
         "nativeBounds": {
-          "left": 10,
-          "top": 19,
-          "rightExclusive": 52,
+          "left": 15,
+          "top": 15,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2375,35 +2440,36 @@
       },
       {
         "frame": 33,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 9,
-        "primaryComponent": 9,
+        "primaryComponent": 10,
         "componentIds": [
-          9
+          10
         ],
         "sourceCropBounds": {
-          "left": 703,
-          "top": 305,
-          "right": 921,
-          "bottom": 563
+          "left": 813,
+          "top": 259,
+          "right": 1018,
+          "bottom": 509
         },
         "primaryBounds": {
-          "left": 703,
-          "top": 305,
-          "right": 921,
-          "bottom": 563
+          "left": 813,
+          "top": 259,
+          "right": 1018,
+          "bottom": 509
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 812.904197080292,
-        "primaryBottom": 563,
+        "scale": 0.22810590631364563,
+        "pivotX": 896,
+        "pivotY": 509,
+        "primaryBottom": 509,
         "transform": {
-          "offsetX": -135.05544857454944,
-          "offsetY": -43.69901826719396
+          "offsetX": -172.38289205702648,
+          "offsetY": -44.10590631364563
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 19,
-          "rightExclusive": 54,
+          "left": 13,
+          "top": 15,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2411,35 +2477,36 @@
       },
       {
         "frame": 34,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 10,
-        "primaryComponent": 12,
+        "primaryComponent": 11,
         "componentIds": [
-          12
+          11
         ],
         "sourceCropBounds": {
-          "left": 937,
-          "top": 309,
-          "right": 1146,
-          "bottom": 563
+          "left": 1076,
+          "top": 259,
+          "right": 1276,
+          "bottom": 508
         },
         "primaryBounds": {
-          "left": 937,
-          "top": 309,
-          "right": 1146,
-          "bottom": 563
+          "left": 1076,
+          "top": 259,
+          "right": 1276,
+          "bottom": 508
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1038.706626783249,
-        "primaryBottom": 563,
+        "scale": 0.22810590631364563,
+        "pivotX": 1152,
+        "pivotY": 509,
+        "primaryBottom": 508,
         "transform": {
-          "offsetX": -181.45885788001874,
-          "offsetY": -43.69901826719396
+          "offsetX": -230.77800407331978,
+          "offsetY": -44.10590631364563
         },
         "nativeBounds": {
-          "left": 11,
-          "top": 20,
-          "rightExclusive": 54,
+          "left": 15,
+          "top": 15,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2447,35 +2514,36 @@
       },
       {
         "frame": 35,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 11,
-        "primaryComponent": 10,
+        "primaryComponent": 12,
         "componentIds": [
-          10
+          12
         ],
         "sourceCropBounds": {
-          "left": 1155,
-          "top": 305,
-          "right": 1357,
-          "bottom": 561
+          "left": 1331,
+          "top": 259,
+          "right": 1522,
+          "bottom": 508
         },
         "primaryBounds": {
-          "left": 1155,
-          "top": 305,
-          "right": 1357,
-          "bottom": 561
+          "left": 1331,
+          "top": 259,
+          "right": 1522,
+          "bottom": 508
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1258.2372758119243,
-        "primaryBottom": 561,
+        "scale": 0.22810590631364563,
+        "pivotX": 1408,
+        "pivotY": 509,
+        "primaryBottom": 508,
         "transform": {
-          "offsetX": -226.57338820360246,
-          "offsetY": -43.28800932130696
+          "offsetX": -289.1731160896131,
+          "offsetY": -44.10590631364563
         },
         "nativeBounds": {
-          "left": 11,
-          "top": 19,
-          "rightExclusive": 52,
+          "left": 15,
+          "top": 15,
+          "rightExclusive": 58,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2483,35 +2551,36 @@
       },
       {
         "frame": 36,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 12,
-        "primaryComponent": 18,
+        "primaryComponent": 13,
         "componentIds": [
-          18
+          13
         ],
         "sourceCropBounds": {
-          "left": 40,
-          "top": 582,
-          "right": 253,
-          "bottom": 842
+          "left": 55,
+          "top": 512,
+          "right": 258,
+          "bottom": 754
         },
         "primaryBounds": {
-          "left": 40,
-          "top": 582,
-          "right": 253,
-          "bottom": 842
+          "left": 55,
+          "top": 512,
+          "right": 258,
+          "bottom": 754
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 145.11508951406648,
-        "primaryBottom": 842,
+        "scale": 0.22810590631364563,
+        "pivotX": 128,
+        "pivotY": 756,
+        "primaryBottom": 754,
         "transform": {
-          "offsetX": 2.1782000132620496,
-          "offsetY": -101.0347662184322
+          "offsetX": 2.802443991853359,
+          "offsetY": -100.4480651731161
         },
         "nativeBounds": {
-          "left": 10,
-          "top": 19,
-          "rightExclusive": 54,
+          "left": 15,
+          "top": 16,
+          "rightExclusive": 62,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2519,35 +2588,36 @@
       },
       {
         "frame": 37,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 13,
-        "primaryComponent": 15,
+        "primaryComponent": 14,
         "componentIds": [
-          15
+          14
         ],
         "sourceCropBounds": {
-          "left": 268,
-          "top": 579,
-          "right": 470,
-          "bottom": 843
+          "left": 294,
+          "top": 513,
+          "right": 504,
+          "bottom": 756
         },
         "primaryBounds": {
-          "left": 268,
-          "top": 579,
-          "right": 470,
-          "bottom": 843
+          "left": 294,
+          "top": 513,
+          "right": 504,
+          "bottom": 756
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 375.1758050478677,
-        "primaryBottom": 843,
+        "scale": 0.22810590631364563,
+        "pivotX": 384,
+        "pivotY": 756,
+        "primaryBottom": 756,
         "transform": {
-          "offsetX": -45.10030607751767,
-          "offsetY": -101.24027069137568
+          "offsetX": -55.59266802443992,
+          "offsetY": -100.4480651731161
         },
         "nativeBounds": {
-          "left": 10,
-          "top": 18,
-          "rightExclusive": 51,
+          "left": 11,
+          "top": 17,
+          "rightExclusive": 59,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2555,35 +2625,36 @@
       },
       {
         "frame": 38,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 14,
-        "primaryComponent": 16,
+        "primaryComponent": 15,
         "componentIds": [
-          16
+          15
         ],
         "sourceCropBounds": {
-          "left": 478,
-          "top": 579,
-          "right": 693,
-          "bottom": 845
+          "left": 552,
+          "top": 513,
+          "right": 758,
+          "bottom": 756
         },
         "primaryBounds": {
-          "left": 478,
-          "top": 579,
-          "right": 693,
-          "bottom": 845
+          "left": 552,
+          "top": 513,
+          "right": 758,
+          "bottom": 756
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 585.4938476100331,
-        "primaryBottom": 845,
+        "scale": 0.22810590631364563,
+        "pivotX": 640,
+        "pivotY": 756,
+        "primaryBottom": 756,
         "transform": {
-          "offsetX": -88.32160456476535,
-          "offsetY": -101.65127963726269
+          "offsetX": -113.98778004073321,
+          "offsetY": -100.4480651731161
         },
         "nativeBounds": {
-          "left": 10,
+          "left": 12,
           "top": 17,
-          "rightExclusive": 54,
+          "rightExclusive": 59,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2591,35 +2662,36 @@
       },
       {
         "frame": 39,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 15,
-        "primaryComponent": 17,
+        "primaryComponent": 16,
         "componentIds": [
-          17
+          16
         ],
         "sourceCropBounds": {
-          "left": 707,
-          "top": 581,
-          "right": 920,
-          "bottom": 845
+          "left": 803,
+          "top": 513,
+          "right": 1011,
+          "bottom": 756
         },
         "primaryBounds": {
-          "left": 707,
-          "top": 581,
-          "right": 920,
-          "bottom": 845
+          "left": 803,
+          "top": 513,
+          "right": 1011,
+          "bottom": 756
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 815.2744458930899,
-        "primaryBottom": 845,
+        "scale": 0.22810590631364563,
+        "pivotX": 896,
+        "pivotY": 756,
+        "primaryBottom": 756,
         "transform": {
-          "offsetX": -135.54254530756847,
-          "offsetY": -101.65127963726269
+          "offsetX": -172.38289205702648,
+          "offsetY": -100.4480651731161
         },
         "nativeBounds": {
-          "left": 10,
-          "top": 18,
-          "rightExclusive": 54,
+          "left": 11,
+          "top": 17,
+          "rightExclusive": 58,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2627,35 +2699,36 @@
       },
       {
         "frame": 40,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 16,
-        "primaryComponent": 13,
+        "primaryComponent": 17,
         "componentIds": [
-          13
+          17
         ],
         "sourceCropBounds": {
-          "left": 944,
-          "top": 575,
-          "right": 1145,
-          "bottom": 842
+          "left": 1055,
+          "top": 513,
+          "right": 1264,
+          "bottom": 756
         },
         "primaryBounds": {
-          "left": 944,
-          "top": 575,
-          "right": 1145,
-          "bottom": 842
+          "left": 1055,
+          "top": 513,
+          "right": 1264,
+          "bottom": 756
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1052.9826686544911,
-        "primaryBottom": 842,
+        "scale": 0.22810590631364563,
+        "pivotX": 1152,
+        "pivotY": 756,
+        "primaryBottom": 756,
         "transform": {
-          "offsetX": -184.39264834048777,
-          "offsetY": -101.0347662184322
+          "offsetX": -230.77800407331978,
+          "offsetY": -100.4480651731161
         },
         "nativeBounds": {
           "left": 10,
           "top": 17,
-          "rightExclusive": 51,
+          "rightExclusive": 58,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2663,35 +2736,36 @@
       },
       {
         "frame": 41,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 17,
-        "primaryComponent": 14,
+        "primaryComponent": 18,
         "componentIds": [
-          14
+          18
         ],
         "sourceCropBounds": {
-          "left": 1169,
-          "top": 577,
-          "right": 1364,
-          "bottom": 845
+          "left": 1309,
+          "top": 513,
+          "right": 1514,
+          "bottom": 754
         },
         "primaryBounds": {
-          "left": 1169,
-          "top": 577,
-          "right": 1364,
-          "bottom": 845
+          "left": 1309,
+          "top": 513,
+          "right": 1514,
+          "bottom": 754
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1270.3651685393259,
-        "primaryBottom": 845,
+        "scale": 0.22810590631364563,
+        "pivotX": 1408,
+        "pivotY": 756,
+        "primaryBottom": 754,
         "transform": {
-          "offsetX": -229.06572440646255,
-          "offsetY": -101.65127963726269
+          "offsetX": -289.1731160896131,
+          "offsetY": -100.4480651731161
         },
         "nativeBounds": {
-          "left": 11,
+          "left": 9,
           "top": 17,
-          "rightExclusive": 51,
+          "rightExclusive": 56,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2699,35 +2773,36 @@
       },
       {
         "frame": 42,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 18,
-        "primaryComponent": 20,
+        "primaryComponent": 19,
         "componentIds": [
-          20
+          19
         ],
         "sourceCropBounds": {
-          "left": 27,
-          "top": 863,
-          "right": 234,
-          "bottom": 1128
+          "left": 62,
+          "top": 763,
+          "right": 256,
+          "bottom": 1004
         },
         "primaryBounds": {
-          "left": 27,
-          "top": 863,
-          "right": 234,
-          "bottom": 1128
+          "left": 62,
+          "top": 763,
+          "right": 256,
+          "bottom": 1004
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 140.9403879064461,
-        "primaryBottom": 1128,
+        "scale": 0.22810590631364563,
+        "pivotX": 128,
+        "pivotY": 1006,
+        "primaryBottom": 1004,
         "transform": {
-          "offsetX": 3.036119866832486,
-          "offsetY": -159.80904548027493
+          "offsetX": 2.802443991853359,
+          "offsetY": -157.4745417515275
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 18,
-          "rightExclusive": 51,
+          "left": 17,
+          "top": 17,
+          "rightExclusive": 61,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2735,35 +2810,36 @@
       },
       {
         "frame": 43,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 19,
-        "primaryComponent": 21,
+        "primaryComponent": 20,
         "componentIds": [
-          21
+          20
         ],
         "sourceCropBounds": {
-          "left": 250,
-          "top": 863,
-          "right": 467,
-          "bottom": 1123
+          "left": 314,
+          "top": 763,
+          "right": 509,
+          "bottom": 1006
         },
         "primaryBounds": {
-          "left": 250,
-          "top": 863,
-          "right": 467,
-          "bottom": 1123
+          "left": 314,
+          "top": 763,
+          "right": 509,
+          "bottom": 1006
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 361.86266349583826,
-        "primaryBottom": 1123,
+        "scale": 0.22810590631364563,
+        "pivotX": 384,
+        "pivotY": 1006,
+        "primaryBottom": 1006,
         "transform": {
-          "offsetX": -42.36439593964556,
-          "offsetY": -158.7815231155574
+          "offsetX": -55.59266802443992,
+          "offsetY": -157.4745417515275
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 19,
-          "rightExclusive": 54,
+          "left": 16,
+          "top": 17,
+          "rightExclusive": 61,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2771,35 +2847,36 @@
       },
       {
         "frame": 44,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 20,
-        "primaryComponent": 24,
+        "primaryComponent": 21,
         "componentIds": [
-          24
+          21
         ],
         "sourceCropBounds": {
-          "left": 477,
-          "top": 871,
-          "right": 679,
-          "bottom": 1120
+          "left": 561,
+          "top": 764,
+          "right": 757,
+          "bottom": 1004
         },
         "primaryBounds": {
-          "left": 477,
-          "top": 871,
-          "right": 679,
-          "bottom": 1120
+          "left": 561,
+          "top": 764,
+          "right": 757,
+          "bottom": 1004
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 593.7857791912767,
-        "primaryBottom": 1120,
+        "scale": 0.22810590631364563,
+        "pivotX": 640,
+        "pivotY": 1006,
+        "primaryBottom": 1004,
         "transform": {
-          "offsetX": -90.02563359405244,
-          "offsetY": -158.16500969672688
+          "offsetX": -113.98778004073321,
+          "offsetY": -157.4745417515275
         },
         "nativeBounds": {
-          "left": 8,
-          "top": 21,
-          "rightExclusive": 50,
+          "left": 14,
+          "top": 17,
+          "rightExclusive": 59,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2807,35 +2884,36 @@
       },
       {
         "frame": 45,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 21,
-        "primaryComponent": 19,
+        "primaryComponent": 22,
         "componentIds": [
-          19
+          22
         ],
         "sourceCropBounds": {
-          "left": 705,
-          "top": 862,
-          "right": 906,
-          "bottom": 1124
+          "left": 826,
+          "top": 765,
+          "right": 1019,
+          "bottom": 1006
         },
         "primaryBounds": {
-          "left": 705,
-          "top": 862,
-          "right": 906,
-          "bottom": 1124
+          "left": 826,
+          "top": 765,
+          "right": 1019,
+          "bottom": 1006
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 806.8310384394722,
-        "primaryBottom": 1124,
+        "scale": 0.22810590631364563,
+        "pivotX": 896,
+        "pivotY": 1006,
+        "primaryBottom": 1006,
         "transform": {
-          "offsetX": -133.8073873089655,
-          "offsetY": -158.98702758850092
+          "offsetX": -172.38289205702648,
+          "offsetY": -157.4745417515275
         },
         "nativeBounds": {
-          "left": 11,
-          "top": 18,
-          "rightExclusive": 52,
+          "left": 16,
+          "top": 17,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2843,35 +2921,36 @@
       },
       {
         "frame": 46,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 22,
-        "primaryComponent": 22,
+        "primaryComponent": 23,
         "componentIds": [
-          22
+          23
         ],
         "sourceCropBounds": {
-          "left": 934,
-          "top": 863,
-          "right": 1145,
-          "bottom": 1124
+          "left": 1072,
+          "top": 765,
+          "right": 1266,
+          "bottom": 1004
         },
         "primaryBounds": {
-          "left": 934,
-          "top": 863,
-          "right": 1145,
-          "bottom": 1124
+          "left": 1072,
+          "top": 765,
+          "right": 1266,
+          "bottom": 1004
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1036.4956976029503,
-        "primaryBottom": 1124,
+        "scale": 0.22810590631364563,
+        "pivotX": 1152,
+        "pivotY": 1006,
+        "primaryBottom": 1004,
         "transform": {
-          "offsetX": -181.00450204410603,
-          "offsetY": -158.98702758850092
+          "offsetX": -230.77800407331978,
+          "offsetY": -157.4745417515275
         },
         "nativeBounds": {
-          "left": 11,
-          "top": 18,
-          "rightExclusive": 54,
+          "left": 14,
+          "top": 17,
+          "rightExclusive": 58,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2879,35 +2958,36 @@
       },
       {
         "frame": 47,
-        "source": "../../../docs/art/animations/sources/hero.rotation4.source.png",
+        "source": "../../../docs/art/animations/sources/hero.walk.south.source.png",
         "sourceFrame": 23,
-        "primaryComponent": 23,
+        "primaryComponent": 24,
         "componentIds": [
-          23
+          24
         ],
         "sourceCropBounds": {
-          "left": 1151,
-          "top": 870,
-          "right": 1348,
-          "bottom": 1128
+          "left": 1319,
+          "top": 765,
+          "right": 1511,
+          "bottom": 1006
         },
         "primaryBounds": {
-          "left": 1151,
-          "top": 870,
-          "right": 1348,
-          "bottom": 1128
+          "left": 1319,
+          "top": 765,
+          "right": 1511,
+          "bottom": 1006
         },
-        "scale": 0.20550447294350616,
-        "pivotX": 1257.8570981863666,
-        "primaryBottom": 1128,
+        "scale": 0.22810590631364563,
+        "pivotX": 1408,
+        "pivotY": 1006,
+        "primaryBottom": 1006,
         "transform": {
-          "offsetX": -226.4952600010373,
-          "offsetY": -159.80904548027493
+          "offsetX": -289.1731160896131,
+          "offsetY": -157.4745417515275
         },
         "nativeBounds": {
-          "left": 10,
-          "top": 19,
-          "rightExclusive": 51,
+          "left": 12,
+          "top": 17,
+          "rightExclusive": 55,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2933,17 +3013,18 @@
           "right": 339,
           "bottom": 798
         },
-        "scale": 0.1486730473486681,
-        "pivotX": 219.42804918577602,
+        "scale": 0.1432225063938619,
+        "pivotX": 161.83333333333334,
+        "pivotY": 798,
         "primaryBottom": 798,
         "transform": {
-          "offsetX": -0.623036746222752,
-          "offsetY": -46.64109178423715
+          "offsetX": 8.821824381926682,
+          "offsetY": -42.29156010230179
         },
         "nativeBounds": {
-          "left": 8,
-          "top": 14,
-          "rightExclusive": 50,
+          "left": 17,
+          "top": 16,
+          "rightExclusive": 57,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -2969,17 +3050,18 @@
           "right": 681,
           "bottom": 798
         },
-        "scale": 0.1486730473486681,
-        "pivotX": 557.4149109913441,
+        "scale": 0.1432225063938619,
+        "pivotX": 485.5,
+        "pivotY": 798,
         "primaryBottom": 798,
         "transform": {
-          "offsetX": -50.872573454669705,
-          "offsetY": -46.64109178423715
+          "offsetX": -37.53452685421995,
+          "offsetY": -42.29156010230179
         },
         "nativeBounds": {
-          "left": 8,
-          "top": 14,
-          "rightExclusive": 50,
+          "left": 19,
+          "top": 16,
+          "rightExclusive": 60,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -3005,17 +3087,18 @@
           "right": 995,
           "bottom": 798
         },
-        "scale": 0.1486730473486681,
-        "pivotX": 878.1495033112583,
+        "scale": 0.1432225063938619,
+        "pivotX": 809.1666666666667,
+        "pivotY": 798,
         "primaryBottom": 798,
         "transform": {
-          "offsetX": -98.55716268500407,
-          "offsetY": -46.64109178423715
+          "offsetX": -83.89087809036658,
+          "offsetY": -42.29156010230179
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 14,
-          "rightExclusive": 49,
+          "left": 19,
+          "top": 16,
+          "rightExclusive": 59,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -3041,17 +3124,18 @@
           "right": 1301,
           "bottom": 798
         },
-        "scale": 0.1486730473486681,
-        "pivotX": 1177.9043435013264,
+        "scale": 0.1432225063938619,
+        "pivotX": 1132.8333333333335,
+        "pivotY": 798,
         "primaryBottom": 798,
         "transform": {
-          "offsetX": -143.12262823357452,
-          "offsetY": -46.64109178423715
+          "offsetX": -130.24722932651324,
+          "offsetY": -42.29156010230179
         },
         "nativeBounds": {
-          "left": 8,
-          "top": 14,
-          "rightExclusive": 50,
+          "left": 16,
+          "top": 16,
+          "rightExclusive": 56,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -3077,17 +3161,18 @@
           "right": 1614,
           "bottom": 798
         },
-        "scale": 0.1486730473486681,
-        "pivotX": 1491.8766591129815,
+        "scale": 0.1432225063938619,
+        "pivotX": 1456.5,
+        "pivotY": 798,
         "primaryBottom": 798,
         "transform": {
-          "offsetX": -189.8018491786771,
-          "offsetY": -46.64109178423715
+          "offsetX": -176.60358056265983,
+          "offsetY": -42.29156010230179
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 14,
-          "rightExclusive": 50,
+          "left": 15,
+          "top": 16,
+          "rightExclusive": 55,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,
@@ -3113,17 +3198,18 @@
           "right": 1917,
           "bottom": 798
         },
-        "scale": 0.1486730473486681,
-        "pivotX": 1796.0722351378279,
+        "scale": 0.1432225063938619,
+        "pivotX": 1780.1666666666667,
+        "pivotY": 798,
         "primaryBottom": 798,
         "transform": {
-          "offsetX": -235.0275324562744,
-          "offsetY": -46.64109178423715
+          "offsetX": -222.95993179880648,
+          "offsetY": -42.29156010230179
         },
         "nativeBounds": {
-          "left": 9,
-          "top": 14,
-          "rightExclusive": 50,
+          "left": 12,
+          "top": 16,
+          "rightExclusive": 52,
           "bottomExclusive": 72
         },
         "translatedClipping": 0,

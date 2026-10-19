@@ -233,7 +233,7 @@ try
 catch (Exception exception)
 {
     Console.Error.WriteLine(exception.Message);
-    Console.Error.WriteLine("Usage: dotnet run --project tools/SpriteSheetTool -- --source source.png --output content/art/animations/name.png --kind hero|unit|support --id name [--source-copy docs/art/sources/name.png] [--row-map rows.json] [--content-box 8,8,48,64] [--alpha-cutoff 128] [--align-bottom 72] [--contact-strip review.png] [--ability-name heal] [--frame-ms 110] [--impact-frame 4] [--allow-opaque]");
+    Console.Error.WriteLine("Usage: dotnet run --project tools/SpriteSheetTool -- --source source.png --output content/art/animations/name.png --kind hero|unit|support --id name [--source-copy docs/art/sources/name.png] [--row-map rows.json] [--anchor-mode body|cell] [--content-box 8,8,48,64] [--alpha-cutoff 128] [--align-bottom 72] [--contact-strip review.png] [--ability-name heal] [--frame-ms 110] [--impact-frame 4] [--allow-opaque]");
     return 1;
 }
 return 0;
