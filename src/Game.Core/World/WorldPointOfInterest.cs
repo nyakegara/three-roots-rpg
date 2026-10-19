@@ -9,8 +9,10 @@ public sealed class WorldPointOfInterest
     public string Type { get; }
     public string Name { get; }
     public HexCoord Coordinate { get; }
+    public string? RecruitmentSiteId { get; }
 
-    public WorldPointOfInterest(string id, string type, string name, HexCoord coordinate)
+    public WorldPointOfInterest(string id, string type, string name, HexCoord coordinate,
+        string? recruitmentSiteId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(type);
@@ -19,5 +21,6 @@ public sealed class WorldPointOfInterest
         Type = type;
         Name = name;
         Coordinate = coordinate;
+        RecruitmentSiteId = recruitmentSiteId;
     }
 }

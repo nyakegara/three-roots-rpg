@@ -1,0 +1,36 @@
+{
+  "id": "flora-01",
+  "name": "Песнь трёх корней",
+  "description": "Путница Лиара ищет источник, который связывает три рощи, пока люди прокладывают через лес железную дорогу.",
+  "playerFactionId": "flora",
+  "enemyFactionId": "human",
+  "mapFile": "../maps/flora-01.json",
+  "hero": { "id": "liara", "name": "Лиара", "startingGold": 240 },
+  "recruitmentSites": [
+    { "id": "root-greenhouse", "pointOfInterestId": "root-greenhouse", "offers": [
+      { "unitId": "flora.thorn-guard", "startingStock": 15 },
+      { "unitId": "flora.sprout", "startingStock": 8 }
+    ] },
+    { "id": "sunny-clearing", "pointOfInterestId": "sunny-clearing", "offers": [
+      { "unitId": "flora.ember-bloom", "startingStock": 4 },
+      { "unitId": "flora.pod-slinger", "startingStock": 5 }
+    ] },
+    { "id": "spore-circle", "pointOfInterestId": "spore-circle", "offers": [
+      { "unitId": "flora.root-warden", "startingStock": 3 }
+    ] }
+  ],
+  "quests": [
+    { "id": "spring-call", "title": "Голос родника", "pointOfInterestId": "spring-call", "choices": [
+      { "id": "share", "description": "Открыть воду беженцам: +20 золота, +1 репутация.", "goldChange": 20, "reputationChange": 1 },
+      { "id": "guard", "description": "Оставить воду роще: +45 золота, -1 репутация.", "goldChange": 45, "reputationChange": -1 }
+    ] },
+    { "id": "iron-road", "title": "Железная дорога", "pointOfInterestId": "iron-road", "choices": [
+      { "id": "sabotage", "description": "Задержать стройку: +15 золота, +1 репутация.", "goldChange": 15, "reputationChange": 1 },
+      { "id": "bargain", "description": "Выкупить землю: -35 золота, +2 репутация.", "goldChange": -35, "reputationChange": 2 }
+    ] },
+    { "id": "seed-vault", "title": "Хранилище семян", "pointOfInterestId": "seed-vault", "choices": [
+      { "id": "restore", "description": "Вернуть семена рощам: +25 золота, +1 репутация.", "goldChange": 25, "reputationChange": 1 },
+      { "id": "sell", "description": "Продать редкие семена: +70 золота.", "goldChange": 70, "reputationChange": 0 }
+    ] }
+  ]
+}

@@ -24,6 +24,44 @@ public sealed class UnitCatalogTests : IDisposable
     }
 
     [Fact]
+    public void Load_FloraCatalog_PreservesStableIdsAndDefinesApprovedRoles()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "content", "units", "units.json");
+
+        var result = UnitCatalog.Load(path);
+
+        Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
+        var units = Assert.IsType<UnitCatalog>(result.Catalog).Units;
+        Assert.Equal(15, units.Count);
+        Assert.Equal(new[]
+        {
+            "human.banner-knight", "human.field-medic", "human.longbow", "human.militia", "human.spearman",
+            "undead.ash-vessel", "undead.grave-gardener", "undead.hourless", "undead.porcelain-choir", "undead.refrain"
+        }, units.Where(unit => unit.FactionId != "flora").Select(unit => unit.Id).Order(StringComparer.Ordinal));
+
+        AssertUnit("flora.thorn-guard", "Кабачок-крепыш", 10, 4, 5, 3, 1, false, 8, UnitAbility.None);
+        AssertUnit("flora.sprout", "Ипомея-целительница", 8, 3, 7, 4, 4, true, 12, UnitAbility.HealAlly);
+        AssertUnit("flora.ember-bloom", "Пламенный цветок", 9, 6, 6, 4, 3, true, 30, UnitAbility.None);
+        AssertUnit("flora.pod-slinger", "Орхидея-ассасин", 12, 5, 8, 5, 1, false, 34, UnitAbility.None);
+        AssertUnit("flora.root-warden", "Гриб-сновидец", 28, 7, 3, 2, 5, true, 52, UnitAbility.ConvertOnHit);
+
+        void AssertUnit(string id, string name, int hp, int damage, int speed, int movement,
+            int range, bool ranged, int cost, UnitAbility ability)
+        {
+            var unit = Assert.Single(units, definition => definition.Id == id);
+            Assert.Equal(name, unit.Name);
+            Assert.Equal(hp, unit.HitPoints);
+            Assert.Equal(damage, unit.Damage);
+            Assert.Equal(speed, unit.Speed);
+            Assert.Equal(movement, unit.Movement);
+            Assert.Equal(range, unit.Range);
+            Assert.Equal(ranged, unit.IsRanged);
+            Assert.Equal(cost, unit.RecruitmentCost);
+            Assert.Equal(ability, unit.Ability);
+        }
+    }
+
+    [Fact]
     public void Load_UnknownAbility_ReturnsClearDiagnostic()
     {
         var path = WriteUnits("""

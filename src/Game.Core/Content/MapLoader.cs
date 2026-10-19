@@ -142,7 +142,7 @@ public sealed class MapLoader
             }
 
             var pointName = string.IsNullOrWhiteSpace(point.Name) ? point.Id : point.Name;
-            points.Add(new WorldPointOfInterest(point.Id, point.Type, pointName, coordinate));
+            points.Add(new WorldPointOfInterest(point.Id, point.Type, pointName, coordinate, point.RecruitmentSiteId));
         }
 
         if (errors.Count > 0)
@@ -208,5 +208,6 @@ public sealed class MapLoader
         public string? Name { get; init; }
         public int? Q { get; init; }
         public int? R { get; init; }
+        public string? RecruitmentSiteId { get; init; }
     }
 }
