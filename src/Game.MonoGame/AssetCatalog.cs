@@ -37,6 +37,8 @@ internal sealed class AssetCatalog : IDisposable
                      FloraIslandSouthWest, FloraIslandSouthEast,
                      "unit.flora.sprout", "unit.flora.thorn-guard", "unit.flora.ember-bloom",
                      "unit.flora.pod-slinger", "unit.flora.root-warden",
+                     "unit.human.militia", "unit.human.longbow", "unit.human.banner-knight",
+                     "unit.human.order-hunter", "unit.human.inquisitor",
                      RootGreenhouse, SunnyClearing, SporeCircle,
                      BattlefieldForestDay, BattlefieldForestNight })
         {
@@ -90,7 +92,7 @@ internal sealed class AssetCatalog : IDisposable
         return true;
     }
 
-    public bool TryDrawCropped(PixelCanvas canvas, string key, Rectangle bounds)
+    public bool TryDrawCropped(PixelCanvas canvas, string key, Rectangle bounds, bool flipHorizontally = false)
     {
         if (!_textures.TryGetValue(key, out var asset))
             return false;
@@ -101,7 +103,7 @@ internal sealed class AssetCatalog : IDisposable
         var height = Math.Max(1, (int)MathF.Round(source.Height * scale));
         var destination = new Rectangle(bounds.X + (bounds.Width - width) / 2,
             bounds.Y + (bounds.Height - height) / 2, width, height);
-        canvas.Texture(asset.Texture, source, destination);
+        canvas.Texture(asset.Texture, source, destination, flipHorizontally);
         return true;
     }
 

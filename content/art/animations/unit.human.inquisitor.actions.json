@@ -1,0 +1,1603 @@
+{
+  "schemaVersion": 2,
+  "id": "unit.human.inquisitor.actions",
+  "image": "unit.human.inquisitor.actions.png",
+  "kind": "support",
+  "width": 256,
+  "height": 320,
+  "columns": 4,
+  "rows": 4,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "contentBox": {
+    "x": 1,
+    "y": 0,
+    "width": 62,
+    "height": 72
+  },
+  "alphaCutoff": 128,
+  "alignBottom": 72,
+  "anchorMode": "body",
+  "frameOrder": "row-major",
+  "heroTwoFrame": false,
+  "heroCompactWalk": false,
+  "usedFrameCount": 16,
+  "unusedSlots": [],
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "frameMs": 100,
+      "loop": false,
+      "impactFrame": 4
+    },
+    {
+      "name": "holy-fire",
+      "frames": [
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "frameMs": 100,
+      "loop": false,
+      "impactFrame": 4
+    }
+  ],
+  "frameDiagnostics": [
+    {
+      "frame": 0,
+      "empty": false,
+      "visibleBounds": {
+        "left": 21,
+        "top": 39,
+        "right": 41,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 1,
+      "empty": false,
+      "visibleBounds": {
+        "left": 15,
+        "top": 45,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 2,
+      "empty": false,
+      "visibleBounds": {
+        "left": 18,
+        "top": 37,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 3,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 41,
+        "right": 50,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 4,
+      "empty": false,
+      "visibleBounds": {
+        "left": 12,
+        "top": 52,
+        "right": 48,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 5,
+      "empty": false,
+      "visibleBounds": {
+        "left": 17,
+        "top": 43,
+        "right": 54,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 6,
+      "empty": false,
+      "visibleBounds": {
+        "left": 16,
+        "top": 44,
+        "right": 44,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 7,
+      "empty": false,
+      "visibleBounds": {
+        "left": 20,
+        "top": 39,
+        "right": 41,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 8,
+      "empty": false,
+      "visibleBounds": {
+        "left": 21,
+        "top": 40,
+        "right": 41,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 9,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 41,
+        "right": 42,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 10,
+      "empty": false,
+      "visibleBounds": {
+        "left": 20,
+        "top": 41,
+        "right": 48,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 11,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 41,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 12,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 41,
+        "right": 59,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 13,
+      "empty": false,
+      "visibleBounds": {
+        "left": 18,
+        "top": 42,
+        "right": 44,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 14,
+      "empty": false,
+      "visibleBounds": {
+        "left": 19,
+        "top": 41,
+        "right": 43,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 15,
+      "empty": false,
+      "visibleBounds": {
+        "left": 20,
+        "top": 39,
+        "right": 41,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    }
+  ],
+  "registration": [
+    {
+      "frame": 0,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 1,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 2,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 3,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 4,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 5,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 6,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 7,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 8,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 9,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 10,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 11,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 12,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 13,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 14,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 15,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    }
+  ],
+  "sourceBorderDiagnostics": [],
+  "unpacking": {
+    "enabled": true,
+    "connectivity": 8,
+    "majorMinAreaFraction": 0.1,
+    "majorMinHeightFraction": 0.35,
+    "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
+    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sampling": "sourceX=floor(pivotX\u002B(x\u002B0.5-anchorX)/scale); sourceY=floor(pivotY\u002B(y-translationY\u002B0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
+    "sources": [
+      {
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "Width": 1402,
+        "Height": 1122,
+        "Columns": 4,
+        "Rows": 4,
+        "expected": 16,
+        "primaryComponents": 16,
+        "totalComponents": 52,
+        "detachedComponents": 36,
+        "Scale": 0.127525929618329,
+        "FitScale": 0.127525929618329,
+        "RowGrounds": [
+          282,
+          560,
+          831,
+          1094
+        ],
+        "Attachments": [
+          {
+            "component": 9,
+            "Area": 46,
+            "bounds": {
+              "Left": 333,
+              "Top": 466,
+              "Right": 343,
+              "Bottom": 477
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 10,
+            "Area": 61,
+            "bounds": {
+              "Left": 291,
+              "Top": 478,
+              "Right": 297,
+              "Bottom": 496
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 11,
+            "Area": 65,
+            "bounds": {
+              "Left": 317,
+              "Top": 484,
+              "Right": 326,
+              "Bottom": 496
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 12,
+            "Area": 76,
+            "bounds": {
+              "Left": 275,
+              "Top": 493,
+              "Right": 282,
+              "Bottom": 510
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 13,
+            "Area": 1,
+            "bounds": {
+              "Left": 292,
+              "Top": 497,
+              "Right": 293,
+              "Bottom": 498
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 14,
+            "Area": 6,
+            "bounds": {
+              "Left": 291,
+              "Top": 499,
+              "Right": 294,
+              "Bottom": 503
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 15,
+            "Area": 2,
+            "bounds": {
+              "Left": 311,
+              "Top": 502,
+              "Right": 312,
+              "Bottom": 504
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 16,
+            "Area": 51,
+            "bounds": {
+              "Left": 350,
+              "Top": 534,
+              "Right": 365,
+              "Bottom": 544
+            },
+            "frame": 4,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 21,
+            "Area": 5,
+            "bounds": {
+              "Left": 996,
+              "Top": 609,
+              "Right": 999,
+              "Bottom": 611
+            },
+            "frame": 10,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 22,
+            "Area": 1,
+            "bounds": {
+              "Left": 603,
+              "Top": 627,
+              "Right": 604,
+              "Bottom": 628
+            },
+            "frame": 9,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 23,
+            "Area": 1,
+            "bounds": {
+              "Left": 1284,
+              "Top": 634,
+              "Right": 1285,
+              "Bottom": 635
+            },
+            "frame": 11,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 24,
+            "Area": 2,
+            "bounds": {
+              "Left": 1335,
+              "Top": 670,
+              "Right": 1336,
+              "Bottom": 672
+            },
+            "frame": 11,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 25,
+            "Area": 8,
+            "bounds": {
+              "Left": 1321,
+              "Top": 679,
+              "Right": 1325,
+              "Bottom": 683
+            },
+            "frame": 11,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 26,
+            "Area": 2,
+            "bounds": {
+              "Left": 1293,
+              "Top": 680,
+              "Right": 1295,
+              "Bottom": 681
+            },
+            "frame": 11,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 27,
+            "Area": 3,
+            "bounds": {
+              "Left": 1304,
+              "Top": 684,
+              "Right": 1306,
+              "Bottom": 686
+            },
+            "frame": 11,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 28,
+            "Area": 3,
+            "bounds": {
+              "Left": 1315,
+              "Top": 684,
+              "Right": 1318,
+              "Bottom": 685
+            },
+            "frame": 11,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 33,
+            "Area": 1,
+            "bounds": {
+              "Left": 303,
+              "Top": 876,
+              "Right": 304,
+              "Bottom": 877
+            },
+            "frame": 12,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 34,
+            "Area": 2,
+            "bounds": {
+              "Left": 325,
+              "Top": 881,
+              "Right": 326,
+              "Bottom": 883
+            },
+            "frame": 12,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 35,
+            "Area": 37,
+            "bounds": {
+              "Left": 618,
+              "Top": 883,
+              "Right": 627,
+              "Bottom": 892
+            },
+            "frame": 13,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 36,
+            "Area": 1,
+            "bounds": {
+              "Left": 605,
+              "Top": 894,
+              "Right": 606,
+              "Bottom": 895
+            },
+            "frame": 13,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 37,
+            "Area": 19,
+            "bounds": {
+              "Left": 637,
+              "Top": 900,
+              "Right": 643,
+              "Bottom": 906
+            },
+            "frame": 13,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 38,
+            "Area": 12,
+            "bounds": {
+              "Left": 405,
+              "Top": 903,
+              "Right": 410,
+              "Bottom": 907
+            },
+            "frame": 12,
+            "bboxDistance": 4,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 39,
+            "Area": 1,
+            "bounds": {
+              "Left": 421,
+              "Top": 904,
+              "Right": 422,
+              "Bottom": 905
+            },
+            "frame": 13,
+            "bboxDistance": 15,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 40,
+            "Area": 2,
+            "bounds": {
+              "Left": 423,
+              "Top": 904,
+              "Right": 425,
+              "Bottom": 905
+            },
+            "frame": 13,
+            "bboxDistance": 12,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 41,
+            "Area": 2,
+            "bounds": {
+              "Left": 640,
+              "Top": 907,
+              "Right": 641,
+              "Bottom": 909
+            },
+            "frame": 13,
+            "bboxDistance": 3,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 42,
+            "Area": 35,
+            "bounds": {
+              "Left": 983,
+              "Top": 907,
+              "Right": 993,
+              "Bottom": 919
+            },
+            "frame": 14,
+            "bboxDistance": 11,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 43,
+            "Area": 1,
+            "bounds": {
+              "Left": 972,
+              "Top": 914,
+              "Right": 973,
+              "Bottom": 915
+            },
+            "frame": 14,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 44,
+            "Area": 15,
+            "bounds": {
+              "Left": 638,
+              "Top": 922,
+              "Right": 642,
+              "Bottom": 928
+            },
+            "frame": 13,
+            "bboxDistance": 1,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 45,
+            "Area": 6,
+            "bounds": {
+              "Left": 324,
+              "Top": 926,
+              "Right": 328,
+              "Bottom": 929
+            },
+            "frame": 12,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 46,
+            "Area": 20,
+            "bounds": {
+              "Left": 962,
+              "Top": 927,
+              "Right": 968,
+              "Bottom": 935
+            },
+            "frame": 14,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 47,
+            "Area": 1,
+            "bounds": {
+              "Left": 972,
+              "Top": 928,
+              "Right": 973,
+              "Bottom": 929
+            },
+            "frame": 14,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 48,
+            "Area": 1,
+            "bounds": {
+              "Left": 625,
+              "Top": 941,
+              "Right": 626,
+              "Bottom": 942
+            },
+            "frame": 13,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 49,
+            "Area": 23,
+            "bounds": {
+              "Left": 982,
+              "Top": 942,
+              "Right": 989,
+              "Bottom": 952
+            },
+            "frame": 14,
+            "bboxDistance": 10,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 50,
+            "Area": 1,
+            "bounds": {
+              "Left": 996,
+              "Top": 950,
+              "Right": 997,
+              "Bottom": 951
+            },
+            "frame": 14,
+            "bboxDistance": 24,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 51,
+            "Area": 58,
+            "bounds": {
+              "Left": 1002,
+              "Top": 956,
+              "Right": 1012,
+              "Bottom": 967
+            },
+            "frame": 14,
+            "bboxDistance": 30,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 52,
+            "Area": 24,
+            "bounds": {
+              "Left": 983,
+              "Top": 967,
+              "Right": 990,
+              "Bottom": 974
+            },
+            "frame": 14,
+            "bboxDistance": 11,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          }
+        ],
+        "sha256": "98bfdc925d2cbd21f44d8af578848dabb5c1c43661e83cc002b87f504b54eddd"
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 0,
+        "sourceColumn": 0,
+        "sourceRow": 0,
+        "primaryComponent": 2,
+        "componentIds": [
+          2
+        ],
+        "sourceCropBounds": {
+          "left": 91,
+          "top": 26,
+          "right": 256,
+          "bottom": 282
+        },
+        "primaryBounds": {
+          "left": 91,
+          "top": 26,
+          "right": 256,
+          "bottom": 282
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 179.77888596161083,
+        "pivotY": 282,
+        "primaryBottom": 282,
+        "transform": {
+          "offsetX": 9.07353044199802,
+          "offsetY": 36.03768784763122
+        },
+        "nativeBounds": {
+          "left": 21,
+          "top": 39,
+          "rightExclusive": 42,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 1,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 1,
+        "sourceColumn": 1,
+        "sourceRow": 0,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 400,
+          "top": 67,
+          "right": 658,
+          "bottom": 282
+        },
+        "primaryBounds": {
+          "left": 400,
+          "top": 67,
+          "right": 658,
+          "bottom": 282
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 535.088441890166,
+        "pivotY": 282,
+        "primaryBottom": 282,
+        "transform": {
+          "offsetX": -36.23765098006665,
+          "offsetY": 36.03768784763122
+        },
+        "nativeBounds": {
+          "left": 15,
+          "top": 45,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 2,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 2,
+        "sourceColumn": 2,
+        "sourceRow": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 780,
+          "top": 6,
+          "right": 1013,
+          "bottom": 282
+        },
+        "primaryBounds": {
+          "left": 780,
+          "top": 6,
+          "right": 1013,
+          "bottom": 282
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 889.8209751142712,
+        "pivotY": 282,
+        "primaryBottom": 282,
+        "transform": {
+          "offsetX": -81.47524704533544,
+          "offsetY": 36.03768784763122
+        },
+        "nativeBounds": {
+          "left": 18,
+          "top": 37,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 3,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 3,
+        "sourceColumn": 3,
+        "sourceRow": 0,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 1121,
+          "top": 38,
+          "right": 1370,
+          "bottom": 282
+        },
+        "primaryBounds": {
+          "left": 1121,
+          "top": 38,
+          "right": 1370,
+          "bottom": 282
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 1222.9432989690722,
+        "pivotY": 282,
+        "primaryBottom": 282,
+        "transform": {
+          "offsetX": -123.956981071537,
+          "offsetY": 36.03768784763122
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 41,
+          "rightExclusive": 51,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 4,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 4,
+        "sourceColumn": 0,
+        "sourceRow": 1,
+        "primaryComponent": 8,
+        "componentIds": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16
+        ],
+        "sourceCropBounds": {
+          "left": 65,
+          "top": 401,
+          "right": 365,
+          "bottom": 560
+        },
+        "primaryBounds": {
+          "left": 65,
+          "top": 401,
+          "right": 352,
+          "bottom": 560
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 225.66811458088753,
+        "pivotY": 560,
+        "primaryBottom": 560,
+        "transform": {
+          "offsetX": 3.22146390285673,
+          "offsetY": 0.5854794137357544
+        },
+        "nativeBounds": {
+          "left": 12,
+          "top": 52,
+          "rightExclusive": 49,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 5,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 5,
+        "sourceColumn": 1,
+        "sourceRow": 1,
+        "primaryComponent": 6,
+        "componentIds": [
+          6
+        ],
+        "sourceCropBounds": {
+          "left": 419,
+          "top": 331,
+          "right": 712,
+          "bottom": 556
+        },
+        "primaryBounds": {
+          "left": 419,
+          "top": 331,
+          "right": 712,
+          "bottom": 556
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 533.095926412615,
+        "pivotY": 556,
+        "primaryBottom": 556,
+        "transform": {
+          "offsetX": -35.983553591513044,
+          "offsetY": 1.0955831322090717
+        },
+        "nativeBounds": {
+          "left": 17,
+          "top": 43,
+          "rightExclusive": 55,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 6,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 6,
+        "sourceColumn": 2,
+        "sourceRow": 1,
+        "primaryComponent": 7,
+        "componentIds": [
+          7
+        ],
+        "sourceCropBounds": {
+          "left": 767,
+          "top": 341,
+          "right": 997,
+          "bottom": 557
+        },
+        "primaryBounds": {
+          "left": 767,
+          "top": 341,
+          "right": 997,
+          "bottom": 557
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 894.0219689461513,
+        "pivotY": 557,
+        "primaryBottom": 557,
+        "transform": {
+          "offsetX": -82.01098268906682,
+          "offsetY": 0.9680572025907423
+        },
+        "nativeBounds": {
+          "left": 16,
+          "top": 44,
+          "rightExclusive": 45,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 7,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 7,
+        "sourceColumn": 3,
+        "sourceRow": 1,
+        "primaryComponent": 5,
+        "componentIds": [
+          5
+        ],
+        "sourceCropBounds": {
+          "left": 1141,
+          "top": 302,
+          "right": 1308,
+          "bottom": 557
+        },
+        "primaryBounds": {
+          "left": 1141,
+          "top": 302,
+          "right": 1308,
+          "bottom": 557
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 1231.6950655358519,
+        "pivotY": 557,
+        "primaryBottom": 557,
+        "transform": {
+          "offsetX": -125.07305823876817,
+          "offsetY": 0.9680572025907423
+        },
+        "nativeBounds": {
+          "left": 20,
+          "top": 39,
+          "rightExclusive": 42,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 8,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 8,
+        "sourceColumn": 0,
+        "sourceRow": 2,
+        "primaryComponent": 17,
+        "componentIds": [
+          17
+        ],
+        "sourceCropBounds": {
+          "left": 91,
+          "top": 577,
+          "right": 257,
+          "bottom": 831
+        },
+        "primaryBounds": {
+          "left": 91,
+          "top": 577,
+          "right": 257,
+          "bottom": 831
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 179.66571210385644,
+        "pivotY": 831,
+        "primaryBottom": 831,
+        "transform": {
+          "offsetX": 9.087963043416643,
+          "offsetY": -33.974047512831405
+        },
+        "nativeBounds": {
+          "left": 21,
+          "top": 40,
+          "rightExclusive": 42,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 9,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 9,
+        "sourceColumn": 1,
+        "sourceRow": 2,
+        "primaryComponent": 19,
+        "componentIds": [
+          19,
+          22
+        ],
+        "sourceCropBounds": {
+          "left": 441,
+          "top": 587,
+          "right": 630,
+          "bottom": 831
+        },
+        "primaryBounds": {
+          "left": 441,
+          "top": 587,
+          "right": 630,
+          "bottom": 831
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 539.3821007502679,
+        "pivotY": 831,
+        "primaryBottom": 831,
+        "transform": {
+          "offsetX": -36.785203817665106,
+          "offsetY": -33.974047512831405
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 41,
+          "rightExclusive": 43,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 10,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 10,
+        "sourceColumn": 2,
+        "sourceRow": 2,
+        "primaryComponent": 20,
+        "componentIds": [
+          20,
+          21
+        ],
+        "sourceCropBounds": {
+          "left": 789,
+          "top": 587,
+          "right": 1020,
+          "bottom": 831
+        },
+        "primaryBounds": {
+          "left": 789,
+          "top": 587,
+          "right": 1020,
+          "bottom": 831
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 886.6244156778138,
+        "pivotY": 831,
+        "primaryBottom": 831,
+        "transform": {
+          "offsetX": -81.06760283162096,
+          "offsetY": -33.974047512831405
+        },
+        "nativeBounds": {
+          "left": 20,
+          "top": 41,
+          "rightExclusive": 49,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 11,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 11,
+        "sourceColumn": 3,
+        "sourceRow": 2,
+        "primaryComponent": 18,
+        "componentIds": [
+          18,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28
+        ],
+        "sourceCropBounds": {
+          "left": 1119,
+          "top": 585,
+          "right": 1352,
+          "bottom": 831
+        },
+        "primaryBounds": {
+          "left": 1119,
+          "top": 585,
+          "right": 1352,
+          "bottom": 831
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 1221.7631041524846,
+        "pivotY": 831,
+        "primaryBottom": 831,
+        "transform": {
+          "offsetX": -123.80647563042092,
+          "offsetY": -33.974047512831405
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 41,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 12,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 12,
+        "sourceColumn": 0,
+        "sourceRow": 3,
+        "primaryComponent": 30,
+        "componentIds": [
+          30,
+          33,
+          34,
+          38,
+          45
+        ],
+        "sourceCropBounds": {
+          "left": 67,
+          "top": 851,
+          "right": 410,
+          "bottom": 1092
+        },
+        "primaryBounds": {
+          "left": 67,
+          "top": 851,
+          "right": 401,
+          "bottom": 1092
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 166.9121817595875,
+        "pivotY": 1092,
+        "primaryBottom": 1092,
+        "transform": {
+          "offsetX": 10.714368856485105,
+          "offsetY": -67.25831514321527
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 41,
+          "rightExclusive": 60,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 13,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 13,
+        "sourceColumn": 1,
+        "sourceRow": 3,
+        "primaryComponent": 32,
+        "componentIds": [
+          32,
+          35,
+          36,
+          37,
+          39,
+          40,
+          41,
+          44,
+          48
+        ],
+        "sourceCropBounds": {
+          "left": 421,
+          "top": 860,
+          "right": 643,
+          "bottom": 1094
+        },
+        "primaryBounds": {
+          "left": 437,
+          "top": 860,
+          "right": 637,
+          "bottom": 1094
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 543.251566531515,
+        "pivotY": 1094,
+        "primaryBottom": 1094,
+        "transform": {
+          "offsetX": -37.27866103854495,
+          "offsetY": -67.51336700245193
+        },
+        "nativeBounds": {
+          "left": 18,
+          "top": 42,
+          "rightExclusive": 45,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 14,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 14,
+        "sourceColumn": 2,
+        "sourceRow": 3,
+        "primaryComponent": 31,
+        "componentIds": [
+          31,
+          42,
+          43,
+          46,
+          47,
+          49,
+          50,
+          51,
+          52
+        ],
+        "sourceCropBounds": {
+          "left": 783,
+          "top": 853,
+          "right": 1012,
+          "bottom": 1094
+        },
+        "primaryBounds": {
+          "left": 783,
+          "top": 853,
+          "right": 972,
+          "bottom": 1094
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 881.664314516129,
+        "pivotY": 1094,
+        "primaryBottom": 1094,
+        "transform": {
+          "offsetX": -80.43506131997616,
+          "offsetY": -67.51336700245193
+        },
+        "nativeBounds": {
+          "left": 19,
+          "top": 41,
+          "rightExclusive": 44,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 15,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+        "sourceFrame": 15,
+        "sourceColumn": 3,
+        "sourceRow": 3,
+        "primaryComponent": 29,
+        "componentIds": [
+          29
+        ],
+        "sourceCropBounds": {
+          "left": 1141,
+          "top": 838,
+          "right": 1308,
+          "bottom": 1094
+        },
+        "primaryBounds": {
+          "left": 1141,
+          "top": 838,
+          "right": 1308,
+          "bottom": 1094
+        },
+        "scale": 0.127525929618329,
+        "pivotX": 1231.460843373494,
+        "pivotY": 1094,
+        "primaryBottom": 1094,
+        "transform": {
+          "offsetX": -125.04318883977629,
+          "offsetY": -67.51336700245193
+        },
+        "nativeBounds": {
+          "left": 20,
+          "top": 39,
+          "rightExclusive": 42,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      }
+    ]
+  },
+  "source": {
+    "image": "../../../docs/art/animations/sources/human-inquisitor.source.png",
+    "width": 1402,
+    "height": 1122,
+    "transparentPixels": 978638,
+    "partialAlphaPixels": 593948,
+    "opaquePixels": 458
+  }
+}

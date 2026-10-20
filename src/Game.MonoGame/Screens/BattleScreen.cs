@@ -284,7 +284,7 @@ internal sealed class BattleScreen : IGameScreen
         {
             var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
             var bounds = new Rectangle(x - 28, y - 49, 56, 66);
-            if (!_assets.TryDrawCropped(_canvas, key, bounds) &&
+            if (!_assets.TryDrawCropped(_canvas, key, bounds, unit.Side == BattleSide.Enemy) &&
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
                 FantasyArt.DrawGuard(_canvas, x, y);
         }

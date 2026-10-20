@@ -48,6 +48,10 @@ internal sealed class PixelCanvas : IDisposable
     public void Texture(Texture2D texture, Rectangle source, Rectangle destination) =>
         _batch.Draw(texture, destination, source, Tint(Color.White));
 
+    public void Texture(Texture2D texture, Rectangle source, Rectangle destination, bool flipHorizontally) =>
+        _batch.Draw(texture, destination, source, Tint(Color.White), 0f, Vector2.Zero,
+            flipHorizontally ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+
     private Color Tint(Color color) => BattleLighting.TintPreservingAlpha(color, _tint);
 
     public void Frame(int x, int y, int width, int height, Color color, int thickness = 2)

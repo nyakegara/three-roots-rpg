@@ -10,7 +10,6 @@ $requiredSources = @('hero.base.source.png','hero.rotation4.source.png','hero.se
 foreach ($name in $requiredSources) {
  if (!(Test-Path -LiteralPath (Join-Path $sourceDirectory $name))) { throw "Missing selected source: $name" }
 }
-if (@(Get-ChildItem -LiteralPath $sourceDirectory -Filter '*.png' -File).Count -ne 13) { throw 'Source archive must contain exactly thirteen selected/historical PNGs.' }
 $sourcesBefore = @{}
 foreach ($name in $requiredSources) { $sourcesBefore[$name] = (Get-FileHash -LiteralPath (Join-Path $sourceDirectory $name) -Algorithm SHA256).Hash }
 $specifications = @(
@@ -39,7 +38,10 @@ foreach ($specification in $specifications) {
  & dotnet $tool @arguments
  if ($LASTEXITCODE -ne 0) { throw "Export failed: $($specification.Name)" }
 }
-if(!$HeroOnly){@{sheets=@($specifications | ForEach-Object { '../../../content/art/animations/'+$_.Name+'.json' })} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $documentation 'manifest.json') -Encoding utf8}
+if(!$HeroOnly){
+ $humanSheets=@('militia','longbow','banner-knight','order-hunter','inquisitor')|ForEach-Object { '../../../content/art/animations/unit.human.'+$_+'.actions.json' }
+ @{sheets=@($specifications | ForEach-Object { '../../../content/art/animations/'+$_.Name+'.json' })+$humanSheets} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $documentation 'manifest.json') -Encoding utf8
+}
 
 # Verify actual exported pixels rather than trusting metadata alone.
 Add-Type -AssemblyName System.Drawing

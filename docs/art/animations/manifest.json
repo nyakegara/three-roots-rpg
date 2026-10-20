@@ -5,6 +5,11 @@
     "../../../content/art/animations/unit.flora.sprout.actions.json",
     "../../../content/art/animations/unit.flora.ember-bloom.actions.json",
     "../../../content/art/animations/unit.flora.pod-slinger.actions.json",
-    "../../../content/art/animations/unit.flora.root-warden.actions.json"
+    "../../../content/art/animations/unit.flora.root-warden.actions.json",
+    "../../../content/art/animations/unit.human.militia.actions.json",
+    "../../../content/art/animations/unit.human.longbow.actions.json",
+    "../../../content/art/animations/unit.human.banner-knight.actions.json",
+    "../../../content/art/animations/unit.human.order-hunter.actions.json",
+    "../../../content/art/animations/unit.human.inquisitor.actions.json"
   ]
 }
