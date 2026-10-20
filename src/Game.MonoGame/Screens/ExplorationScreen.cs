@@ -36,6 +36,7 @@ internal sealed class ExplorationScreen : IGameScreen
     private readonly Action _exit;
     private readonly Action<Campaign, HexCoord>? _saveProgress;
     private readonly string? _campaignId;
+    private readonly bool _previewNorthGate;
     private MouseState _currentMouse;
     private KeyboardState _currentKeyboard;
     private MouseState _previousMouse;
@@ -96,6 +97,7 @@ internal sealed class ExplorationScreen : IGameScreen
         _hero = hero;
         _campaign = campaign;
         _units = units;
+        _previewNorthGate = previewNorthGate;
         _exit = exit ?? (() => { });
         _saveProgress = saveProgress;
         _campaignId = campaignId;
@@ -132,8 +134,6 @@ internal sealed class ExplorationScreen : IGameScreen
                 campaign.TryRestoreProgress(new CampaignProgressSnapshot(["plants-pasture-battle"], false));
             }
             var gate = map.PointsOfInterest.Single(point => point.Id == "north-gate");
-            var heroPosition = new HexCoord(gate.Coordinate.Q + 2, gate.Coordinate.R);
-            _movement = new MovementSelection(CreateMovementMap(heroPosition), heroPosition);
             var gatePosition = _projection.Project(gate.Coordinate, map.GetTile(gate.Coordinate)!.Height);
             _camera = new AdventureMapCamera(new NumericsVector2(1280, MapViewportHeight), _projection.WorldSize,
                 new NumericsVector2(gatePosition.X - 640, gatePosition.Y - 300));
@@ -390,7 +390,7 @@ internal sealed class ExplorationScreen : IGameScreen
 
         _renderer.Draw(_map, _projection, _camera, _movement.Position,
             _movement.Path.IsReachable ? _movement.Path.Coordinates : Array.Empty<HexCoord>(), _hover,
-            _campaign?.IsUnlocked("north-gate") == true);
+            _campaign?.IsUnlocked("north-gate") == true, drawHero: !_previewNorthGate);
         DrawMapPlaque();
         var hoveredPoint = _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var points)
             ? points.FirstOrDefault() : null;

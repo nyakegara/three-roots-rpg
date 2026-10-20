@@ -18,7 +18,8 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private bool _compactMap;
 
     public void Draw(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
-        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile, bool northGateOpen = false)
+        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile, bool northGateOpen = false,
+        bool drawHero = true)
     {
         _compactMap = map.Id == "flora-01";
         var viewport = new Rectangle(0, 0, 1280, 600);
@@ -43,7 +44,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             var gateOpen = northGateOpen && point.Id == "north-gate";
             objects.Add((screen.Y, () => DrawPoint(point, tile, screen, gateOpen)));
         }
-        if (map.GetTile(heroPosition) is { } heroTile)
+        if (drawHero && map.GetTile(heroPosition) is { } heroTile)
         {
             var screen = camera.ToScreen(projection.Project(heroPosition, heroTile.Height));
             objects.Add((screen.Y, () => DrawHero(screen)));
