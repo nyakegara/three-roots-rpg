@@ -28,10 +28,9 @@ internal static class AdventureGateArt
 
         if (isOpen)
         {
-            // The hinged panels fold toward the top and bottom of the road, leaving a clear gap.
-            DrawOpenLeaf(canvas, x - 18, y - 18, true);
-            DrawOpenLeaf(canvas, x + 9, y + 2, false);
-            canvas.Rect(x - 4, y - 13, 8, 26, new Color(231, 203, 139) * 0.22f);
+            // Both leaves fold along the road so the open state keeps a broad, readable passage.
+            DrawOpenLeaf(canvas, x - 25, y - 15, true);
+            DrawOpenLeaf(canvas, x + 9, y - 15, false);
         }
         else
         {
@@ -68,28 +67,39 @@ internal static class AdventureGateArt
         canvas.Rect(x - 20, y - 34, 40, 61, Shadow);
         canvas.Rect(x - 19, y - 37, 38, 59, Mortar);
         canvas.Rect(x - 16, y - 36, 32, 54, Stone);
-        canvas.Rect(x - 13, y - 34, 5, 48, StoneLight);
-        canvas.Rect(x - 9, y - 28, 19, 2, Mortar);
-        canvas.Rect(x - 9, y - 16, 19, 2, Mortar);
-        canvas.Rect(x - 9, y - 4, 19, 2, Mortar);
-        canvas.Rect(x - 8, y - 25, 3, 8, StoneTop);
-        canvas.Rect(x - 8, y - 1, 3, 8, StoneTop);
+        canvas.Rect(x + 9, y - 33, 6, 47, new Color(78, 72, 54));
+        canvas.Rect(x - 13, y - 34, 4, 47, StoneLight);
+        canvas.Rect(x - 12, y - 23, 24, 2, Mortar);
+        canvas.Rect(x - 12, y - 9, 24, 2, Mortar);
+        canvas.Rect(x - 12, y + 5, 24, 2, Mortar);
+        canvas.Rect(x - 7, y - 19, 2, 8, StoneTop);
+        canvas.Rect(x + 5, y - 5, 2, 8, StoneLight);
         canvas.Rect(x - 7, y - 30, 14, 12, Mortar);
         canvas.Rect(x - 4, y - 27, 8, 9, new Color(36, 32, 26));
-        canvas.Rect(x - 22, y - 40, 44, 9, Mortar);
-        canvas.Rect(x - 19, y - 39, 38, 5, StoneTop);
-        canvas.Rect(x - 18, y - 34, 7, 6, StoneLight);
-        canvas.Rect(x - 3, y - 34, 7, 6, StoneLight);
-        canvas.Rect(x + 12, y - 34, 7, 6, StoneLight);
+        DrawMerlon(canvas, x - 16, y - 42, 12, 12);
+        DrawMerlon(canvas, x - 6, y - 46, 12, 16);
+        DrawMerlon(canvas, x + 4, y - 42, 12, 12);
         canvas.Rect(x - 5, y + 7, 10, 12, WoodDark);
         canvas.Rect(x - 3, y + 9, 6, 10, new Color(39, 34, 26));
     }
 
-    private static void DrawOpenLeaf(PixelCanvas canvas, int x, int y, bool hingeTop)
+    private static void DrawMerlon(PixelCanvas canvas, int x, int y, int width, int height)
     {
-        canvas.Rect(x, y, 10, 22, WoodDark);
-        canvas.Rect(x + 2, y + 2, 6, 18, Wood);
-        canvas.Rect(x + 3, y + (hingeTop ? 4 : 14), 4, 3, WoodLight);
-        canvas.Rect(x + 1, y + (hingeTop ? 2 : 18), 8, 2, Iron);
+        canvas.Rect(x, y, width, height, Mortar);
+        canvas.Rect(x + 2, y + 1, width - 4, height - 1, StoneTop);
+        canvas.Rect(x + 3, y + 2, 3, height - 4, StoneLight);
+        canvas.Rect(x + 4, y + height - 3, width - 7, 2, Stone);
+    }
+
+    private static void DrawOpenLeaf(PixelCanvas canvas, int x, int y, bool hingedLeft)
+    {
+        canvas.Rect(x, y, 16, 30, WoodDark);
+        canvas.Rect(x + 2, y + 2, 12, 26, Wood);
+        canvas.Rect(x + (hingedLeft ? 3 : 10), y + 4, 2, 20, WoodLight);
+        canvas.Rect(x + 6, y + 3, 1, 24, WoodDark);
+        canvas.Rect(x + 2, y + 8, 12, 3, Iron);
+        canvas.Rect(x + 2, y + 21, 12, 3, Iron);
+        canvas.Rect(x + 3, y + 9, 3, 1, StoneTop);
+        canvas.Rect(x + 4, y + 23, 3, 1, StoneTop);
     }
 }
