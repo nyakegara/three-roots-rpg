@@ -339,9 +339,9 @@ internal sealed class BattleScreen : IGameScreen
             var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
             var (spriteWidth, spriteHeight) = unit.UnitTypeId switch
             {
-                "human.inquisitor" => (70, 79),
-                "human.banner-knight" => (67, 75),
-                "flora.root-warden" => (60, 70),
+                "human.inquisitor" => (88, 100),
+                "human.banner-knight" => (83, 94),
+                "flora.root-warden" => (75, 88),
                 _ => (56, 66)
             };
             var bounds = new Rectangle(x - spriteWidth / 2, y + 17 - spriteHeight,
