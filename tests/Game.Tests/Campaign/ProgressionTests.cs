@@ -178,6 +178,14 @@ public sealed class ProgressionTests
         WinReachableEncounter("final-landing");
         Assert.True(campaign.IsVictory);
 
+        var lateSave = campaign.CreateSave(definition.Id, definition.Map.Id, previousPosition);
+        var restoredCampaign = definition.CreateGameState();
+        Assert.True(restoredCampaign.TryRestoreSave(lateSave, definition.Id, definition.PlayerFactionId,
+            definition.Map, units, out var restoreError), restoreError);
+        Assert.True(restoredCampaign.IsVictory);
+        Assert.Equal(campaign.CompletedEncounterIds, restoredCampaign.CompletedEncounterIds);
+        Assert.True(restoredCampaign.IsUnlocked("north-gate"));
+
         void WinReachableEncounter(string encounterId)
         {
             var next = campaign.Encounters.Single(candidate => candidate.Id == encounterId);

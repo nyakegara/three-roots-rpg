@@ -374,7 +374,10 @@
       },
       "artifact-spore": {
         "questId": "artifact-spore-quest",
-        "choiceId": "claim"
+        "choiceId": "claim",
+        "requiredUnlockIds": [
+          "fungus-route"
+        ]
       }
     },
     "recruitmentSites": {

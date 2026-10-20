@@ -1,3 +1,4 @@
+using Game.Core.Campaigns;
 using Game.Core.Combat;
 using Game.Core.Content;
 using Game.MonoGame;
@@ -65,6 +66,9 @@ public sealed class CampaignFlowTests
         Assert.True(choice.Success, choice.Message);
         Assert.Equal(startingGold, campaign.Hero.Gold);
         Assert.Equal(expectedGold, campaign.Encounters.Single(encounter => encounter.Id == encounterId).GoldReward);
+        if (encounterId == "artifact-spore")
+            Assert.True(campaign.TryRestoreProgress(new CampaignProgressSnapshot(
+                ["plants-pasture-battle", "burned-forest", "mountain-outpost", "mushroom-outpost"], false)));
         Assert.True(campaign.CanAccessEncounter(encounterId));
     }
 
@@ -95,6 +99,36 @@ public sealed class CampaignFlowTests
         Assert.Equal(campaign.SelectedChoiceIds, restored.SelectedChoiceIds);
         Assert.Equal(17, restored.RecruitmentSites.Single(candidate => candidate.Id == "starting-clearing")
             .GetOffer("flora.thorn-guard")!.RemainingStock);
+    }
+
+    [Fact]
+    public void CampaignSaveRejectsCompletedEncountersWithUnmetPrerequisites()
+    {
+        var (definition, units) = Load();
+        var save = definition.CreateGameState()
+            .CreateSave(definition.Id, definition.Map.Id, definition.Map.StartPosition!.Value) with
+        {
+            CompletedEncounterIds = ["final-landing"]
+        };
+
+        var restored = definition.CreateGameState();
+
+        Assert.False(restored.TryRestoreSave(save, definition.Id, definition.PlayerFactionId,
+            definition.Map, units, out var error));
+        Assert.Contains("progression", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(restored.CompletedEncounterIds);
+    }
+
+    [Fact]
+    public void SporeArtifactUsesTheMushroomRouteUnlock()
+    {
+        var (definition, _) = Load();
+        var artifact = definition.Map.PointsOfInterest.Single(point => point.Id == "artifact-spore");
+
+        Assert.Equal("fungus-route", definition.Map.GetTile(artifact.Coordinate)!.RequiredUnlock);
+        var campaign = definition.CreateGameState();
+        Assert.True(campaign.ApplyChoice("artifact-spore-quest", "claim").Success);
+        Assert.False(campaign.CanAccessEncounter("artifact-spore"));
     }
 
     private static (CampaignDefinition, UnitCatalog) Load()

@@ -331,6 +331,8 @@ public sealed class Campaign
             !save.CompletedQuestIds.Order(StringComparer.Ordinal)
                 .SequenceEqual(selectedChoices.Keys.Order(StringComparer.Ordinal)))
             return Fail(out error, "Saved choices and completed quests do not match this campaign.");
+        if (!HasReachableEncounterHistory(completedEncounters, selectedChoices))
+            return Fail(out error, "Saved encounter progress violates campaign progression requirements.");
         if (save.IsDefeated && (!_progression.DefeatOnArmyWipe || save.Army.Count != 0))
             return Fail(out error, "Defeated save must belong to a campaign that ends on an army wipe and have no army.");
         if (save.Army.Any(stack => stack is null || units.Get(stack.UnitId) is not { } unit ||
@@ -369,6 +371,40 @@ public sealed class Campaign
             _progression.UnlockEncounterIds.TryGetValue(unlockId, out var encounterId) && completedEncounters.Contains(encounterId) ||
             _progression.UnlockEncounterOptions.TryGetValue(unlockId, out var encounterOptions) &&
             encounterOptions.Any(completedEncounters.Contains);
+    }
+
+    private bool HasReachableEncounterHistory(IReadOnlySet<string> completed,
+        IReadOnlyDictionary<string, string> choices)
+    {
+        var reachable = new HashSet<string>(StringComparer.Ordinal);
+        var pending = completed.ToHashSet(StringComparer.Ordinal);
+        var madeProgress = true;
+        while (madeProgress && pending.Count > 0)
+        {
+            madeProgress = false;
+            foreach (var encounterId in pending.ToArray())
+            {
+                if (!MeetsInSave(_progression.EncounterRequirements.GetValueOrDefault(encounterId)))
+                    continue;
+                reachable.Add(encounterId);
+                pending.Remove(encounterId);
+                madeProgress = true;
+            }
+        }
+
+        return pending.Count == 0;
+
+        bool MeetsInSave(CampaignAccessRequirement? requirement) => requirement is null ||
+            (requirement.RequiredEncounterIds.All(reachable.Contains) &&
+             (requirement.RequiredUnlockIds?.All(IsUnlockedInReachableSet) ?? true) &&
+             (requirement.QuestId is null ||
+              (choices.TryGetValue(requirement.QuestId, out var choiceId) &&
+               (requirement.ChoiceId is null || requirement.ChoiceId == choiceId))));
+
+        bool IsUnlockedInReachableSet(string unlockId) =>
+            _progression.UnlockEncounterIds.TryGetValue(unlockId, out var encounterId) && reachable.Contains(encounterId) ||
+            _progression.UnlockEncounterOptions.TryGetValue(unlockId, out var encounterOptions) &&
+            encounterOptions.Any(reachable.Contains);
     }
 
     private static bool Fail(out string error, string message)

@@ -2223,7 +2223,7 @@
     {
       "passable": true,
       "r": 8,
-      "requiredUnlock": "mountain-route",
+      "requiredUnlock": "fungus-route",
       "terrain": "forest",
       "height": 0,
       "q": -3,
