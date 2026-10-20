@@ -337,7 +337,15 @@ internal sealed class BattleScreen : IGameScreen
         using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
         {
             var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
-            var bounds = new Rectangle(x - 28, y - 49, 56, 66);
+            var (spriteWidth, spriteHeight) = unit.UnitTypeId switch
+            {
+                "human.inquisitor" => (70, 79),
+                "human.banner-knight" => (67, 75),
+                "flora.root-warden" => (60, 70),
+                _ => (56, 66)
+            };
+            var bounds = new Rectangle(x - spriteWidth / 2, y + 17 - spriteHeight,
+                spriteWidth, spriteHeight);
             var actionFrame = _actionSeconds > 0f && _actionUnitId == unit.Id
                 ? Math.Min(7, (int)((0.8f - _actionSeconds) / 0.1f)) : -1;
             var humanAction = actionFrame >= 2 && actionFrame <= 5 &&
@@ -359,7 +367,7 @@ internal sealed class BattleScreen : IGameScreen
                 _assets.HasAsset(key + ".released"))
                 drawKey = key + ".released";
             var drawBounds = humanAction
-                ? new Rectangle(bounds.X - 11, bounds.Y, 78, bounds.Height) : bounds;
+                ? new Rectangle(bounds.X - 11, bounds.Y, bounds.Width + 22, bounds.Height) : bounds;
             if (!animating && !_assets.TryDrawCropped(_canvas, drawKey, drawBounds, unit.Side == BattleSide.Enemy) &&
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
                 FantasyArt.DrawGuard(_canvas, x, y);
