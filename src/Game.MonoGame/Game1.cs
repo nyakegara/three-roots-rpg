@@ -20,6 +20,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private RenderTarget2D _frame = null!;
     private CampaignDefinition? _floraCampaign;
     private UnitCatalog? _floraUnits;
+    private CampaignProgressWriter? _progressWriter;
 
     public Game1(GameLaunchOptions options)
     {
@@ -31,7 +32,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             SynchronizeWithVerticalRetrace = true
         };
         Content.RootDirectory = "Content";
-        IsMouseVisible = true;
+        IsMouseVisible = options.ScreenshotPath is null;
         Window.AllowUserResizing = false;
         Window.Title = "Три корня";
     }
@@ -82,11 +83,13 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                     ? "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ЭТОЙ ВЕРСИЕЙ КАМПАНИИ. НАЧИНАЕТСЯ НОВАЯ ИГРА."
                     : "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ВЕРСИЕЙ ИГРЫ И НЕ ИЗМЕНЕНО. НОВЫЙ ПРОГРЕСС НЕ АВТОСОХРАНЯЕТСЯ.";
             }
+            if (_options.ScreenshotPath is null && canWriteSave)
+                _progressWriter = NewProgressWriter(campaign, restoreSave?.RunId);
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
                 _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture,
                 _options.PreviewNorthTrail, _options.PreviewIdleMap,
                 _options.PreviewMapPanel, _options.PreviewJournalPanel, restoreSave,
-                _options.ScreenshotPath is null && canWriteSave ? SaveCampaignProgress : null,
+                _progressWriter is not null ? SaveCampaignProgress : null,
                 saveWarning);
         }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
@@ -120,6 +123,12 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private static string CampaignSavePath() => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ThreeRoots", "saves", "flora-01.json");
 
+    private static string LeaderboardPath() => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ThreeRoots", "leaderboard.json");
+
+    private static CampaignProgressWriter NewProgressWriter(CampaignDefinition campaign, string? runId = null) =>
+        new(CampaignSavePath(), LeaderboardPath(), campaign.Id, campaign.Map.Id, runId);
+
     private static bool PreserveInvalidSave(string savePath)
     {
         try
@@ -136,12 +145,11 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         }
     }
 
-    private static void SaveCampaignProgress(Game.Core.Campaigns.Campaign campaign, HexCoord position)
+    private void SaveCampaignProgress(Game.Core.Campaigns.Campaign campaign, HexCoord position)
     {
-        var save = campaign.CreateSave("flora-01", "flora-01", position);
-        var result = CampaignSerializer.Save(CampaignSavePath(), save);
-        if (!result.Success)
-            System.Diagnostics.Trace.TraceWarning("Campaign progress was not saved: {0}", result.Message);
+        var result = _progressWriter!.Save(campaign, position);
+        if (!result.SaveSucceeded || campaign.IsVictory && !result.VictoryRecordSucceeded)
+            System.Diagnostics.Trace.TraceWarning("Campaign progress write: {0}", result.Message);
     }
 
     protected override void Update(GameTime gameTime)
@@ -152,8 +160,9 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             keyboard.IsKeyDown(Keys.R) && !_previousKeyboard.IsKeyDown(Keys.R) &&
             _floraCampaign is not null && _floraUnits is not null)
         {
+            if (_progressWriter is not null) _progressWriter = NewProgressWriter(_floraCampaign);
             _screen = new ExplorationScreen(_canvas, _assets, _floraCampaign, _floraUnits,
-                exit: Exit, saveProgress: SaveCampaignProgress);
+                exit: Exit, saveProgress: _progressWriter is not null ? SaveCampaignProgress : null);
         }
         if (keyboard.IsKeyDown(Keys.Escape) && !_previousKeyboard.IsKeyDown(Keys.Escape) &&
             _screen is not ExplorationScreen { HasOpenModal: true })

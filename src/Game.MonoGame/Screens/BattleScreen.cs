@@ -37,8 +37,10 @@ internal sealed class BattleScreen : IGameScreen
     private float _nightTarget;
     private float _opponentDelay = 0.7f;
     private string? _actionUnitId;
+    private string? _actionTargetId;
     private bool _actionSecondary;
     private float _actionSeconds;
+    private BattleAttackEffect? _attackEffect;
     private string _message = "ЛКМ: ПОКАЗАТЬ ПУТЬ. ПОВТОРНАЯ ЛКМ: ПЕРЕМЕСТИТЬ ОТРЯД.";
     private Battle Battle => _interaction.Battle;
     private static readonly Color Gold = new(218, 190, 113);
@@ -54,6 +56,20 @@ internal sealed class BattleScreen : IGameScreen
     {
         _seed = seed;
         Restart();
+        if (capture is BattleCaptureStage.Arrow or BattleCaptureStage.Magic or
+            BattleCaptureStage.ArrowImpact or BattleCaptureStage.MagicImpact)
+        {
+            var arrow = capture is BattleCaptureStage.Arrow or BattleCaptureStage.ArrowImpact;
+            var impact = capture is BattleCaptureStage.ArrowImpact or BattleCaptureStage.MagicImpact;
+            var attackerId = arrow ? "human.longbow" : "flora.ember-bloom";
+            var attacker = Battle.Units.First(unit => unit.UnitTypeId == attackerId);
+            var target = Battle.Units.First(unit => unit.Side != attacker.Side);
+            BeginAttackAnimation(attacker, target);
+            for (var frame = 0; frame < (impact ? 8 : 4); frame++) _attackEffect!.Advance(impact ? 0.075f : 0.08f);
+            _actionSeconds = impact ? 0.2f : 0.48f;
+            _message = arrow ? "ПРЕДПРОСМОТР: СТРЕЛА." : "ПРЕДПРОСМОТР: ПЛАМЕННЫЙ СНАРЯД.";
+            return;
+        }
         if (capture != BattleCaptureStage.Opening)
         {
             _hover = BattleCaptureSetup.Advance(Battle, capture);
@@ -100,7 +116,9 @@ internal sealed class BattleScreen : IGameScreen
         _hover = null;
         _opponentDelay = 0.7f;
         _actionUnitId = null;
+        _actionTargetId = null;
         _actionSeconds = 0f;
+        _attackEffect = null;
         _message = "ЛКМ: ПОКАЗАТЬ ПУТЬ. ПОВТОРНАЯ ЛКМ: ПЕРЕМЕСТИТЬ ОТРЯД.";
         RefreshReachable();
     }
@@ -116,6 +134,7 @@ internal sealed class BattleScreen : IGameScreen
         if (_actionSeconds > 0f)
         {
             _actionSeconds = Math.Max(0f, _actionSeconds - Math.Clamp(elapsedSeconds, 0f, 0.1f));
+            _attackEffect?.Advance(elapsedSeconds);
             _previousMouse = mouse;
             _previousKeyboard = keyboard;
             return;
@@ -176,8 +195,8 @@ internal sealed class BattleScreen : IGameScreen
                 var actor = Battle.ActiveUnit;
                 var action = _interaction.StepOpponent();
                 _opponentDelay = 0.7f;
-                if (actor is not null && action?.Type == BattleActionType.Attack)
-                    BeginAttackAnimation(actor);
+                if (actor is not null && action?.Type == BattleActionType.Attack && Find(action.TargetId) is { } enemyTarget)
+                    BeginAttackAnimation(actor, enemyTarget);
                 if (actor is not null && action is not null)
                     _message = action.Type switch
                     {
@@ -206,6 +225,7 @@ internal sealed class BattleScreen : IGameScreen
             var before = target?.RemainingHitPoints ?? 0;
             if (target is not null && _interaction.TryHeal(target.Id))
             {
+                BeginAttackAnimation(active, target, healing: true);
                 _message = $"{Name(target)}: ВОССТАНОВЛЕНО {target.RemainingHitPoints - before} ОЗ.";
                 _healMode = false;
             }
@@ -216,7 +236,7 @@ internal sealed class BattleScreen : IGameScreen
             var before = target.RemainingHitPoints;
             if (_interaction.TryAttack(target.Id))
             {
-                BeginAttackAnimation(active);
+                BeginAttackAnimation(active, target);
                 _message = $"{Name(active)}: УРОН {before - target.RemainingHitPoints}. " +
                     (target.Side == active.Side ? "ВРАГ НА НАШЕЙ СТОРОНЕ ДО КОНЦА БОЯ!" : $"В ЦЕЛИ ОСТАЛОСЬ {target.Count}.");
             }
@@ -246,12 +266,17 @@ internal sealed class BattleScreen : IGameScreen
         }
     }
 
-    private void BeginAttackAnimation(BattleUnit actor)
+    private void BeginAttackAnimation(BattleUnit actor, BattleUnit target, bool healing = false)
     {
-        if (!actor.UnitTypeId.StartsWith("human.", StringComparison.Ordinal)) return;
+        if (!healing && !actor.IsRanged && actor.AttackMode != AttackMode.HolyFire &&
+            !actor.UnitTypeId.StartsWith("human.", StringComparison.Ordinal)) return;
         _actionUnitId = actor.Id;
+        _actionTargetId = target.Id;
         _actionSecondary = actor.Ability == UnitAbility.RadiantModes && actor.AttackMode == AttackMode.HolyFire;
         _actionSeconds = 0.8f;
+        _attackEffect = new BattleAttackEffect(actor,
+            _field.Layout.Center(Battle.Map.GetTile(actor.Position)!),
+            _field.Layout.Center(Battle.Map.GetTile(target.Position)!), healing);
     }
 
     public void Draw()
@@ -259,11 +284,14 @@ internal sealed class BattleScreen : IGameScreen
         _field.DrawTerrain(_showGrid, _nightBlend);
         DrawTacticalOverlay();
         _field.DrawProps(_nightBlend);
-        foreach (var unit in Battle.Units.Where(unit => unit.IsAlive).OrderBy(unit => unit.Position.R).ThenBy(unit => unit.Position.Q))
+        foreach (var unit in Battle.Units.Where(unit => unit.IsAlive ||
+                     _actionSeconds > 0f && unit.Id == _actionTargetId)
+                     .OrderBy(unit => unit.Position.R).ThenBy(unit => unit.Position.Q))
             DrawUnit(unit);
+        _attackEffect?.Draw(_canvas);
         var hovered = _hover is { } cell ? Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == cell) : null;
         _hud.Draw(Battle, Battle.IsFinished ? "БОЙ ЗАВЕРШЁН." : DescribeHover(hovered), hovered, _healMode, _showGrid);
-        if (Battle.IsFinished) DrawResult();
+        if (Battle.IsFinished && _actionSeconds <= 0f) DrawResult();
     }
 
     private void DrawTacticalOverlay()
@@ -319,6 +347,7 @@ internal sealed class BattleScreen : IGameScreen
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
                 FantasyArt.DrawGuard(_canvas, x, y);
         }
+        if (!unit.IsAlive) return; // Keep a defeated target visible until the projectile lands.
         var label = unit.UnitTypeId switch
         {
             "human.militia" => "О " + unit.Count,

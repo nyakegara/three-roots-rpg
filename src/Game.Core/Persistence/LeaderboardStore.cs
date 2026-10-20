@@ -18,6 +18,8 @@ public sealed class LeaderboardStore
     {
         ArgumentNullException.ThrowIfNull(entry);
         var entries = ReadEntries();
+        if (entry.RunId.Length > 0 && entries.Any(existing =>
+                existing.CampaignId == entry.CampaignId && existing.RunId == entry.RunId)) return;
         entries.Add(entry);
         var bestEntries = entries.GroupBy(result => result.CampaignId, StringComparer.Ordinal)
             .SelectMany(campaign => campaign.OrderByDescending(result => result.Score).Take(10))

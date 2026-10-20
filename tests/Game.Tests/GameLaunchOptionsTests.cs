@@ -25,6 +25,10 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-night")]
     [InlineData("--screenshot-combat-heal")]
     [InlineData("--screenshot-combat-result")]
+    [InlineData("--screenshot-combat-arrow")]
+    [InlineData("--screenshot-combat-magic")]
+    [InlineData("--screenshot-combat-arrow-impact")]
+    [InlineData("--screenshot-combat-magic-impact")]
     public void PlayableCombatIsDistinctFromTerrainPreview(string mode)
     {
         var args = mode == "--combat" ? new[] { mode, "--seed", "42" }
@@ -35,7 +39,12 @@ public sealed class GameLaunchOptionsTests
         Assert.Equal(42, options.BattleSeed);
         Assert.Equal(mode.EndsWith("-night"), options.Night);
         Assert.Equal(mode.EndsWith("-heal") ? BattleCaptureStage.Healing :
-            mode.EndsWith("-result") ? BattleCaptureStage.Result : BattleCaptureStage.Opening, options.CombatCapture);
+            mode.EndsWith("-result") ? BattleCaptureStage.Result :
+            mode.EndsWith("-arrow-impact") ? BattleCaptureStage.ArrowImpact :
+            mode.EndsWith("-magic-impact") ? BattleCaptureStage.MagicImpact :
+            mode.EndsWith("-arrow") ? BattleCaptureStage.Arrow :
+            mode.EndsWith("-magic") ? BattleCaptureStage.Magic : BattleCaptureStage.Opening,
+            options.CombatCapture);
     }
 
     [Fact]

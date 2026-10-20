@@ -198,7 +198,8 @@ internal sealed class ExplorationScreen : IGameScreen
         }
         if (restoreWarning is not null) _interactionMessage = restoreWarning;
         if (startupMessage is not null) _interactionMessage = startupMessage;
-        if (restoreSave is null && campaign is not null && _saveProgress is not null && campaignId is not null)
+        if ((restoreSave is null || _campaign?.IsVictory == true) && campaign is not null &&
+            _saveProgress is not null && campaignId is not null)
             SaveProgress();
     }
 

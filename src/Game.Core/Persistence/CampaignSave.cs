@@ -26,6 +26,7 @@ public sealed record CampaignSave(
     public IReadOnlyList<SavedRecruitmentStock> RecruitmentStocks { get; init; } = [];
     public IReadOnlyList<string> CompletedEncounterIds { get; init; } = [];
     public bool IsDefeated { get; init; }
+    public string RunId { get; init; } = string.Empty;
 }
 
 public sealed record SavedTroopStack(string UnitId, int Count);
