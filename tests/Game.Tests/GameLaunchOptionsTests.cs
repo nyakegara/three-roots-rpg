@@ -71,8 +71,7 @@ public sealed class GameLaunchOptionsTests
     [Theory]
     [InlineData("--screenshot", false, false, null)]
     [InlineData("--screenshot-quest-hover", false, true, null)]
-    [InlineData("--screenshot-gate-closed", false, false, null)]
-    [InlineData("--screenshot-gate-open", false, false, null)]
+    [InlineData("--screenshot-north-trail", false, false, null)]
     [InlineData("--screenshot-recruitment", false, false, "starting-clearing")]
     [InlineData("--screenshot-recruitment-sun", false, false, "sunny-clearing")]
     [InlineData("--screenshot-recruitment-spore", false, false, "spore-circle")]
@@ -86,14 +85,11 @@ public sealed class GameLaunchOptionsTests
         Assert.Equal(mode == "--screenshot-grid-descent", options.PreviewDescent);
     }
 
-    [Theory]
-    [InlineData("--screenshot-gate-closed", false)]
-    [InlineData("--screenshot-gate-open", true)]
-    public void GateScreenshotModesSelectTheRequestedModel(string mode, bool isOpen)
+    [Fact]
+    public void NorthernTrailScreenshotSelectsThePassage()
     {
-        var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "gate.png")]);
-        Assert.True(options.PreviewNorthGate);
-        Assert.Equal(isOpen, options.PreviewNorthGateOpen);
+        var options = GameLaunchOptions.Parse(["--screenshot-north-trail", Path.Combine(Path.GetTempPath(), "trail.png")]);
+        Assert.True(options.PreviewNorthTrail);
     }
 
     [Theory]

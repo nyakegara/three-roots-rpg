@@ -36,7 +36,7 @@ internal sealed class ExplorationScreen : IGameScreen
     private readonly Action _exit;
     private readonly Action<Campaign, HexCoord>? _saveProgress;
     private readonly string? _campaignId;
-    private readonly bool _previewNorthGate;
+    private readonly bool _previewNorthTrail;
     private MouseState _currentMouse;
     private KeyboardState _currentKeyboard;
     private MouseState _previousMouse;
@@ -63,22 +63,22 @@ internal sealed class ExplorationScreen : IGameScreen
     public ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, CampaignDefinition definition,
         UnitCatalog units, bool previewQuestHover = false, string? previewRecruitmentSiteId = null,
         Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None,
-        bool previewNorthGate = false, bool previewNorthGateOpen = false,
+        bool previewNorthTrail = false,
         CampaignSave? restoreSave = null, Action<Campaign, HexCoord>? saveProgress = null,
         string? startupMessage = null)
         : this(canvas, assets, definition.Map, definition.CreateGameState(), units,
-            previewQuestHover, previewRecruitmentSiteId, exit, capture, previewNorthGate, previewNorthGateOpen,
+            previewQuestHover, previewRecruitmentSiteId, exit, capture, previewNorthTrail,
             restoreSave, definition.Id, definition.PlayerFactionId, saveProgress, startupMessage)
     {
     }
 
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Campaign campaign,
         UnitCatalog units, bool previewQuestHover, string? previewRecruitmentSiteId, Action? exit,
-        CampaignCaptureStage capture, bool previewNorthGate = false, bool previewNorthGateOpen = false,
+        CampaignCaptureStage capture, bool previewNorthTrail = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
         Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
         : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId,
-            exit, capture, previewNorthGate, previewNorthGateOpen, restoreSave, campaignId, playerFactionId,
+            exit, capture, previewNorthTrail, restoreSave, campaignId, playerFactionId,
             saveProgress, startupMessage)
     {
     }
@@ -86,7 +86,7 @@ internal sealed class ExplorationScreen : IGameScreen
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Hero hero,
         Campaign? campaign, UnitCatalog? units, bool previewQuestHover, string? previewRecruitmentSiteId = null,
         Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None,
-        bool previewNorthGate = false, bool previewNorthGateOpen = false,
+        bool previewNorthTrail = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
         Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
     {
@@ -97,7 +97,7 @@ internal sealed class ExplorationScreen : IGameScreen
         _hero = hero;
         _campaign = campaign;
         _units = units;
-        _previewNorthGate = previewNorthGate;
+        _previewNorthTrail = previewNorthTrail;
         _exit = exit ?? (() => { });
         _saveProgress = saveProgress;
         _campaignId = campaignId;
@@ -113,7 +113,7 @@ internal sealed class ExplorationScreen : IGameScreen
         var start = map.StartPosition ?? throw new ArgumentException("The map needs a starting position.", nameof(map));
         string? restoreWarning = null;
         if (restoreSave is not null && campaign is not null && units is not null && campaignId is not null &&
-            playerFactionId is not null && capture == CampaignCaptureStage.None && !previewNorthGate)
+            playerFactionId is not null && capture == CampaignCaptureStage.None && !previewNorthTrail)
         {
             if (campaign.TryRestoreSave(restoreSave, campaignId, playerFactionId, map, units, out var error))
                 start = restoreSave.HeroPosition;
@@ -128,15 +128,10 @@ internal sealed class ExplorationScreen : IGameScreen
         _renderer = new AdventureMapRenderer(canvas, assets);
         _hud = new ExplorationHud(canvas, assets, units);
         _movement = new MovementSelection(CreateMovementMap(start), start);
-        if (previewNorthGate && campaign is not null && floraMap)
+        if (previewNorthTrail && campaign is not null && floraMap)
         {
-            if (previewNorthGateOpen)
-            {
-                campaign.ApplyChoice("pasture-choice", "help");
-                campaign.TryRestoreProgress(new CampaignProgressSnapshot(["plants-pasture-battle"], false));
-            }
-            var gate = map.PointsOfInterest.Single(point => point.Id == "north-gate");
-            var gatePosition = _projection.Project(gate.Coordinate, map.GetTile(gate.Coordinate)!.Height);
+            var trail = map.PointsOfInterest.Single(point => point.Id == "north-gate");
+            var gatePosition = _projection.Project(trail.Coordinate, map.GetTile(trail.Coordinate)!.Height);
             _camera = new AdventureMapCamera(new NumericsVector2(1280, MapViewportHeight), _projection.WorldSize,
                 new NumericsVector2(gatePosition.X - 640, gatePosition.Y - 300));
         }
@@ -179,7 +174,7 @@ internal sealed class ExplorationScreen : IGameScreen
                 }
             }
         }
-        else if (!previewNorthGate && restoreSave is null && startupMessage is null && floraMap && campaign is not null && units is not null &&
+        else if (!previewNorthTrail && restoreSave is null && startupMessage is null && floraMap && campaign is not null && units is not null &&
                  _pointsByCoordinate.Values.SelectMany(points => points).FirstOrDefault(point => point.Id == "guide-dialogue") is { } guide)
         {
             _movement = new MovementSelection(CreateMovementMap(start), start);
@@ -392,7 +387,7 @@ internal sealed class ExplorationScreen : IGameScreen
 
         _renderer.Draw(_map, _projection, _camera, _movement.Position,
             _movement.Path.IsReachable ? _movement.Path.Coordinates : Array.Empty<HexCoord>(), _hover,
-            _campaign?.IsUnlocked("north-gate") == true, drawHero: !_previewNorthGate);
+            drawHero: !_previewNorthTrail);
         DrawMapPlaque();
         var hoveredPoint = _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var points)
             ? points.FirstOrDefault() : null;

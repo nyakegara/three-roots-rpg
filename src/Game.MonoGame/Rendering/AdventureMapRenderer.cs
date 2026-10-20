@@ -18,15 +18,16 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private bool _compactMap;
 
     public void Draw(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
-        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile, bool northGateOpen = false,
-        bool drawHero = true)
+        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile, bool drawHero = true)
     {
         _compactMap = map.Id == "flora-01";
         var viewport = new Rectangle(0, 0, 1280, 600);
         using var clip = canvas.PushClip(viewport);
         var hasScenicGround = DrawGround(map, projection, camera);
         if (!hasScenicGround) DrawWater(map, projection, camera);
-        DrawRoadNetwork(map, projection, camera);
+        // Flora's authored landscape already contains its main trails.
+        // The graph stays invisible so it cannot draw straight lines across the art.
+        if (map.Id != "flora-01") DrawRoadNetwork(map, projection, camera);
         DrawRoute(map, projection, camera, route);
 
         var objects = new List<(float Depth, Action Draw)>();
@@ -42,8 +43,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         {
             if (map.GetTile(point.Coordinate) is not { } tile) continue;
             var screen = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
-            var gateOpen = northGateOpen && point.Id == "north-gate";
-            objects.Add((screen.Y, () => DrawPoint(point, tile, screen, gateOpen)));
+            objects.Add((screen.Y, () => DrawPoint(point, tile, screen)));
         }
         if (drawHero && map.GetTile(heroPosition) is { } heroTile)
         {
@@ -196,7 +196,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         if (!assets.TryDraw(canvas, AssetCatalog.Rock, rect)) FantasyArt.DrawRock(canvas, (int)p.X, (int)p.Y);
     }
 
-    private void DrawPoint(WorldPointOfInterest point, WorldTile tile, WorldVector2 p, bool gateOpen)
+    private void DrawPoint(WorldPointOfInterest point, WorldTile tile, WorldVector2 p)
     {
         if (point.Type.Equals("encounter", StringComparison.OrdinalIgnoreCase))
         {
@@ -208,7 +208,8 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         }
         else if (point.Type.Equals("gate", StringComparison.OrdinalIgnoreCase))
         {
-            AdventureGateArt.Draw(canvas, (int)p.X, (int)p.Y, gateOpen);
+            // The quest reveals the northern trail; no constructed gate belongs here.
+            return;
         }
         else if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase))
         {

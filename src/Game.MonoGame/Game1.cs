@@ -84,7 +84,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             }
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
                 _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture,
-                _options.PreviewNorthGate, _options.PreviewNorthGateOpen, restoreSave,
+                _options.PreviewNorthTrail, restoreSave,
                 _options.ScreenshotPath is null && canWriteSave ? SaveCampaignProgress : null,
                 saveWarning);
         }

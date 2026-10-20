@@ -15,8 +15,7 @@ public sealed record GameLaunchOptions
     public CampaignCaptureStage CampaignCapture { get; init; }
     public bool PreviewDescent { get; init; }
     public bool PreviewQuestHover { get; init; }
-    public bool PreviewNorthGate { get; init; }
-    public bool PreviewNorthGateOpen { get; init; }
+    public bool PreviewNorthTrail { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
     public bool Night { get; init; }
@@ -50,8 +49,7 @@ public sealed record GameLaunchOptions
                     break;
                 case "--screenshot":
                 case "--screenshot-quest-hover":
-                case "--screenshot-gate-closed":
-                case "--screenshot-gate-open":
+                case "--screenshot-north-trail":
                 case "--screenshot-encounter-empty":
                 case "--screenshot-encounter":
                 case "--screenshot-campaign-battle":
@@ -106,8 +104,7 @@ public sealed record GameLaunchOptions
             },
             PreviewDescent = mode == "--screenshot-grid-descent",
             PreviewQuestHover = mode == "--screenshot-quest-hover",
-            PreviewNorthGate = mode is "--screenshot-gate-closed" or "--screenshot-gate-open",
-            PreviewNorthGateOpen = mode == "--screenshot-gate-open",
+            PreviewNorthTrail = mode == "--screenshot-north-trail",
             PreviewRecruitmentSiteId = mode switch
             {
                 "--screenshot-recruitment" => "starting-clearing",

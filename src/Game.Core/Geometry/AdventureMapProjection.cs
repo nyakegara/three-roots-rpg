@@ -38,16 +38,19 @@ public sealed class AdventureMapProjection
             points.Max(point => point.Y) - points.Min(point => point.Y) + verticalPadding * 2);
     }
 
-    public Vector2 Project(HexCoord coordinate, int height = 0) => ProjectRaw(coordinate, height) - new Vector2(_minX, _minY);
+    public Vector2 Project(HexCoord coordinate, int height = 0)
+    {
+        var position = ProjectRaw(coordinate, height) - new Vector2(_minX, _minY);
+        return _map.Id == "flora-01" ? FloraIslandArtAlignment.Warp(position, WorldSize) : position;
+    }
 
     public bool TryPick(Vector2 worldPosition, out HexCoord coordinate)
     {
-        var raw = worldPosition + new Vector2(_minX, _minY);
         var candidate = _map.Tiles
-            .Select(tile => (Tile: tile, Center: ProjectRaw(tile.Coordinate, tile.Height)))
-            .Where(item => MathF.Abs(raw.X - item.Center.X) <= _tileWidth / 2 &&
-                           MathF.Abs(raw.Y - item.Center.Y) <= _tileHeight / 2)
-            .OrderBy(item => Vector2.DistanceSquared(raw, item.Center))
+            .Select(tile => (Tile: tile, Center: Project(tile.Coordinate, tile.Height)))
+            .Where(item => MathF.Abs(worldPosition.X - item.Center.X) <= _tileWidth / 2 &&
+                           MathF.Abs(worldPosition.Y - item.Center.Y) <= _tileHeight / 2)
+            .OrderBy(item => Vector2.DistanceSquared(worldPosition, item.Center))
             .FirstOrDefault();
         if (candidate.Tile is null)
         {
