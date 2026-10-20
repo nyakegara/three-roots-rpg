@@ -105,6 +105,16 @@ public sealed class BattleRulesTests
     }
 
     [Fact]
+    public void IsRangedShotBlocked_DoesNotTreatImpassableHoverTileAsBlockedRay()
+    {
+        var attacker = Unit("archer", BattleSide.Player, new HexCoord(0, 0), range: 6);
+        var wall = new BattleTile(new HexCoord(2, 0), isPassable: false, blocksLineOfSight: false);
+        var map = new BattleMap([new BattleTile(new HexCoord(0, 0)), new BattleTile(new HexCoord(1, 0)), wall]);
+
+        Assert.False(BattleRules.IsRangedShotBlocked(attacker, wall, map));
+    }
+
+    [Fact]
     public void CanAttack_ElevationBonus_DoesNotIgnoreWall()
     {
         var attacker = Unit("archer", BattleSide.Player, new HexCoord(0, 0), height: 2, range: 1);

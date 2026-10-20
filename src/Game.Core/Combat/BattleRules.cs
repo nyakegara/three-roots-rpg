@@ -30,6 +30,15 @@ public static class BattleRules
         return ranged ? distance <= GetEffectiveRange(attacker, target) : distance == 1;
     }
 
+    public static bool IsRangedShotBlocked(BattleUnit attacker, BattleTile target, BattleMap map)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(map);
+        return target.IsPassable && IsWithinAttackRange(attacker, target) &&
+               !CanAttackTile(attacker, target, map);
+    }
+
     public static AttackFailureReason GetAttackFailureReason(BattleUnit attacker, BattleUnit target, BattleMap map)
     {
         ArgumentNullException.ThrowIfNull(attacker);

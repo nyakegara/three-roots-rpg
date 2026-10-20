@@ -235,7 +235,7 @@ internal sealed class BattleScreen : IGameScreen
                 var action = _interaction.StepOpponent();
                 _opponentDelay = 0.7f;
                 if (actor is not null && action?.Type == BattleActionType.Attack && Find(action.TargetId) is { } enemyTarget)
-                    BeginAttackAnimation(actor, enemyTarget);
+                    BeginAttackAnimation(actor, enemyTarget, conversion: enemyTarget.Side == actor.Side);
                 if (actor is not null && action is not null)
                     _message = action.Type switch
                     {
@@ -581,7 +581,7 @@ internal sealed class BattleScreen : IGameScreen
             var tile = Battle.Map.GetTile(coordinate)!;
             var ranged = actor.IsRanged || actor.Ability == UnitAbility.RadiantModes && actor.AttackMode == AttackMode.HolyFire;
             if (ranged && !Battle.HasAttacked(actor.Id) &&
-                BattleRules.IsWithinAttackRange(actor, tile) && !BattleRules.CanAttackTile(actor, tile, Battle.Map))
+                BattleRules.IsRangedShotBlocked(actor, tile, Battle.Map))
                 return "ДАЛЬНОСТЬ ДОСТАТОЧНА, НО ЛИНИЯ ВЫСТРЕЛА ПЕРЕКРЫТА.";
             var height = tile.Height;
             var delta = height - actor.Height;
