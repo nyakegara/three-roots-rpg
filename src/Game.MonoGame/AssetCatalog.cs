@@ -28,6 +28,8 @@ internal sealed class AssetCatalog : IDisposable
     public const string BattlefieldForestDay = "battlefield.forest.day";
     public const string BattlefieldForestNight = "battlefield.forest.night";
     private readonly Dictionary<string, TextureAsset> _textures = new();
+    private readonly Dictionary<string, Texture2D> _idleTextures = new();
+    private readonly Dictionary<string, Texture2D> _actionTextures = new();
 
     public AssetCatalog(GraphicsDevice device)
     {
@@ -58,6 +60,42 @@ internal sealed class AssetCatalog : IDisposable
                 System.Diagnostics.Trace.TraceWarning("Cannot load art '{0}': {1}", path, exception.Message);
             }
         }
+
+        foreach (var key in new[] { "unit.flora.thorn-guard.idle", "unit.human.militia.idle",
+                     "unit.human.banner-knight.idle", "unit.human.inquisitor.idle" })
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", key + ".png");
+            if (!File.Exists(path)) continue;
+            try
+            {
+                using var stream = File.OpenRead(path);
+                var texture = LoadPremultiplied(device, stream, out _);
+                if (texture.Width == 256 && texture.Height == 80) _idleTextures.Add(key, texture);
+                else texture.Dispose();
+            }
+            catch (Exception exception) when (exception is IOException or InvalidOperationException)
+            {
+                System.Diagnostics.Trace.TraceWarning("Cannot load idle art '{0}': {1}", path, exception.Message);
+            }
+        }
+        foreach (var key in new[] { "unit.human.militia.actions", "unit.human.longbow.actions",
+                     "unit.human.banner-knight.actions", "unit.human.order-hunter.actions",
+                     "unit.human.inquisitor.actions" })
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", key + ".png");
+            if (!File.Exists(path)) continue;
+            try
+            {
+                using var stream = File.OpenRead(path);
+                var texture = LoadPremultiplied(device, stream, out _);
+                if (texture.Width == 256 && texture.Height is 160 or 320) _actionTextures.Add(key, texture);
+                else texture.Dispose();
+            }
+            catch (Exception exception) when (exception is IOException or InvalidOperationException)
+            {
+                System.Diagnostics.Trace.TraceWarning("Cannot load action art '{0}': {1}", path, exception.Message);
+            }
+        }
     }
 
     private static Texture2D LoadPremultiplied(GraphicsDevice device, Stream stream, out Rectangle contentBounds)
@@ -82,6 +120,22 @@ internal sealed class AssetCatalog : IDisposable
     }
 
     public bool HasAsset(string key) => _textures.ContainsKey(key);
+
+    public bool TryDrawIdle(PixelCanvas canvas, string key, Rectangle destination, int frame)
+    {
+        if (!_idleTextures.TryGetValue(key, out var texture)) return false;
+        canvas.Texture(texture, new Rectangle(Math.Abs(frame % 4) * 64, 0, 64, 80), destination);
+        return true;
+    }
+
+    public bool TryDrawAction(PixelCanvas canvas, string key, Rectangle destination, int frame,
+        bool secondary, bool flipHorizontally)
+    {
+        if (!_actionTextures.TryGetValue(key, out var texture)) return false;
+        var index = Math.Clamp(frame, 0, 7) + (secondary && texture.Height == 320 ? 8 : 0);
+        canvas.Texture(texture, new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80), destination, flipHorizontally);
+        return true;
+    }
 
     public bool TryDraw(PixelCanvas canvas, string key, Rectangle destination, float opacity = 1f)
     {
@@ -141,6 +195,10 @@ internal sealed class AssetCatalog : IDisposable
         foreach (var asset in _textures.Values)
             asset.Texture.Dispose();
         _textures.Clear();
+        foreach (var texture in _idleTextures.Values) texture.Dispose();
+        _idleTextures.Clear();
+        foreach (var texture in _actionTextures.Values) texture.Dispose();
+        _actionTextures.Clear();
     }
 
     private sealed record TextureAsset(Texture2D Texture, Rectangle ContentBounds);

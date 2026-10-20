@@ -47,6 +47,7 @@ internal sealed class ExplorationScreen : IGameScreen
     private EncounterScreen? _encounterScreen;
     private BattleScreen? _battleScreen;
     private QuestChoiceScreen? _questScreen;
+    private float _idleSeconds;
 
     public bool HasOpenRecruitmentScreen => _recruitmentScreen is not null;
     public bool IsCampaignDefeated => _campaign?.IsDefeated == true;
@@ -64,10 +65,11 @@ internal sealed class ExplorationScreen : IGameScreen
         UnitCatalog units, bool previewQuestHover = false, string? previewRecruitmentSiteId = null,
         Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None,
         bool previewNorthTrail = false,
+        bool previewIdleMap = false,
         CampaignSave? restoreSave = null, Action<Campaign, HexCoord>? saveProgress = null,
         string? startupMessage = null)
         : this(canvas, assets, definition.Map, definition.CreateGameState(), units,
-            previewQuestHover, previewRecruitmentSiteId, exit, capture, previewNorthTrail,
+            previewQuestHover, previewRecruitmentSiteId, exit, capture, previewNorthTrail, previewIdleMap,
             restoreSave, definition.Id, definition.PlayerFactionId, saveProgress, startupMessage)
     {
     }
@@ -75,10 +77,11 @@ internal sealed class ExplorationScreen : IGameScreen
     private ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map, Campaign campaign,
         UnitCatalog units, bool previewQuestHover, string? previewRecruitmentSiteId, Action? exit,
         CampaignCaptureStage capture, bool previewNorthTrail = false,
+        bool previewIdleMap = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
         Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
         : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId,
-            exit, capture, previewNorthTrail, restoreSave, campaignId, playerFactionId,
+            exit, capture, previewNorthTrail, previewIdleMap, restoreSave, campaignId, playerFactionId,
             saveProgress, startupMessage)
     {
     }
@@ -87,6 +90,7 @@ internal sealed class ExplorationScreen : IGameScreen
         Campaign? campaign, UnitCatalog? units, bool previewQuestHover, string? previewRecruitmentSiteId = null,
         Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None,
         bool previewNorthTrail = false,
+        bool previewIdleMap = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
         Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
     {
@@ -174,7 +178,7 @@ internal sealed class ExplorationScreen : IGameScreen
                 }
             }
         }
-        else if (!previewNorthTrail && restoreSave is null && startupMessage is null && floraMap && campaign is not null && units is not null &&
+        else if (!previewNorthTrail && !previewIdleMap && restoreSave is null && startupMessage is null && floraMap && campaign is not null && units is not null &&
                  _pointsByCoordinate.Values.SelectMany(points => points).FirstOrDefault(point => point.Id == "guide-dialogue") is { } guide)
         {
             _movement = new MovementSelection(CreateMovementMap(start), start);
@@ -188,6 +192,7 @@ internal sealed class ExplorationScreen : IGameScreen
 
     public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
+        _idleSeconds = (_idleSeconds + Math.Clamp(elapsedSeconds, 0f, 0.1f)) % 60f;
         _currentMouse = mouse;
         _currentKeyboard = keyboard;
         IGameScreen? modal = _battleScreen ?? (IGameScreen?)_encounterScreen ?? _recruitmentScreen;
@@ -387,6 +392,7 @@ internal sealed class ExplorationScreen : IGameScreen
 
         _renderer.Draw(_map, _projection, _camera, _movement.Position,
             _movement.Path.IsReachable ? _movement.Path.Coordinates : Array.Empty<HexCoord>(), _hover,
+            VisibleIdleActors(), _idleSeconds,
             drawHero: !_previewNorthTrail);
         DrawMapPlaque();
         var hoveredPoint = _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var points)
@@ -395,6 +401,25 @@ internal sealed class ExplorationScreen : IGameScreen
         if (_campaign?.IsDefeated == true || _campaign?.IsVictory == true) DrawCampaignEndingPanel();
         _encounterScreen?.Draw();
         _questScreen?.Draw();
+    }
+
+    private IReadOnlyDictionary<string, string> VisibleIdleActors()
+    {
+        var actors = new Dictionary<string, string>(StringComparer.Ordinal);
+        if (_map.Id != "flora-01") return actors;
+        actors["guide-dialogue"] = "unit.flora.thorn-guard.idle";
+        if (_campaign is null) return actors;
+
+        foreach (var encounter in _campaign.Encounters.Where(encounter => _campaign.CanAccessEncounter(encounter.Id)))
+        {
+            var unitIds = encounter.EnemyArmy.Select(troop => troop.UnitTypeId).ToHashSet(StringComparer.Ordinal);
+            actors[encounter.PointOfInterestId] = unitIds.Contains("human.inquisitor")
+                ? "unit.human.inquisitor.idle"
+                : unitIds.Contains("human.banner-knight") ? "unit.human.banner-knight.idle"
+                : unitIds.Contains("human.militia") ? "unit.human.militia.idle"
+                : "unit.flora.thorn-guard.idle";
+        }
+        return actors;
     }
 
     private void DrawCampaignEndingPanel()

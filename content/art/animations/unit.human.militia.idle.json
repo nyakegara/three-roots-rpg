@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 2,
+  "id": "unit.human.militia.idle",
+  "image": "unit.human.militia.idle.png",
+  "kind": "idle",
+  "width": 256,
+  "height": 80,
+  "columns": 4,
+  "rows": 1,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "contentBox": {
+    "x": 8,
+    "y": 8,
+    "width": 48,
+    "height": 64
+  },
+  "alphaCutoff": 128,
+  "alignBottom": 72,
+  "anchorMode": "body",
+  "frameOrder": "row-major",
+  "heroTwoFrame": false,
+  "heroCompactWalk": false,
+  "usedFrameCount": 4,
+  "unusedSlots": [],
+  "clips": [
+    {
+      "name": "idle",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "frameMs": 260,
+      "loop": true,
+      "impactFrame": null
+    }
+  ],
+  "frameDiagnostics": [
+    {
+      "frame": 0,
+      "empty": false,
+      "visibleBounds": {
+        "left": 15,
+        "top": 29,
+        "right": 55,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 1,
+      "empty": false,
+      "visibleBounds": {
+        "left": 16,
+        "top": 29,
+        "right": 54,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 2,
+      "empty": false,
+      "visibleBounds": {
+        "left": 15,
+        "top": 29,
+        "right": 54,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 3,
+      "empty": false,
+      "visibleBounds": {
+        "left": 16,
+        "top": 30,
+        "right": 54,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    }
+  ],
+  "registration": [
+    {
+      "frame": 0,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 1,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 2,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 3,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    }
+  ],
+  "sourceBorderDiagnostics": [],
+  "unpacking": {
+    "enabled": true,
+    "connectivity": 8,
+    "majorMinAreaFraction": 0.1,
+    "majorMinHeightFraction": 0.35,
+    "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
+    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sampling": "sourceX=floor(pivotX\u002B(x\u002B0.5-anchorX)/scale); sourceY=floor(pivotY\u002B(y-translationY\u002B0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
+    "sources": [
+      {
+        "source": "../../../docs/art/animations/sources/human-militia.idle.source.png",
+        "Width": 2172,
+        "Height": 724,
+        "Columns": 4,
+        "Rows": 1,
+        "expected": 4,
+        "primaryComponents": 4,
+        "totalComponents": 4,
+        "detachedComponents": 0,
+        "Scale": 0.08072894659660879,
+        "FitScale": 0.08072894659660879,
+        "RowGrounds": [
+          645
+        ],
+        "Attachments": [],
+        "sha256": "40e2be7e2d8921408c6f0b710215c0547d51180c0e5cdcdadf5c08234e7af10d"
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "source": "../../../docs/art/animations/sources/human-militia.idle.source.png",
+        "sourceFrame": 0,
+        "sourceColumn": 0,
+        "sourceRow": 0,
+        "primaryComponent": 2,
+        "componentIds": [
+          2
+        ],
+        "sourceCropBounds": {
+          "left": 67,
+          "top": 114,
+          "right": 569,
+          "bottom": 645
+        },
+        "primaryBounds": {
+          "left": 67,
+          "top": 114,
+          "right": 569,
+          "bottom": 645
+        },
+        "scale": 0.08072894659660879,
+        "pivotX": 271.7088669950739,
+        "pivotY": 645,
+        "primaryBottom": 645,
+        "transform": {
+          "offsetX": 10.065229386529602,
+          "offsetY": 19.92982944518733
+        },
+        "nativeBounds": {
+          "left": 15,
+          "top": 29,
+          "rightExclusive": 56,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 1,
+        "source": "../../../docs/art/animations/sources/human-militia.idle.source.png",
+        "sourceFrame": 1,
+        "sourceColumn": 1,
+        "sourceRow": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 593,
+          "top": 111,
+          "right": 1086,
+          "bottom": 645
+        },
+        "primaryBounds": {
+          "left": 593,
+          "top": 111,
+          "right": 1086,
+          "bottom": 645
+        },
+        "scale": 0.08072894659660879,
+        "pivotX": 797.1766481723238,
+        "pivotY": 645,
+        "primaryBottom": 645,
+        "transform": {
+          "offsetX": -32.355231058367124,
+          "offsetY": 19.92982944518733
+        },
+        "nativeBounds": {
+          "left": 16,
+          "top": 29,
+          "rightExclusive": 55,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 2,
+        "source": "../../../docs/art/animations/sources/human-militia.idle.source.png",
+        "sourceFrame": 2,
+        "sourceColumn": 2,
+        "sourceRow": 0,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 1124,
+          "top": 115,
+          "right": 1621,
+          "bottom": 645
+        },
+        "primaryBounds": {
+          "left": 1124,
+          "top": 115,
+          "right": 1621,
+          "bottom": 645
+        },
+        "scale": 0.08072894659660879,
+        "pivotX": 1331.1382961327774,
+        "pivotY": 645,
+        "primaryBottom": 645,
+        "transform": {
+          "offsetX": -75.4613924212038,
+          "offsetY": 19.92982944518733
+        },
+        "nativeBounds": {
+          "left": 15,
+          "top": 29,
+          "rightExclusive": 55,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 3,
+        "source": "../../../docs/art/animations/sources/human-militia.idle.source.png",
+        "sourceFrame": 3,
+        "sourceColumn": 3,
+        "sourceRow": 0,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 1664,
+          "top": 124,
+          "right": 2154,
+          "bottom": 645
+        },
+        "primaryBounds": {
+          "left": 1664,
+          "top": 124,
+          "right": 2154,
+          "bottom": 645
+        },
+        "scale": 0.08072894659660879,
+        "pivotX": 1866.6081837642023,
+        "pivotY": 645,
+        "primaryBottom": 645,
+        "transform": {
+          "offsetX": -118.6893123838932,
+          "offsetY": 19.92982944518733
+        },
+        "nativeBounds": {
+          "left": 16,
+          "top": 30,
+          "rightExclusive": 55,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      }
+    ]
+  },
+  "source": {
+    "image": "../../../docs/art/animations/sources/human-militia.idle.source.png",
+    "width": 2172,
+    "height": 724,
+    "transparentPixels": 1076150,
+    "partialAlphaPixels": 495518,
+    "opaquePixels": 860
+  }
+}

@@ -36,6 +36,9 @@ internal sealed class BattleScreen : IGameScreen
     private float _nightBlend;
     private float _nightTarget;
     private float _opponentDelay = 0.7f;
+    private string? _actionUnitId;
+    private bool _actionSecondary;
+    private float _actionSeconds;
     private string _message = "ЛКМ: ПОКАЗАТЬ ПУТЬ. ПОВТОРНАЯ ЛКМ: ПЕРЕМЕСТИТЬ ОТРЯД.";
     private Battle Battle => _interaction.Battle;
     private static readonly Color Gold = new(218, 190, 113);
@@ -96,6 +99,8 @@ internal sealed class BattleScreen : IGameScreen
         _healMode = false;
         _hover = null;
         _opponentDelay = 0.7f;
+        _actionUnitId = null;
+        _actionSeconds = 0f;
         _message = "ЛКМ: ПОКАЗАТЬ ПУТЬ. ПОВТОРНАЯ ЛКМ: ПЕРЕМЕСТИТЬ ОТРЯД.";
         RefreshReachable();
     }
@@ -107,6 +112,14 @@ internal sealed class BattleScreen : IGameScreen
         var clicked = mouse.LeftButton == ButtonState.Pressed && _previousMouse.LeftButton == ButtonState.Released;
         if (Pressed(Keys.G) || clicked && BattleHud.GridButton.Contains(mouse.Position)) _showGrid = !_showGrid;
         if (Pressed(Keys.N)) _nightTarget = 1f - _nightTarget;
+
+        if (_actionSeconds > 0f)
+        {
+            _actionSeconds = Math.Max(0f, _actionSeconds - Math.Clamp(elapsedSeconds, 0f, 0.1f));
+            _previousMouse = mouse;
+            _previousKeyboard = keyboard;
+            return;
+        }
 
         if (Battle.IsFinished)
         {
@@ -163,6 +176,8 @@ internal sealed class BattleScreen : IGameScreen
                 var actor = Battle.ActiveUnit;
                 var action = _interaction.StepOpponent();
                 _opponentDelay = 0.7f;
+                if (actor is not null && action?.Type == BattleActionType.Attack)
+                    BeginAttackAnimation(actor);
                 if (actor is not null && action is not null)
                     _message = action.Type switch
                     {
@@ -200,8 +215,11 @@ internal sealed class BattleScreen : IGameScreen
         {
             var before = target.RemainingHitPoints;
             if (_interaction.TryAttack(target.Id))
+            {
+                BeginAttackAnimation(active);
                 _message = $"{Name(active)}: УРОН {before - target.RemainingHitPoints}. " +
                     (target.Side == active.Side ? "ВРАГ НА НАШЕЙ СТОРОНЕ ДО КОНЦА БОЯ!" : $"В ЦЕЛИ ОСТАЛОСЬ {target.Count}.");
+            }
             else _message = Battle.HasAttacked(active.Id) ? "ДЕЙСТВИЕ УЖЕ ИСПОЛЬЗОВАНО. ENTER: КОНЕЦ ХОДА."
                 : "ЦЕЛЬ ВНЕ ДАЛЬНОСТИ ИЛИ ЛИНИЯ ВИДИМОСТИ ПЕРЕКРЫТА.";
         }
@@ -226,6 +244,14 @@ internal sealed class BattleScreen : IGameScreen
             var path = _pathfinder.FindPath(Battle.Map, active.Position, tile.Coordinate, occupied);
             if (path.IsReachable && path.Cost <= active.Movement) _reachable.Add(tile.Coordinate);
         }
+    }
+
+    private void BeginAttackAnimation(BattleUnit actor)
+    {
+        if (!actor.UnitTypeId.StartsWith("human.", StringComparison.Ordinal)) return;
+        _actionUnitId = actor.Id;
+        _actionSecondary = actor.Ability == UnitAbility.RadiantModes && actor.AttackMode == AttackMode.HolyFire;
+        _actionSeconds = 0.8f;
     }
 
     public void Draw()
@@ -284,7 +310,12 @@ internal sealed class BattleScreen : IGameScreen
         {
             var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
             var bounds = new Rectangle(x - 28, y - 49, 56, 66);
-            if (!_assets.TryDrawCropped(_canvas, key, bounds, unit.Side == BattleSide.Enemy) &&
+            var animating = _actionSeconds > 0f && _actionUnitId == unit.Id &&
+                _assets.TryDrawAction(_canvas, "unit." + unit.UnitTypeId + ".actions",
+                    new Rectangle(x - 28, y - 49, 56, 70),
+                    Math.Min(7, (int)((0.8f - _actionSeconds) / 0.1f)), _actionSecondary,
+                    unit.Side == BattleSide.Enemy);
+            if (!animating && !_assets.TryDrawCropped(_canvas, key, bounds, unit.Side == BattleSide.Enemy) &&
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
                 FantasyArt.DrawGuard(_canvas, x, y);
         }

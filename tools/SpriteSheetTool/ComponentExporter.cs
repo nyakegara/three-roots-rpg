@@ -14,14 +14,14 @@ static class ComponentExporter
         var kind = options["--kind"]; var id = options["--id"];
         var anchorMode = options.GetValueOrDefault("--anchor-mode") ?? "body";
         if (anchorMode is not ("body" or "cell")) throw new ArgumentException("--anchor-mode must be body or cell.");
-        if (kind is not ("hero" or "unit" or "support")) throw new ArgumentException("Invalid kind.");
+        if (kind is not ("hero" or "unit" or "support" or "idle")) throw new ArgumentException("Invalid kind.");
         var heroTwoFrame = options.ContainsKey("--hero-two-frame");
         var heroCompactWalk=options.ContainsKey("--hero-compact-walk");
         if(heroTwoFrame&&kind!="hero")throw new ArgumentException("--hero-two-frame is only valid with --kind hero.");
         if(heroCompactWalk&&kind!="hero")throw new ArgumentException("--hero-compact-walk is only valid with --kind hero.");
         if(heroCompactWalk&&heroTwoFrame)throw new ArgumentException("Select either --hero-compact-walk or --hero-two-frame.");
         var sourceColumns = kind == "hero" ? 6 : 4;
-        var columns = heroCompactWalk?4:heroTwoFrame ? 2 : sourceColumns; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : 2;
+        var columns = heroCompactWalk?4:heroTwoFrame ? 2 : sourceColumns; var rows = kind == "hero" ? 9 : kind == "support" ? 4 : kind == "idle" ? 1 : 2;
         var cutoff = int.Parse(options.GetValueOrDefault("--alpha-cutoff") ?? "128");
         if (cutoff is < 1 or > 255) throw new ArgumentException("Component alpha cutoff must be1–255.");
         var box = (options.GetValueOrDefault("--content-box") ?? "8,8,48,64").Split(',').Select(int.Parse).ToArray();
@@ -134,6 +134,7 @@ static class ComponentExporter
         object Clip(string name, int first, int count, bool loop, int? hit, int? duration=null) => new { name, frames = Enumerable.Range(first, count).ToArray(), frameMs=duration??frameMs, loop, impactFrame = hit };
         var clips = kind == "hero" ? new[] {"N","NE","E","SE","S","SW","W","NW","IdleSE"}.Select((direction, row) => Clip(row == 8 ? "idle.SE" : "walk." + direction, row * columns, heroCompactWalk?(row==8?1:row is 0 or 4?2:4):heroTwoFrame&&row==8?1:columns, !((heroCompactWalk||heroTwoFrame)&&row==8), null,heroCompactWalk&&row is 0 or 4?frameMs*2:frameMs)).ToArray()
             : kind == "support" ? new[] { Clip("attack", 0, 8, false, impact), Clip(options.GetValueOrDefault("--ability-name") ?? "ability", 8, 8, false, impact) }
+            : kind == "idle" ? new[] { Clip("idle", 0, 4, true, null) }
             : new[] { Clip("attack", 0, 8, false, impact) };
         var metadata = new {
             schemaVersion = 2, id, image = Path.GetFileName(outputPath), kind, width = output.Width, height = output.Height, columns, rows,

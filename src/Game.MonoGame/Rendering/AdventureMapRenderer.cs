@@ -18,7 +18,8 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private bool _compactMap;
 
     public void Draw(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
-        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile, bool drawHero = true)
+        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile,
+        IReadOnlyDictionary<string, string> idleActors, float idleSeconds, bool drawHero = true)
     {
         _compactMap = map.Id == "flora-01";
         var viewport = new Rectangle(0, 0, 1280, 600);
@@ -42,8 +43,12 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         foreach (var point in map.PointsOfInterest)
         {
             if (map.GetTile(point.Coordinate) is not { } tile) continue;
+            if (_compactMap && point.Type.Equals("encounter", StringComparison.OrdinalIgnoreCase) &&
+                !idleActors.ContainsKey(point.Id)) continue;
             var screen = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
-            objects.Add((screen.Y, () => DrawPoint(point, tile, screen)));
+            if (idleActors.TryGetValue(point.Id, out var idleKey))
+                objects.Add((screen.Y, () => DrawIdleActor(point, idleKey, screen, idleSeconds)));
+            else objects.Add((screen.Y, () => DrawPoint(point, tile, screen)));
         }
         if (drawHero && map.GetTile(heroPosition) is { } heroTile)
         {
@@ -194,6 +199,21 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     {
         var rect = new Rectangle((int)p.X - 29, (int)p.Y - 25, 58, 49);
         if (!assets.TryDraw(canvas, AssetCatalog.Rock, rect)) FantasyArt.DrawRock(canvas, (int)p.X, (int)p.Y);
+    }
+
+    private void DrawIdleActor(WorldPointOfInterest point, string idleKey, WorldVector2 p, float seconds)
+    {
+        if (point.Id == "guide-dialogue") p += new WorldVector2(-56, 5);
+        var phase = point.Id.Sum(character => (int)character) & 3;
+        var frame = ((int)(seconds * 1000f / 260f) + phase) % 4;
+        var size = _compactMap ? new Rectangle((int)p.X - 32, (int)p.Y - 66, 64, 80)
+            : new Rectangle((int)p.X - 40, (int)p.Y - 82, 80, 100);
+        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 8, _compactMap ? 34 : 42, 9, Ink * 0.65f);
+        if (!assets.TryDrawIdle(canvas, idleKey, size, frame))
+        {
+            var staticKey = idleKey[..^".idle".Length];
+            assets.TryDrawCropped(canvas, staticKey, size);
+        }
     }
 
     private void DrawPoint(WorldPointOfInterest point, WorldTile tile, WorldVector2 p)

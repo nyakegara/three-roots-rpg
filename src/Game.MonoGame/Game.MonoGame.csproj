@@ -14,6 +14,12 @@
     <Content Include="..\..\content\art\*.png"
              Link="Content\art\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\art\animations\*.idle.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\art\animations\unit.human.*.actions.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\content\maps\*.json"
              Link="Content\maps\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />

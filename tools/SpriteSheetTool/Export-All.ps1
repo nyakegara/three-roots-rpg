@@ -40,7 +40,8 @@ foreach ($specification in $specifications) {
 }
 if(!$HeroOnly){
  $humanSheets=@('militia','longbow','banner-knight','order-hunter','inquisitor')|ForEach-Object { '../../../content/art/animations/unit.human.'+$_+'.actions.json' }
- @{sheets=@($specifications | ForEach-Object { '../../../content/art/animations/'+$_.Name+'.json' })+$humanSheets} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $documentation 'manifest.json') -Encoding utf8
+ $idleSheets=@('flora.thorn-guard','human.militia','human.banner-knight','human.inquisitor')|ForEach-Object { '../../../content/art/animations/unit.'+$_+'.idle.json' }
+ @{sheets=@($specifications | ForEach-Object { '../../../content/art/animations/'+$_.Name+'.json' })+$humanSheets+$idleSheets} | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $documentation 'manifest.json') -Encoding utf8
 }
 
 # Verify actual exported pixels rather than trusting metadata alone.

@@ -10,6 +10,10 @@
     "../../../content/art/animations/unit.human.longbow.actions.json",
     "../../../content/art/animations/unit.human.banner-knight.actions.json",
     "../../../content/art/animations/unit.human.order-hunter.actions.json",
-    "../../../content/art/animations/unit.human.inquisitor.actions.json"
+    "../../../content/art/animations/unit.human.inquisitor.actions.json",
+    "../../../content/art/animations/unit.flora.thorn-guard.idle.json",
+    "../../../content/art/animations/unit.human.militia.idle.json",
+    "../../../content/art/animations/unit.human.banner-knight.idle.json",
+    "../../../content/art/animations/unit.human.inquisitor.idle.json"
   ]
 }
