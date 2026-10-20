@@ -335,6 +335,9 @@ public sealed class Campaign
             return Fail(out error, "Saved encounter progress violates campaign progression requirements.");
         if (save.IsDefeated && (!_progression.DefeatOnArmyWipe || save.Army.Count != 0))
             return Fail(out error, "Defeated save must belong to a campaign that ends on an army wipe and have no army.");
+        if (save.IsDefeated && _progression.VictoryEncounterId is { } victoryEncounterId &&
+            completedEncounters.Contains(victoryEncounterId))
+            return Fail(out error, "A defeated save cannot also contain the campaign's victory encounter.");
         if (save.Army.Any(stack => stack is null || units.Get(stack.UnitId) is not { } unit ||
                                    unit.FactionId != playerFactionId))
             return Fail(out error, "Saved army contains unknown units or units from another faction.");

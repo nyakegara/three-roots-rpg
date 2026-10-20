@@ -1,6 +1,7 @@
 using Game.Core.Campaigns;
 using Game.Core.Combat;
 using Game.Core.Content;
+using Game.Core.Persistence;
 using Game.MonoGame;
 using Xunit;
 
@@ -117,6 +118,29 @@ public sealed class CampaignFlowTests
             definition.Map, units, out var error));
         Assert.Contains("progression", error, StringComparison.OrdinalIgnoreCase);
         Assert.Empty(restored.CompletedEncounterIds);
+    }
+
+    [Fact]
+    public void CampaignSaveRejectsSimultaneousVictoryAndDefeat()
+    {
+        var (definition, units) = Load();
+        var save = definition.CreateGameState()
+            .CreateSave(definition.Id, definition.Map.Id, definition.Map.StartPosition!.Value) with
+        {
+            Army = [],
+            CompletedQuestIds = ["pasture-choice"],
+            SelectedChoices = [new SavedQuestChoice("pasture-choice", "refuse")],
+            CompletedEncounterIds = ["farmers-pasture-battle", "burned-forest", "mountain-outpost",
+                "mushroom-outpost", "final-landing"],
+            IsDefeated = true
+        };
+        var restored = definition.CreateGameState();
+
+        Assert.False(restored.TryRestoreSave(save, definition.Id, definition.PlayerFactionId,
+            definition.Map, units, out var error));
+        Assert.Contains("victory", error, StringComparison.OrdinalIgnoreCase);
+        Assert.Empty(restored.CompletedEncounterIds);
+        Assert.False(restored.IsDefeated);
     }
 
     [Fact]
