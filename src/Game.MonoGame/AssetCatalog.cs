@@ -19,10 +19,10 @@ internal sealed class AssetCatalog : IDisposable
     public const string Treasure = "poi.treasure";
     public const string AdventureGround = "exploration.ground";
     public const string FloraIslandGround = "exploration.flora-island";
-    public const string FloraIslandNorthWest = "exploration.flora-island-v4-nw";
-    public const string FloraIslandNorthEast = "exploration.flora-island-v4-ne";
-    public const string FloraIslandSouthWest = "exploration.flora-island-v4-sw";
-    public const string FloraIslandSouthEast = "exploration.flora-island-v4-se";
+    public const string FloraIslandNorthWest = "exploration.flora-island-v5-nw";
+    public const string FloraIslandNorthEast = "exploration.flora-island-v5-ne";
+    public const string FloraIslandSouthWest = "exploration.flora-island-v5-sw";
+    public const string FloraIslandSouthEast = "exploration.flora-island-v5-se";
     public const string RootGreenhouse = "poi.flora.root-greenhouse";
     public const string SunnyClearing = "poi.flora.sunny-clearing";
     public const string SporeCircle = "poi.flora.spore-circle";
