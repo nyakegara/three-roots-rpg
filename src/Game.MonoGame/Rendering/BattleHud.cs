@@ -38,7 +38,7 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
             var prefix = hoveredUnit is null ? "ХОД: " : "ЦЕЛЬ: ";
             _font.Draw(Shorten(prefix + name, 42), 110, 624, Text, 2);
             var range = inspected.Ability == UnitAbility.RadiantModes && inspected.AttackMode == AttackMode.HolyFire
-                ? 4 : inspected.Range;
+                ? BattleRules.HolyFireRange : inspected.Range;
             var mode = inspected.Ability == UnitAbility.RadiantModes
                 ? inspected.AttackMode == AttackMode.HolyFire ? "   РЕЖИМ: ОГОНЬ" : "   РЕЖИМ: МОЛОТ" : "";
             var details = $"БОЙЦОВ {inspected.Count}   ОЗ {inspected.RemainingHitPoints}/" +
@@ -64,7 +64,7 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
             canHeal || canChangeMode, canHeal && healMode || canChangeMode && active!.AttackMode == AttackMode.HolyFire);
         DrawButton(EndTurnButton, "ENTER: ХОД", playerTurn, false);
         DrawButton(GridButton, "G: СЕТКА", true, showGrid);
-        if (canHeal) _font.Draw("ЛЕЧЕНИЕ: ВЫБЕРИТЕ СОЮЗНИКА", 930, 684, Muted, 1);
+        if (healMode && canHeal) _font.Draw("ЛЕЧЕНИЕ: ВЫБЕРИТЕ СОЮЗНИКА", 930, 684, Muted, 1);
         _font.Draw("ENTER: ЗАВЕРШИТЬ ХОД", 930, 701, Muted, 1);
     }
 

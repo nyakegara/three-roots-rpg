@@ -44,10 +44,11 @@ public sealed class UnitCatalogTests : IDisposable
         }, units.Where(unit => unit.FactionId != "flora").Select(unit => unit.Id).Order(StringComparer.Ordinal));
 
         AssertUnit("flora.thorn-guard", "Кабачок-крепыш", 10, 4, 5, 3, 1, false, 8, UnitAbility.None);
-        AssertUnit("flora.sprout", "Ипомея-целительница", 8, 3, 7, 4, 4, true, 12, UnitAbility.HealAlly);
-        AssertUnit("flora.ember-bloom", "Пламенный цветок", 9, 6, 6, 4, 3, true, 30, UnitAbility.None);
+        AssertUnit("flora.sprout", "Ипомея-целительница", 8, 3, 7, 4, 6, true, 12, UnitAbility.HealAlly);
+        AssertUnit("flora.ember-bloom", "Пламенный цветок", 9, 6, 6, 4, 6, true, 30, UnitAbility.None);
         AssertUnit("flora.pod-slinger", "Орхидея-ассасин", 12, 5, 8, 5, 1, false, 34, UnitAbility.None);
-        AssertUnit("flora.root-warden", "Гриб-сновидец", 28, 7, 3, 2, 5, true, 52, UnitAbility.ConvertOnHit);
+        AssertUnit("flora.root-warden", "Гриб-сновидец", 28, 7, 3, 2, 7, true, 52, UnitAbility.ConvertOnHit);
+        Assert.All(units.Where(unit => unit.IsRanged), unit => Assert.InRange(unit.Range, 6, int.MaxValue));
 
         void AssertUnit(string id, string name, int hp, int damage, int speed, int movement,
             int range, bool ranged, int cost, UnitAbility ability)

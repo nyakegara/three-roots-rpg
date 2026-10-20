@@ -29,6 +29,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-magic")]
     [InlineData("--screenshot-combat-arrow-impact")]
     [InlineData("--screenshot-combat-magic-impact")]
+    [InlineData("--screenshot-combat-range")]
     public void PlayableCombatIsDistinctFromTerrainPreview(string mode)
     {
         var args = mode == "--combat" ? new[] { mode, "--seed", "42" }
@@ -42,6 +43,7 @@ public sealed class GameLaunchOptionsTests
             mode.EndsWith("-result") ? BattleCaptureStage.Result :
             mode.EndsWith("-arrow-impact") ? BattleCaptureStage.ArrowImpact :
             mode.EndsWith("-magic-impact") ? BattleCaptureStage.MagicImpact :
+            mode.EndsWith("-range") ? BattleCaptureStage.Range :
             mode.EndsWith("-arrow") ? BattleCaptureStage.Arrow :
             mode.EndsWith("-magic") ? BattleCaptureStage.Magic : BattleCaptureStage.Opening,
             options.CombatCapture);

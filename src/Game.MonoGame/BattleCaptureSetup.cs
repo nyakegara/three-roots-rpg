@@ -16,6 +16,13 @@ public static class BattleCaptureSetup
         for (var step = 0; step < 3000 && !battle.IsFinished; step++)
         {
             var active = battle.ActiveUnit ?? throw new InvalidOperationException("Missing active unit in capture.");
+            if (stage == BattleCaptureStage.Target && active.Side == BattleSide.Player &&
+                !battle.HasAttacked(active.Id))
+            {
+                var target = battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Side != active.Side &&
+                    BattleRules.CanAttack(active, unit, battle.Map));
+                if (target is not null) return target.Position;
+            }
             if (stage == BattleCaptureStage.Healing && active is { Side: BattleSide.Player, Ability: UnitAbility.HealAlly })
             {
                 var wounded = battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Id != active.Id &&

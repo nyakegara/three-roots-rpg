@@ -28,6 +28,8 @@ internal sealed class BattleScreen : IGameScreen
     private BattleInteraction _interaction = null!;
     private BattlefieldRenderer _field = null!;
     private HashSet<HexCoord> _reachable = [];
+    private HashSet<HexCoord> _attackArea = [];
+    private MouseState _currentMouse;
     private MouseState _previousMouse;
     private KeyboardState _previousKeyboard;
     private HexCoord? _hover;
@@ -46,6 +48,8 @@ internal sealed class BattleScreen : IGameScreen
     private static readonly Color Gold = new(218, 190, 113);
     private static readonly Color Green = new(149, 190, 107);
     private static readonly Color Red = new(210, 118, 89);
+    private static readonly Color Blue = new(125, 195, 185);
+    private static readonly int[] EdgeByNeighbor = [1, 0, 5, 4, 3, 2];
     private static readonly Rectangle RestartButton = new(444, 488, 186, 34);
     private static readonly Rectangle ExitButton = new(650, 488, 186, 34);
     private static readonly Rectangle ReturnButton = new(517, 488, 246, 34);
@@ -56,6 +60,29 @@ internal sealed class BattleScreen : IGameScreen
     {
         _seed = seed;
         Restart();
+        if (capture == BattleCaptureStage.Range)
+        {
+            for (var step = 0; step < Battle.Units.Count * 2 &&
+                 Battle.ActiveUnit?.UnitTypeId != "flora.sprout"; step++)
+            {
+                Battle.EndActivation();
+                if (Battle.ActiveUnit is null) Battle.StartRound();
+            }
+            RefreshReachable();
+            _hover = _attackArea.Where(cell => !_reachable.Contains(cell) &&
+                    Battle.Units.All(unit => unit.Position != cell))
+                .OrderBy(cell => cell.DistanceTo(Battle.ActiveUnit!.Position))
+                .LastOrDefault();
+            _message = "ЗЕЛЕНЫЙ: ХОД. ЗОЛОТО: ДАЛЬНОСТЬ. КРАСНЫЙ: ДОСТУПНАЯ ЦЕЛЬ.";
+            return;
+        }
+        if (capture == BattleCaptureStage.Target)
+        {
+            _hover = BattleCaptureSetup.Advance(Battle, capture);
+            RefreshReachable();
+            _message = "КРАСНЫЙ КОНТУР: ЦЕЛЬ МОЖНО АТАКОВАТЬ СЕЙЧАС.";
+            return;
+        }
         if (capture is BattleCaptureStage.Arrow or BattleCaptureStage.Magic or
             BattleCaptureStage.ArrowImpact or BattleCaptureStage.MagicImpact)
         {
@@ -126,6 +153,7 @@ internal sealed class BattleScreen : IGameScreen
     public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
         _nightBlend = BattleLighting.AdvanceFade(_nightBlend, _nightTarget, elapsedSeconds);
+        _currentMouse = mouse;
         _hover = mouse.Y < 600 ? _field.HitTest(mouse.Position) : null;
         var clicked = mouse.LeftButton == ButtonState.Pressed && _previousMouse.LeftButton == ButtonState.Released;
         if (Pressed(Keys.G) || clicked && BattleHud.GridButton.Contains(mouse.Position)) _showGrid = !_showGrid;
@@ -173,9 +201,12 @@ internal sealed class BattleScreen : IGameScreen
                 {
                     var nextMode = inquisitor.AttackMode == AttackMode.Hammer ? AttackMode.HolyFire : AttackMode.Hammer;
                     if (_interaction.TrySetAttackMode(nextMode))
+                    {
                         _message = nextMode == AttackMode.HolyFire
-                            ? "ИНКВИЗИТОР: СВЯЩЕННЫЙ ОГОНЬ, ДАЛЬНОСТЬ 4."
+                            ? $"ИНКВИЗИТОР: СВЯЩЕННЫЙ ОГОНЬ, ДАЛЬНОСТЬ {BattleRules.HolyFireRange}."
                             : "ИНКВИЗИТОР: МОЛОТ, УДАР ПО СОСЕДНЕЙ КЛЕТКЕ.";
+                        RefreshReachable();
+                    }
                 }
                 else if (Battle.ActiveUnit is { Ability: UnitAbility.HealAlly } active && !Battle.HasAttacked(active.Id))
                 {
@@ -256,7 +287,13 @@ internal sealed class BattleScreen : IGameScreen
     private void RefreshReachable()
     {
         _reachable.Clear();
-        if (!_interaction.IsPlayerTurn || Battle.ActiveUnit is not { } active || Battle.HasMoved(active.Id)) return;
+        _attackArea.Clear();
+        if (!_interaction.IsPlayerTurn || Battle.ActiveUnit is not { } active) return;
+        if (!Battle.HasAttacked(active.Id))
+            foreach (var tile in Battle.Map.Tiles)
+                if (BattleRules.CanAttackTile(active, tile, Battle.Map))
+                    _attackArea.Add(tile.Coordinate);
+        if (Battle.HasMoved(active.Id)) return;
         var occupied = Battle.Units.Where(unit => unit.IsAlive && unit.Id != active.Id).Select(unit => unit.Position).ToHashSet();
         foreach (var tile in Battle.Map.Tiles)
         {
@@ -289,6 +326,7 @@ internal sealed class BattleScreen : IGameScreen
                      .OrderBy(unit => unit.Position.R).ThenBy(unit => unit.Position.Q))
             DrawUnit(unit);
         _attackEffect?.Draw(_canvas);
+        DrawActionCursor();
         var hovered = _hover is { } cell ? Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == cell) : null;
         _hud.Draw(Battle, Battle.IsFinished ? "БОЙ ЗАВЕРШЁН." : DescribeHover(hovered), hovered, _healMode, _showGrid);
         if (Battle.IsFinished && _actionSeconds <= 0f) DrawResult();
@@ -296,12 +334,29 @@ internal sealed class BattleScreen : IGameScreen
 
     private void DrawTacticalOverlay()
     {
-        if (_showGrid && !_healMode && _interaction.IsPlayerTurn)
+        if (_interaction.IsPlayerTurn && !_healMode)
+        {
+            if (Battle.ActiveUnit is { } active && !Battle.HasAttacked(active.Id))
+                foreach (var coordinate in _attackArea)
+                {
+                    var tile = Battle.Map.GetTile(coordinate)!;
+                    _canvas.Polygon(_field.Layout.Corners(tile, 5), Gold * 0.09f);
+                    var corners = _field.Layout.Corners(tile, 4);
+                    var neighbors = coordinate.GetNeighbors();
+                    for (var edge = 0; edge < neighbors.Count; edge++)
+                        if (!_attackArea.Contains(neighbors[edge]))
+                        {
+                            var side = EdgeByNeighbor[edge];
+                            _canvas.Line(corners[side], corners[(side + 1) % 6], Gold * 0.74f, 2);
+                        }
+                }
             foreach (var coordinate in _reachable)
             {
-                _canvas.Polygon(_field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 5), Green * 0.12f);
-                _canvas.Outline(_field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 5), Green * 0.4f, 1);
+                var corners = _field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 5);
+                _canvas.Polygon(corners, Green * 0.28f);
+                _canvas.Outline(corners, Green * 0.9f, 2);
             }
+        }
         if (!_healMode)
         {
             var path = _interaction.SelectedPath;
@@ -318,11 +373,86 @@ internal sealed class BattleScreen : IGameScreen
             {
                 var healable = _healMode && unit.Side == actor.Side && unit.RemainingHitPoints < unit.MaximumHitPointsAtBattleStart;
                 if (healable || !_healMode && BattleRules.CanAttack(actor, unit, Battle.Map))
-                    _canvas.Outline(_field.Layout.Corners(Battle.Map.GetTile(unit.Position)!, 5), healable ? Green : Red, 2);
+                {
+                    var corners = _field.Layout.Corners(Battle.Map.GetTile(unit.Position)!, 5);
+                    _canvas.Polygon(corners, healable ? Blue * 0.23f : Red * 0.28f);
+                    _canvas.Outline(corners, healable ? Blue : Red, 3);
+                }
             }
         }
         if (_hover is { } hover)
-            _canvas.Outline(_field.Layout.Corners(Battle.Map.GetTile(hover)!, 2), Gold * 0.7f, 1);
+            _canvas.Outline(_field.Layout.Corners(Battle.Map.GetTile(hover)!, 2),
+                CursorColor(GetCursorKind(hover)), 3);
+    }
+
+    private enum CursorKind { Move, Attack, Heal, InRange, Blocked }
+
+    private CursorKind GetCursorKind(HexCoord coordinate)
+    {
+        if (!_interaction.IsPlayerTurn || Battle.ActiveUnit is not { } active) return CursorKind.Blocked;
+        var occupant = Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == coordinate);
+        if (_healMode)
+            return occupant is { } ally && ally.Id != active.Id && ally.Side == active.Side &&
+                ally.RemainingHitPoints < ally.MaximumHitPointsAtBattleStart && !Battle.HasAttacked(active.Id)
+                ? CursorKind.Heal : CursorKind.Blocked;
+        if (occupant is not null)
+            return occupant.Side != active.Side && !Battle.HasAttacked(active.Id) &&
+                BattleRules.CanAttack(active, occupant, Battle.Map) ? CursorKind.Attack : CursorKind.Blocked;
+        if (_reachable.Contains(coordinate)) return CursorKind.Move;
+        return _attackArea.Contains(coordinate) ? CursorKind.InRange : CursorKind.Blocked;
+    }
+
+    private static Color CursorColor(CursorKind kind) => kind switch
+    {
+        CursorKind.Move => Green,
+        CursorKind.Attack => Red,
+        CursorKind.Heal => Blue,
+        CursorKind.InRange => Gold,
+        _ => new Color(120, 104, 91)
+    };
+
+    private void DrawActionCursor()
+    {
+        if (_hover is not { } coordinate || !_interaction.IsPlayerTurn) return;
+        var kind = GetCursorKind(coordinate);
+        var previewPoint = _field.Layout.Center(Battle.Map.GetTile(coordinate)!);
+        var mouseX = _currentMouse.X == 0 && _currentMouse.Y == 0 ? (int)previewPoint.X : _currentMouse.X;
+        var mouseY = _currentMouse.X == 0 && _currentMouse.Y == 0 ? (int)previewPoint.Y : _currentMouse.Y;
+        var x = Math.Clamp(mouseX + (kind == CursorKind.Attack ? 22 : -13), 4, 1246);
+        var y = Math.Clamp(mouseY + (kind == CursorKind.Attack ? 10 : -37), 4, 570);
+        var color = CursorColor(kind);
+        _canvas.Rect(x, y, 26, 25, new Color(39, 32, 23) * 0.9f);
+        _canvas.Frame(x, y, 26, 25, color, 2);
+        var a = new Vector2(x + 6, y + 6);
+        var b = new Vector2(x + 19, y + 18);
+        if (kind == CursorKind.Move)
+        {
+            _canvas.Line(new Vector2(x + 6, y + 18), new Vector2(x + 19, y + 7), color, 3);
+            _canvas.Line(new Vector2(x + 12, y + 7), new Vector2(x + 19, y + 7), color, 3);
+            _canvas.Line(new Vector2(x + 19, y + 7), new Vector2(x + 19, y + 14), color, 3);
+        }
+        else if (kind == CursorKind.Heal)
+        {
+            _canvas.Rect(x + 11, y + 5, 4, 15, color);
+            _canvas.Rect(x + 6, y + 10, 14, 4, color);
+        }
+        else if (kind == CursorKind.Attack)
+        {
+            _canvas.Line(a, b, color, 3);
+            _canvas.Line(new Vector2(x + 19, y + 6), new Vector2(x + 6, y + 18), color, 3);
+            _canvas.Line(new Vector2(x + 5, y + 14), new Vector2(x + 10, y + 19), Gold, 2);
+        }
+        else if (kind == CursorKind.InRange)
+        {
+            _canvas.Frame(x + 8, y + 7, 10, 10, color, 2);
+            _canvas.Line(new Vector2(x + 13, y + 4), new Vector2(x + 13, y + 20), color, 1);
+            _canvas.Line(new Vector2(x + 5, y + 12), new Vector2(x + 21, y + 12), color, 1);
+        }
+        else
+        {
+            _canvas.Line(a, b, color, 2);
+            _canvas.Line(new Vector2(x + 19, y + 6), new Vector2(x + 6, y + 18), color, 2);
+        }
     }
 
     private void DrawUnit(BattleUnit unit)

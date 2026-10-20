@@ -32,6 +32,7 @@ public sealed class HumanUnitMechanicsTests
 
         Assert.False(BattleRules.CanAttack(inquisitor, distant, battle.Map));
         Assert.True(battle.TrySetAttackMode(inquisitor.Id, AttackMode.HolyFire));
+        Assert.Equal(6, BattleRules.GetEffectiveRange(inquisitor, battle.Map.GetTile(distant.Position)!));
         Assert.True(BattleRules.CanAttack(inquisitor, distant, battle.Map));
         Assert.True(battle.Attack(inquisitor.Id, distant.Id));
         Assert.False(battle.TrySetAttackMode(inquisitor.Id, AttackMode.Hammer));

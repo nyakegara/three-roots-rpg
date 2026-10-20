@@ -86,6 +86,23 @@ public sealed class BattleRulesTests
         Assert.False(BattleRules.CanAttack(attacker, target, map));
     }
 
+    [Fact]
+    public void CanAttackTile_PreviewMatchesRealTargetRules()
+    {
+        var attacker = Unit("archer", BattleSide.Player, new HexCoord(0, 0), range: 6);
+        var clear = Unit("clear", BattleSide.Enemy, new HexCoord(4, 0));
+        var blocked = Unit("blocked", BattleSide.Enemy, new HexCoord(0, 3));
+        var map = new BattleMap(Enumerable.Range(0, 7).SelectMany(q =>
+            Enumerable.Range(0, 4).Select(r => new BattleTile(new HexCoord(q, r),
+                blocksLineOfSight: q == 0 && r == 2))));
+
+        Assert.True(BattleRules.CanAttackTile(attacker, map.GetTile(clear.Position)!, map));
+        Assert.True(BattleRules.CanAttack(attacker, clear, map));
+        Assert.False(BattleRules.CanAttackTile(attacker, map.GetTile(blocked.Position)!, map));
+        Assert.False(BattleRules.CanAttack(attacker, blocked, map));
+        Assert.False(BattleRules.CanAttackTile(attacker, map.GetTile(new HexCoord(0, 0))!, map));
+    }
+
     private static BattleUnit Unit(string id, BattleSide side, HexCoord position,
         int height = 0, int range = 1) =>
         new(id, side, position, count: 3, hitPointsPerCreature: 10, damagePerCreature: 2,

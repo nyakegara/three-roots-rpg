@@ -4,12 +4,33 @@ namespace Game.Core.Combat;
 
 public static class BattleRules
 {
+    public const int HolyFireRange = 6;
+
+    /// <summary>Whether a tile lies in this unit's current attack area, before checking its occupant.</summary>
+    public static bool CanAttackTile(BattleUnit attacker, BattleTile target, BattleMap map)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(map);
+        if (!attacker.IsAlive || !target.IsPassable || map.GetTile(attacker.Position)?.IsPassable != true)
+            return false;
+
+        var distance = attacker.Position.DistanceTo(target.Coordinate);
+        if (distance == 0) return false;
+        var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
+            attacker.AttackMode == AttackMode.HolyFire;
+        return ranged
+            ? distance <= GetEffectiveRange(attacker, target) &&
+              HasLineOfSight(attacker.Position, attacker.Height, target.Coordinate, target.Height, map)
+            : distance == 1;
+    }
+
     public static int GetEffectiveRange(BattleUnit attacker, BattleTile target)
     {
         ArgumentNullException.ThrowIfNull(attacker);
         ArgumentNullException.ThrowIfNull(target);
         var baseRange = attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire
-            ? 4 : attacker.Range;
+            ? HolyFireRange : attacker.Range;
         return baseRange + (attacker.Height > target.Height && (attacker.IsRanged ||
             attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire) ? 2 : 0);
     }
@@ -27,15 +48,7 @@ public static class BattleRules
             return false;
         }
 
-        var distance = attacker.Position.DistanceTo(target.Position);
-        if (!attacker.IsRanged && !(attacker.Ability == UnitAbility.RadiantModes &&
-                                     attacker.AttackMode == AttackMode.HolyFire))
-        {
-            return distance == 1;
-        }
-
-        return distance <= GetEffectiveRange(attacker, targetTile) &&
-               HasLineOfSight(attacker.Position, attacker.Height, target.Position, targetTile.Height, map);
+        return CanAttackTile(attacker, targetTile, map);
     }
 
     public static bool HasLineOfSight(HexCoord start, int startHeight, HexCoord end, int endHeight, BattleMap map)

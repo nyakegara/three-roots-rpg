@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Range, Target }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -70,6 +70,8 @@ public sealed record GameLaunchOptions
                 case "--screenshot-combat-magic":
                 case "--screenshot-combat-arrow-impact":
                 case "--screenshot-combat-magic-impact":
+                case "--screenshot-combat-range":
+                case "--screenshot-combat-target":
                 case "--screenshot-grid-descent":
                 case "--screenshot-recruitment":
                 case "--screenshot-recruitment-sun":
@@ -88,7 +90,8 @@ public sealed record GameLaunchOptions
         var combat = mode is "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
             or "--screenshot-combat-heal" or "--screenshot-combat-result"
             or "--screenshot-combat-arrow" or "--screenshot-combat-magic"
-            or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact";
+            or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
+            or "--screenshot-combat-range" or "--screenshot-combat-target";
         if ((hasSeed || night) && !battle && !combat)
             throw new ArgumentException("--seed and --night require --battle, --combat or their screenshot modes.");
         if (hasSeed && mode == "--screenshot-grid-descent")
@@ -116,6 +119,8 @@ public sealed record GameLaunchOptions
                 "--screenshot-combat-magic" => BattleCaptureStage.Magic,
                 "--screenshot-combat-arrow-impact" => BattleCaptureStage.ArrowImpact,
                 "--screenshot-combat-magic-impact" => BattleCaptureStage.MagicImpact,
+                "--screenshot-combat-range" => BattleCaptureStage.Range,
+                "--screenshot-combat-target" => BattleCaptureStage.Target,
                 _ => BattleCaptureStage.Opening
             },
             PreviewDescent = mode == "--screenshot-grid-descent",
