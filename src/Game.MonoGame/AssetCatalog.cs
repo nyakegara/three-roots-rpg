@@ -41,6 +41,9 @@ internal sealed class AssetCatalog : IDisposable
                      "unit.flora.pod-slinger", "unit.flora.root-warden",
                      "unit.human.militia", "unit.human.longbow", "unit.human.banner-knight",
                      "unit.human.order-hunter", "unit.human.inquisitor",
+                     "unit.human.militia.attack", "unit.human.longbow.attack",
+                     "unit.human.banner-knight.attack", "unit.human.order-hunter.attack",
+                     "unit.human.inquisitor.attack", "unit.human.longbow.released",
                      RootGreenhouse, SunnyClearing, SporeCircle,
                      BattlefieldForestDay, BattlefieldForestNight })
         {

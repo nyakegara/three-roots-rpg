@@ -340,11 +340,12 @@ internal sealed class BattleScreen : IGameScreen
             var bounds = new Rectangle(x - 28, y - 49, 56, 66);
             var actionFrame = _actionSeconds > 0f && _actionUnitId == unit.Id
                 ? Math.Min(7, (int)((0.8f - _actionSeconds) / 0.1f)) : -1;
-            // The older human action atlas contains miniature figures. Keep the new full-resolution
-            // silhouette visible during attacks and give it a short recoil until its poses are redrawn.
+            var humanAction = actionFrame >= 2 && actionFrame <= 5 &&
+                unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal) &&
+                _assets.HasAsset(key + ".attack");
             if (actionFrame >= 0 && unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal))
             {
-                var recoil = new[] { 0, 1, 3, 5, 5, 3, 1, 0 }[actionFrame];
+                var recoil = actionFrame switch { 0 or 7 => 0, 1 or 6 => 1, 2 or 5 => 2, _ => 3 };
                 bounds.Offset(unit.Side == BattleSide.Enemy ? -recoil : recoil, 0);
             }
             var animating = actionFrame >= 0 && !unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal) &&
@@ -352,7 +353,14 @@ internal sealed class BattleScreen : IGameScreen
                     new Rectangle(x - 28, y - 49, 56, 70),
                     actionFrame, _actionSecondary,
                     unit.Side == BattleSide.Enemy);
-            if (!animating && !_assets.TryDrawCropped(_canvas, key, bounds, unit.Side == BattleSide.Enemy) &&
+            var drawKey = key;
+            if (humanAction) drawKey = key + ".attack";
+            if (humanAction && unit.UnitTypeId == "human.longbow" && actionFrame >= 3 &&
+                _assets.HasAsset(key + ".released"))
+                drawKey = key + ".released";
+            var drawBounds = humanAction
+                ? new Rectangle(bounds.X - 11, bounds.Y, 78, bounds.Height) : bounds;
+            if (!animating && !_assets.TryDrawCropped(_canvas, drawKey, drawBounds, unit.Side == BattleSide.Enemy) &&
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
                 FantasyArt.DrawGuard(_canvas, x, y);
         }
