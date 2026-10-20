@@ -4206,7 +4206,7 @@
       "terrain": "mushroom-grove",
       "height": 0,
       "q": 4,
-      "road": true
+      "road": false
     },
     {
       "passable": true,
@@ -5451,291 +5451,6 @@
       "terrain": "burnt-forest",
       "height": 0,
       "q": 9,
-      "road": true
-    },
-    {
-      "passable": true,
-      "r": -14,
-      "requiredUnlock": "burnt-cleared",
-      "terrain": "burnt-forest",
-      "height": 0,
-      "q": 9,
-      "road": true
-    },
-    {
-      "passable": true,
-      "r": -13,
-      "requiredUnlock": "burnt-cleared",
-      "terrain": "burnt-forest",
-      "height": 0,
-      "q": 9,
-      "road": true
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "burnt-forest",
-      "r": -12,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "burnt-forest",
-      "r": -11,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -10,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -9,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -8,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -7,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -6,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -5,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -4,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -3,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -2,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": -1,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 0,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 1,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 2,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 3,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 4,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 5,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 6,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 7,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 8,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 9,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 10,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 11,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 12,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 13,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 9,
-      "terrain": "grass",
-      "r": 14,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 10,
-      "terrain": "burnt-forest",
-      "r": -20,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 10,
-      "terrain": "burnt-forest",
-      "r": -19,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": false,
-      "q": 10,
-      "terrain": "burnt-forest",
-      "r": -18,
-      "height": 0,
-      "road": false
-    },
-    {
-      "passable": true,
-      "r": -17,
-      "requiredUnlock": "north-gate",
-      "terrain": "burnt-forest",
-      "height": 0,
-      "q": 10,
-      "road": false
-    },
-    {
-      "passable": true,
-      "r": -16,
-      "requiredUnlock": "north-gate",
-      "terrain": "burnt-forest",
-      "height": 0,
-      "q": 10,
-      "road": true
-    },
-    {
-      "passable": true,
-      "r": -15,
-      "requiredUnlock": "north-gate",
-      "terrain": "burnt-forest",
-      "height": 0,
-      "q": 10,
       "road": false
     },
     {
@@ -5744,8 +5459,293 @@
       "requiredUnlock": "burnt-cleared",
       "terrain": "burnt-forest",
       "height": 0,
+      "q": 9,
+      "road": false
+    },
+    {
+      "passable": true,
+      "r": -13,
+      "requiredUnlock": "burnt-cleared",
+      "terrain": "burnt-forest",
+      "height": 0,
+      "q": 9,
+      "road": true
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "burnt-forest",
+      "r": -12,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "burnt-forest",
+      "r": -11,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -10,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -9,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -8,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -7,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -6,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -5,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -4,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -3,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -2,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": -1,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 0,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 1,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 2,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 3,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 4,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 5,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 6,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 7,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 8,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 9,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 10,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 11,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 12,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 13,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 9,
+      "terrain": "grass",
+      "r": 14,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 10,
+      "terrain": "burnt-forest",
+      "r": -20,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 10,
+      "terrain": "burnt-forest",
+      "r": -19,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": false,
+      "q": 10,
+      "terrain": "burnt-forest",
+      "r": -18,
+      "height": 0,
+      "road": false
+    },
+    {
+      "passable": true,
+      "r": -17,
+      "requiredUnlock": "north-gate",
+      "terrain": "burnt-forest",
+      "height": 0,
+      "q": 10,
+      "road": false
+    },
+    {
+      "passable": true,
+      "r": -16,
+      "requiredUnlock": "north-gate",
+      "terrain": "burnt-forest",
+      "height": 0,
       "q": 10,
       "road": true
+    },
+    {
+      "passable": true,
+      "r": -15,
+      "requiredUnlock": "north-gate",
+      "terrain": "burnt-forest",
+      "height": 0,
+      "q": 10,
+      "road": false
+    },
+    {
+      "passable": true,
+      "r": -14,
+      "requiredUnlock": "burnt-cleared",
+      "terrain": "burnt-forest",
+      "height": 0,
+      "q": 10,
+      "road": false
     },
     {
       "passable": true,
@@ -8230,7 +8230,7 @@
       "terrain": "grass",
       "r": -20,
       "height": 0,
-      "road": true
+      "road": false
     },
     {
       "passable": true,
@@ -8870,7 +8870,7 @@
       "terrain": "grass",
       "r": -10,
       "height": 0,
-      "road": true
+      "road": false
     },
     {
       "passable": true,
@@ -12475,7 +12475,7 @@
       "type": "gate",
       "q": 12,
       "id": "north-gate",
-      "r": -8
+      "r": -12
     },
     {
       "name": "Рыцари у выжженной рощи",

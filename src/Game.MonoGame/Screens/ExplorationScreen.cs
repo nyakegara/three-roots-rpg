@@ -106,7 +106,9 @@ internal sealed class ExplorationScreen : IGameScreen
         _pointsByCoordinate = map.PointsOfInterest.GroupBy(point => point.Coordinate)
             .ToDictionary(group => group.Key, group => (IReadOnlyList<WorldPointOfInterest>)group.ToArray());
         var floraMap = map.Id == "flora-01";
-        _projection = new AdventureMapProjection(map, floraMap ? 60 : 112, floraMap ? 40 : 56,
+        // Flora's commissioned island is a wide 2.2:1 map. Widen the horizontal
+        // projection to preserve its coastline and biome proportions at runtime.
+        _projection = new AdventureMapProjection(map, floraMap ? 88 : 112, floraMap ? 40 : 56,
             floraMap ? 5 : 10, floraMap ? 2 : 7);
         var start = map.StartPosition ?? throw new ArgumentException("The map needs a starting position.", nameof(map));
         string? restoreWarning = null;

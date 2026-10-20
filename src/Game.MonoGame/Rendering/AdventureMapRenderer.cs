@@ -26,6 +26,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         using var clip = canvas.PushClip(viewport);
         var hasScenicGround = DrawGround(map, projection, camera);
         if (!hasScenicGround) DrawWater(map, projection, camera);
+        DrawRoadNetwork(map, projection, camera);
         DrawRoute(map, projection, camera, route);
 
         var objects = new List<(float Depth, Action Draw)>();
@@ -97,23 +98,23 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     {
         var keys = new[]
         {
-            AssetCatalog.FloraIslandNorthWest, AssetCatalog.FloraIslandNorth, AssetCatalog.FloraIslandNorthEast,
-            AssetCatalog.FloraIslandSouthWest, AssetCatalog.FloraIslandSouth, AssetCatalog.FloraIslandSouthEast
+            AssetCatalog.FloraIslandNorthWest, AssetCatalog.FloraIslandNorthEast,
+            AssetCatalog.FloraIslandSouthWest, AssetCatalog.FloraIslandSouthEast
         };
         if (keys.Any(key => !assets.HasAsset(key))) return false;
 
-        var tileWidth = projection.WorldSize.X / 3f;
+        var tileWidth = projection.WorldSize.X / 2f;
         var tileHeight = projection.WorldSize.Y / 2f;
         var destinations = new Rectangle[keys.Length];
         for (var index = 0; index < keys.Length; index++)
         {
-            var column = index % 3;
-            var row = index / 3;
-            destinations[index] = new Rectangle(
-                (int)MathF.Round(column * tileWidth - camera.Position.X),
-                (int)MathF.Round(row * tileHeight - camera.Position.Y),
-                (int)MathF.Round(tileWidth),
-                (int)MathF.Round(tileHeight));
+            var column = index % 2;
+            var row = index / 2;
+            var left = (int)MathF.Round(column * tileWidth - camera.Position.X);
+            var right = (int)MathF.Round((column + 1) * tileWidth - camera.Position.X);
+            var top = (int)MathF.Round(row * tileHeight - camera.Position.Y);
+            var bottom = (int)MathF.Round((row + 1) * tileHeight - camera.Position.Y);
+            destinations[index] = new Rectangle(left, top, right - left, bottom - top);
             assets.TryDraw(canvas, keys[index], destinations[index]);
         }
 
@@ -153,6 +154,42 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         }
     }
 
+    private void DrawRoadNetwork(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera)
+    {
+        var roads = map.Tiles.Where(tile => tile.IsRoad).ToDictionary(tile => tile.Coordinate);
+        foreach (var tile in roads.Values)
+        {
+            var from = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
+            foreach (var neighbor in tile.Coordinate.GetNeighbors())
+            {
+                if (!roads.TryGetValue(neighbor, out var next) ||
+                    tile.Coordinate.Q > neighbor.Q ||
+                    (tile.Coordinate.Q == neighbor.Q && tile.Coordinate.R >= neighbor.R))
+                    continue;
+
+                var to = camera.ToScreen(projection.Project(next.Coordinate, next.Height));
+                // Keep the trail quieter than the surrounding terrain. A wide,
+                // uniform stroke reads as a rail line on the isometric hex grid.
+                canvas.Line(new XnaVector2(from.X, from.Y + 3), new XnaVector2(to.X, to.Y + 3),
+                    new Color(140, 111, 73) * 0.48f, 6);
+
+                var distance = WorldVector2.Distance(from, to);
+                var stones = Math.Max(1, (int)(distance / 13));
+                var hash = unchecked((uint)(tile.Coordinate.Q * 7919 + tile.Coordinate.R * 1543));
+                for (var index = 1; index < stones; index += 3)
+                {
+                    var t = index / (float)stones;
+                    var point = WorldVector2.Lerp(from, to, t);
+                    hash = unchecked(hash * 1664525u + 1013904223u);
+                    var jitterX = (int)(hash % 9) - 4;
+                    var jitterY = (int)((hash >> 4) % 7) - 3;
+                    FantasyArt.Oval(canvas, (int)point.X + jitterX, (int)point.Y + jitterY + 3,
+                        2, 1, new Color(206, 174, 120) * 0.38f);
+                }
+            }
+        }
+    }
+
     private void DrawRock(WorldVector2 p)
     {
         var rect = new Rectangle((int)p.X - 29, (int)p.Y - 25, 58, 49);
@@ -171,10 +208,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         }
         else if (point.Type.Equals("gate", StringComparison.OrdinalIgnoreCase))
         {
-            // The scene art's vertical road passes about 96 px east of the logical
-            // interaction marker. Keep gameplay coordinates intact and place the
-            // cross-wall over the visible road.
-            AdventureGateArt.Draw(canvas, (int)p.X + 96, (int)p.Y, gateOpen);
+            AdventureGateArt.Draw(canvas, (int)p.X, (int)p.Y, gateOpen);
         }
         else if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase))
         {
