@@ -29,8 +29,8 @@ public sealed class CampaignBalanceTests
         Recruit("flora-tier-two", "flora.ember-bloom");
         Recruit("flora-tier-two", "flora.pod-slinger");
         Win("mountain-outpost");
-        Recruit("flora-tier-three", "flora.root-warden");
         Win("mushroom-outpost");
+        Recruit("flora-tier-three", "flora.root-warden");
         Win("final-landing");
 
         Assert.True(campaign.IsVictory);
@@ -38,6 +38,7 @@ public sealed class CampaignBalanceTests
 
         void Recruit(string siteId, string unitId)
         {
+            Assert.True(campaign.CanAccessRecruitmentSite(siteId), $"Recruitment site '{siteId}' is not unlocked.");
             var site = campaign.RecruitmentSites.Single(candidate => candidate.Id == siteId);
             var result = economy.TryRecruit(campaign.Hero, site, unitId, 1);
             Assert.True(result.Success, result.Message);
