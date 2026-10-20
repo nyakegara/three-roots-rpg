@@ -1,44 +1,412 @@
 {
   "id": "flora-01",
-  "name": "Песнь трёх корней",
-  "description": "Путница Лиара ищет источник, который связывает три рощи, пока люди прокладывают через лес железную дорогу.",
+  "name": "Защита острова",
+  "description": "Лиара, дриада высшего круга, прибывает с соседнего острова, чтобы помочь народу флоры отбить людей и спасти грибной аванпост.",
   "playerFactionId": "flora",
   "enemyFactionId": "human",
   "mapFile": "../maps/flora-01.json",
-  "hero": { "id": "liara", "name": "Лиара", "startingGold": 240 },
-  "recruitmentSites": [
-    { "id": "root-greenhouse", "pointOfInterestId": "root-greenhouse", "offers": [
-      { "unitId": "flora.thorn-guard", "startingStock": 15 },
-      { "unitId": "flora.sprout", "startingStock": 8 }
-    ] },
-    { "id": "sunny-clearing", "pointOfInterestId": "sunny-clearing", "offers": [
-      { "unitId": "flora.ember-bloom", "startingStock": 4 },
-      { "unitId": "flora.pod-slinger", "startingStock": 5 }
-    ] },
-    { "id": "spore-circle", "pointOfInterestId": "spore-circle", "offers": [
-      { "unitId": "flora.root-warden", "startingStock": 3 }
-    ] }
+  "hero": {
+    "id": "liara",
+    "name": "Лиара",
+    "startingGold": 240
+  },
+  "startingArmy": [
+    {
+      "unitId": "flora.thorn-guard",
+      "count": 12
+    },
+    {
+      "unitId": "flora.sprout",
+      "count": 3
+    }
   ],
-  "encounters": [
-    { "id": "road-patrol", "pointOfInterestId": "iron-road", "name": "Дозор у стройки", "seed": 20261019,
-      "enemyArmy": [
-        { "unitId": "human.militia", "count": 4 },
-        { "unitId": "human.spearman", "count": 2 },
-        { "unitId": "human.longbow", "count": 1 }
-      ], "goldReward": 60, "experienceReward": 60 }
+  "recruitmentSites": [
+    {
+      "id": "starting-clearing",
+      "pointOfInterestId": "starting-clearing",
+      "offers": [
+        {
+          "unitId": "flora.thorn-guard",
+          "startingStock": 18
+        },
+        {
+          "unitId": "flora.sprout",
+          "startingStock": 8
+        }
+      ]
+    },
+    {
+      "id": "peasant-recruitment",
+      "pointOfInterestId": "peasant-recruitment",
+      "allowForeignUnits": true,
+      "offers": [
+        {
+          "unitId": "human.militia",
+          "startingStock": 12
+        }
+      ]
+    },
+    {
+      "id": "flora-tier-two",
+      "pointOfInterestId": "flora-tier-two",
+      "offers": [
+        {
+          "unitId": "flora.ember-bloom",
+          "startingStock": 5
+        },
+        {
+          "unitId": "flora.pod-slinger",
+          "startingStock": 5
+        }
+      ]
+    },
+    {
+      "id": "flora-tier-three",
+      "pointOfInterestId": "flora-tier-three",
+      "offers": [
+        {
+          "unitId": "flora.root-warden",
+          "startingStock": 3
+        }
+      ]
+    }
   ],
   "quests": [
-    { "id": "spring-call", "title": "Голос родника", "pointOfInterestId": "spring-call", "choices": [
-      { "id": "share", "description": "Открыть воду беженцам: +20 золота, +1 репутация.", "goldChange": 20, "reputationChange": 1 },
-      { "id": "guard", "description": "Оставить воду роще: +45 золота, -1 репутация.", "goldChange": 45, "reputationChange": -1 }
-    ] },
-    { "id": "iron-road", "title": "Железная дорога", "pointOfInterestId": "iron-road", "choices": [
-      { "id": "sabotage", "description": "Задержать стройку: +15 золота, +1 репутация.", "goldChange": 15, "reputationChange": 1 },
-      { "id": "bargain", "description": "Выкупить землю: -35 золота, +2 репутация.", "goldChange": -35, "reputationChange": 2 }
-    ] },
-    { "id": "seed-vault", "title": "Хранилище семян", "pointOfInterestId": "seed-vault", "choices": [
-      { "id": "restore", "description": "Вернуть семена рощам: +25 золота, +1 репутация.", "goldChange": 25, "reputationChange": 1 },
-      { "id": "sell", "description": "Продать редкие семена: +70 золота.", "goldChange": 70, "reputationChange": 0 }
-    ] }
-  ]
+    {
+      "id": "guide-introduction",
+      "title": "Весть с соседнего острова",
+      "pointOfInterestId": "guide-dialogue",
+      "narrative": "Кабачок-проводник: Лиара, люди уже высадились на нашем берегу. Они хотят выжечь лес и занять остров. Крестьяне на пастбище просят помощи, а дальше путь на север заперт. Грибной аванпост тоже в опасности.",
+      "choices": [
+        {
+          "id": "begin",
+          "description": "Выслушать проводника и защитить остров.",
+          "goldChange": 0,
+          "reputationChange": 0
+        }
+      ]
+    },
+    {
+      "id": "pasture-choice",
+      "title": "Спор на пастбище",
+      "pointOfInterestId": "pasture-request",
+      "narrative": "Крестьяне просят выгнать растения, которые нападают на их стада. За помощь они откроют наём крестьян. Можно отказать и прогнать людей: рощи это одобрят. В любом случае северные ворота откроются только после победы в бою.",
+      "choices": [
+        {
+          "id": "help",
+          "description": "Помочь крестьянам. Сразиться с растениями; после победы станет доступен найм крестьян.",
+          "goldChange": 0,
+          "reputationChange": 0
+        },
+        {
+          "id": "refuse",
+          "description": "Отказать людям и прогнать их. После победы репутация флоры повысится на 1.",
+          "goldChange": 0,
+          "reputationChange": 0
+        }
+      ]
+    },
+    {
+      "id": "artifact-ash-quest",
+      "title": "Пепельный оберег",
+      "pointOfInterestId": "artifact-ash",
+      "narrative": "Среди обугленных корней лежит древний оберег. Его охраняет отряд людей.",
+      "choices": [
+        {
+          "id": "claim",
+          "description": "Вызвать стража на бой. После победы оберег принесёт 75 золота.",
+          "goldChange": 0,
+          "reputationChange": 0
+        },
+        {
+          "id": "leave",
+          "description": "Оставить реликвию в покое.",
+          "goldChange": 0,
+          "reputationChange": 0
+        }
+      ]
+    },
+    {
+      "id": "artifact-spore-quest",
+      "title": "Споровый венец",
+      "pointOfInterestId": "artifact-spore",
+      "narrative": "В старой грибной роще спрятан споровый венец. Его страж не подпускает путников.",
+      "choices": [
+        {
+          "id": "claim",
+          "description": "Вызвать стража на бой. После победы венец принесёт 90 золота.",
+          "goldChange": 0,
+          "reputationChange": 0
+        },
+        {
+          "id": "leave",
+          "description": "Не тревожить стража.",
+          "goldChange": 0,
+          "reputationChange": 0
+        }
+      ]
+    }
+  ],
+  "encounters": [
+    {
+      "id": "plants-pasture-battle",
+      "pointOfInterestId": "plants-pasture-battle",
+      "name": "Растения на пастбище",
+      "seed": 50211,
+      "enemyFactionId": "flora",
+      "enemyArmy": [
+        {
+          "unitId": "flora.thorn-guard",
+          "count": 5
+        },
+        {
+          "unitId": "flora.pod-slinger",
+          "count": 2
+        }
+      ],
+      "goldReward": 35,
+      "experienceReward": 70
+    },
+    {
+      "id": "farmers-pasture-battle",
+      "pointOfInterestId": "farmers-pasture-battle",
+      "name": "Крестьяне на пастбище",
+      "seed": 50212,
+      "enemyArmy": [
+        {
+          "unitId": "human.militia",
+          "count": 4
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 1
+        }
+      ],
+      "goldReward": 25,
+      "experienceReward": 55
+    },
+    {
+      "id": "burned-forest",
+      "pointOfInterestId": "burned-forest",
+      "name": "Рыцари у выжженной рощи",
+      "seed": 50213,
+      "enemyArmy": [
+        {
+          "unitId": "human.banner-knight",
+          "count": 2
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 2
+        }
+      ],
+      "goldReward": 55,
+      "experienceReward": 90
+    },
+    {
+      "id": "mountain-outpost",
+      "pointOfInterestId": "mountain-outpost",
+      "name": "Горная застава",
+      "seed": 50214,
+      "battlefieldId": "mountain-outpost",
+      "enemyArmy": [
+        {
+          "unitId": "human.banner-knight",
+          "count": 2
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 2
+        },
+        {
+          "unitId": "human.order-hunter",
+          "count": 1
+        }
+      ],
+      "goldReward": 70,
+      "experienceReward": 120
+    },
+    {
+      "id": "mushroom-outpost",
+      "pointOfInterestId": "mushroom-outpost",
+      "name": "Осада грибного аванпоста",
+      "seed": 50215,
+      "enemyArmy": [
+        {
+          "unitId": "human.banner-knight",
+          "count": 2
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 2
+        },
+        {
+          "unitId": "human.inquisitor",
+          "count": 1
+        }
+      ],
+      "goldReward": 90,
+      "experienceReward": 150
+    },
+    {
+      "id": "final-landing",
+      "pointOfInterestId": "final-landing",
+      "name": "Последняя высадка",
+      "seed": 50216,
+      "enemyArmy": [
+        {
+          "unitId": "human.militia",
+          "count": 4
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 3
+        },
+        {
+          "unitId": "human.banner-knight",
+          "count": 2
+        },
+        {
+          "unitId": "human.order-hunter",
+          "count": 2
+        },
+        {
+          "unitId": "human.inquisitor",
+          "count": 1
+        }
+      ],
+      "goldReward": 0,
+      "experienceReward": 250
+    },
+    {
+      "id": "optional-patrol",
+      "pointOfInterestId": "optional-patrol",
+      "name": "Патруль у восточной тропы",
+      "seed": 50217,
+      "enemyArmy": [
+        {
+          "unitId": "human.militia",
+          "count": 3
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 1
+        }
+      ],
+      "goldReward": 45,
+      "experienceReward": 65
+    },
+    {
+      "id": "artifact-ash",
+      "pointOfInterestId": "artifact-ash-guard",
+      "name": "Страж пепельного оберега",
+      "seed": 50218,
+      "enemyArmy": [
+        {
+          "unitId": "human.banner-knight",
+          "count": 1
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 2
+        }
+      ],
+      "goldReward": 75,
+      "experienceReward": 65
+    },
+    {
+      "id": "artifact-spore",
+      "pointOfInterestId": "artifact-spore-guard",
+      "name": "Страж спорного венца",
+      "seed": 50219,
+      "enemyArmy": [
+        {
+          "unitId": "human.order-hunter",
+          "count": 2
+        },
+        {
+          "unitId": "human.inquisitor",
+          "count": 1
+        }
+      ],
+      "goldReward": 90,
+      "experienceReward": 75
+    }
+  ],
+  "progression": {
+    "encounters": {
+      "plants-pasture-battle": {
+        "questId": "pasture-choice",
+        "choiceId": "help"
+      },
+      "farmers-pasture-battle": {
+        "questId": "pasture-choice",
+        "choiceId": "refuse"
+      },
+      "burned-forest": {
+        "questId": "pasture-choice",
+        "requiredUnlockIds": [
+          "north-gate"
+        ]
+      },
+      "mountain-outpost": {
+        "requiredEncounterIds": [
+          "burned-forest"
+        ]
+      },
+      "mushroom-outpost": {
+        "requiredEncounterIds": [
+          "mountain-outpost"
+        ]
+      },
+      "final-landing": {
+        "requiredEncounterIds": [
+          "mushroom-outpost"
+        ]
+      },
+      "artifact-ash": {
+        "questId": "artifact-ash-quest",
+        "choiceId": "claim"
+      },
+      "artifact-spore": {
+        "questId": "artifact-spore-quest",
+        "choiceId": "claim"
+      }
+    },
+    "recruitmentSites": {
+      "peasant-recruitment": {
+        "requiredEncounterIds": [
+          "plants-pasture-battle"
+        ],
+        "questId": "pasture-choice",
+        "choiceId": "help"
+      },
+      "flora-tier-two": {
+        "requiredEncounterIds": [
+          "burned-forest"
+        ]
+      },
+      "flora-tier-three": {
+        "requiredEncounterIds": [
+          "mushroom-outpost"
+        ]
+      }
+    },
+    "unlockEncounterOptions": {
+      "north-gate": [
+        "plants-pasture-battle",
+        "farmers-pasture-battle"
+      ]
+    },
+    "unlockEncounterIds": {
+      "burnt-cleared": "burned-forest",
+      "mountain-route": "mountain-outpost",
+      "fungus-route": "mushroom-outpost"
+    },
+    "reputationRewards": {
+      "farmers-pasture-battle": 1
+    },
+    "victoryEncounterId": "final-landing",
+    "defeatOnArmyWipe": true
+  }
 }

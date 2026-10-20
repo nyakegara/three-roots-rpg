@@ -10,10 +10,8 @@ public static class CampaignCaptureSetup
     {
         ArgumentNullException.ThrowIfNull(campaign);
         var economy = new EconomyRules();
-        Buy("root-greenhouse", "flora.thorn-guard", 8);
-        Buy("root-greenhouse", "flora.sprout", 4);
-        Buy("sunny-clearing", "flora.ember-bloom", 2);
-        Buy("sunny-clearing", "flora.pod-slinger", 1);
+        Buy("starting-clearing", "flora.thorn-guard", 8);
+        Buy("starting-clearing", "flora.sprout", 4);
 
         void Buy(string siteId, string unitId, int count)
         {

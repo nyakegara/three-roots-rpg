@@ -12,9 +12,12 @@ public sealed class CampaignEncounter
     public IReadOnlyList<EncounterTroop> EnemyArmy { get; }
     public int GoldReward { get; }
     public int ExperienceReward { get; }
+    public string? EnemyFactionId { get; }
+    public string? BattlefieldId { get; }
 
     public CampaignEncounter(string id, string pointOfInterestId, string name, int seed,
-        IEnumerable<EncounterTroop> enemyArmy, int goldReward, int experienceReward)
+        IEnumerable<EncounterTroop> enemyArmy, int goldReward, int experienceReward,
+        string? enemyFactionId = null, string? battlefieldId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(pointOfInterestId);
@@ -34,6 +37,8 @@ public sealed class CampaignEncounter
         EnemyArmy = Array.AsReadOnly(troops);
         GoldReward = goldReward;
         ExperienceReward = experienceReward;
+        EnemyFactionId = string.IsNullOrWhiteSpace(enemyFactionId) ? null : enemyFactionId;
+        BattlefieldId = string.IsNullOrWhiteSpace(battlefieldId) ? null : battlefieldId;
     }
 }
 

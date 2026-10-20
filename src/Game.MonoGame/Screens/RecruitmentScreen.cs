@@ -28,6 +28,7 @@ internal sealed class RecruitmentScreen : IGameScreen
     private readonly UnitCatalog _units;
     private readonly EconomyRules _economy = new();
     private readonly Action _close;
+    private readonly Action _onChange;
     private readonly string _siteName;
     private MouseState _previousMouse;
     private KeyboardState _previousKeyboard;
@@ -36,7 +37,7 @@ internal sealed class RecruitmentScreen : IGameScreen
     private string _message = "ВЫБЕРИТЕ ОТРЯД И КОЛИЧЕСТВО";
 
     public RecruitmentScreen(PixelCanvas canvas, Hero hero, RecruitmentSite site,
-        UnitCatalog units, AssetCatalog assets, string siteName, Action close)
+        UnitCatalog units, AssetCatalog assets, string siteName, Action close, Action? onChange = null)
     {
         ArgumentNullException.ThrowIfNull(canvas);
         ArgumentNullException.ThrowIfNull(hero);
@@ -53,6 +54,7 @@ internal sealed class RecruitmentScreen : IGameScreen
         _units = units;
         _siteName = siteName;
         _close = close;
+        _onChange = onChange ?? (() => { });
         _selectedOffer = site.Offers.Count == 0 ? -1 : 0;
     }
 
@@ -216,7 +218,10 @@ internal sealed class RecruitmentScreen : IGameScreen
             ? $"НАБРАНО: {_units.Get(offer.UnitTypeId)?.Name ?? offer.UnitTypeId} X {_quantity}"
             : result.Message.ToUpperInvariant();
         if (result.Success)
+        {
             _quantity = offer.RemainingStock == 0 ? 0 : Math.Min(1, offer.RemainingStock);
+            _onChange();
+        }
     }
 
     private void DrawUnitMark(int centerX, int centerY, string unitId, bool large = false)

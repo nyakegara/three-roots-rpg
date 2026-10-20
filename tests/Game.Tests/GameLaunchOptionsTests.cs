@@ -71,7 +71,9 @@ public sealed class GameLaunchOptionsTests
     [Theory]
     [InlineData("--screenshot", false, false, null)]
     [InlineData("--screenshot-quest-hover", false, true, null)]
-    [InlineData("--screenshot-recruitment", false, false, "root-greenhouse")]
+    [InlineData("--screenshot-gate-closed", false, false, null)]
+    [InlineData("--screenshot-gate-open", false, false, null)]
+    [InlineData("--screenshot-recruitment", false, false, "starting-clearing")]
     [InlineData("--screenshot-recruitment-sun", false, false, "sunny-clearing")]
     [InlineData("--screenshot-recruitment-spore", false, false, "spore-circle")]
     [InlineData("--screenshot-grid-descent", true, false, null)]
@@ -82,6 +84,16 @@ public sealed class GameLaunchOptionsTests
         Assert.Equal(hover, options.PreviewQuestHover);
         Assert.Equal(site, options.PreviewRecruitmentSiteId);
         Assert.Equal(mode == "--screenshot-grid-descent", options.PreviewDescent);
+    }
+
+    [Theory]
+    [InlineData("--screenshot-gate-closed", false)]
+    [InlineData("--screenshot-gate-open", true)]
+    public void GateScreenshotModesSelectTheRequestedModel(string mode, bool isOpen)
+    {
+        var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "gate.png")]);
+        Assert.True(options.PreviewNorthGate);
+        Assert.Equal(isOpen, options.PreviewNorthGateOpen);
     }
 
     [Theory]

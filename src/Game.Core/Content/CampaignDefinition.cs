@@ -45,12 +45,15 @@ public sealed class CampaignDefinition
     public IReadOnlyList<CampaignRecruitmentSite> RecruitmentSites { get; }
     public IReadOnlyList<CampaignQuest> Quests { get; }
     public IReadOnlyList<CampaignEncounter> Encounters { get; }
+    public IReadOnlyList<EncounterTroop> StartingArmy { get; }
+    public CampaignProgressionRules Progression { get; }
 
     internal CampaignDefinition(string id, string name, string description, string playerFactionId,
         string enemyFactionId, string mapFile, WorldMap map, string heroId, string heroName,
         int startingGold, IEnumerable<CampaignRecruitment> recruitment,
         IEnumerable<CampaignRecruitmentSite> recruitmentSites, IEnumerable<CampaignQuest> quests,
-        IEnumerable<CampaignEncounter> encounters)
+        IEnumerable<CampaignEncounter> encounters, IEnumerable<EncounterTroop>? startingArmy = null,
+        CampaignProgressionRules? progression = null)
     {
         Id = id;
         Name = name;
@@ -66,10 +69,18 @@ public sealed class CampaignDefinition
         RecruitmentSites = Array.AsReadOnly(recruitmentSites.ToArray());
         Quests = Array.AsReadOnly(quests.ToArray());
         Encounters = Array.AsReadOnly(encounters.ToArray());
+        StartingArmy = Array.AsReadOnly((startingArmy ?? []).ToArray());
+        Progression = progression ?? new CampaignProgressionRules();
     }
 
-    public Campaign CreateGameState() => new(new Hero(HeroId, HeroName, StartingGold),
-        Quests.Select(entry => entry.Quest), RecruitmentSites.Select(site => new Game.Core.Economy.RecruitmentSite(
+    public Campaign CreateGameState()
+    {
+        var hero = new Hero(HeroId, HeroName, StartingGold);
+        foreach (var troop in StartingArmy)
+            if (!hero.Army.TryAdd(troop.UnitTypeId, troop.Count))
+                throw new InvalidOperationException($"Could not add starting army stack '{troop.UnitTypeId}'.");
+        return new Campaign(hero, Quests.Select(entry => entry.Quest), RecruitmentSites.Select(site => new Game.Core.Economy.RecruitmentSite(
             site.Id, site.Offers.Select(offer => new Game.Core.Economy.RecruitmentOffer(
-                offer.UnitId, offer.UnitCost, offer.StartingStock)))), Encounters);
+                offer.UnitId, offer.UnitCost, offer.StartingStock)))), Encounters, Progression);
+    }
 }

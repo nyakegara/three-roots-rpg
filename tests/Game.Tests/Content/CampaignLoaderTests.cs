@@ -114,8 +114,9 @@ public sealed class CampaignLoaderTests : IDisposable
         Assert.All(campaigns, result => Assert.True(result.Success,
             string.Join(Environment.NewLine, result.Errors)));
         Assert.Equal(3, campaigns.Length);
-        Assert.All(campaigns, result => Assert.Equal(3, result.Definition!.Quests.Count));
-        Assert.All(campaigns, result => Assert.All(result.Definition!.Quests,
+        Assert.Equal(4, campaigns[0].Definition!.Quests.Count);
+        Assert.All(campaigns.Skip(1), result => Assert.Equal(3, result.Definition!.Quests.Count));
+        Assert.All(campaigns.Skip(1), result => Assert.All(result.Definition!.Quests,
             quest => Assert.Equal(2, quest.Quest.Choices.Count)));
         Assert.Empty(campaigns[0].Definition!.Recruitment);
         Assert.All(campaigns.Skip(1), result => Assert.Equal(5, result.Definition!.Recruitment.Count));
@@ -124,39 +125,45 @@ public sealed class CampaignLoaderTests : IDisposable
             .Select(result => result.Definition!.PlayerFactionId).Order(StringComparer.Ordinal).ToArray());
 
         var first = campaigns[0].Definition!;
-        Assert.Equal(3, first.RecruitmentSites.Count);
-        Assert.Equal(5, first.RecruitmentSites.Sum(site => site.Offers.Count));
-        Assert.Equal(new[] { "root-greenhouse", "spore-circle", "sunny-clearing" },
+        Assert.Equal(4, first.RecruitmentSites.Count);
+        Assert.Equal(6, first.RecruitmentSites.Sum(site => site.Offers.Count));
+        Assert.Equal(new[] { "flora-tier-three", "flora-tier-two", "peasant-recruitment", "starting-clearing" },
             first.RecruitmentSites.Select(site => site.Id).Order(StringComparer.Ordinal));
         Assert.All(first.RecruitmentSites, site => Assert.Contains(first.Map.PointsOfInterest,
             point => point.Id == site.PointOfInterestId && point.RecruitmentSiteId == site.Id &&
                      point.Type == "recruitment" && first.Map.GetTile(point.Coordinate)!.IsPassable));
         Assert.Equal(new[]
         {
-            ("root-greenhouse", "flora.thorn-guard", 15),
-            ("root-greenhouse", "flora.sprout", 8),
-            ("sunny-clearing", "flora.ember-bloom", 4),
-            ("sunny-clearing", "flora.pod-slinger", 5),
-            ("spore-circle", "flora.root-warden", 3)
+            ("starting-clearing", "flora.thorn-guard", 18),
+            ("starting-clearing", "flora.sprout", 8),
+            ("peasant-recruitment", "human.militia", 12),
+            ("flora-tier-two", "flora.ember-bloom", 5),
+            ("flora-tier-two", "flora.pod-slinger", 5),
+            ("flora-tier-three", "flora.root-warden", 3)
         }, first.RecruitmentSites.SelectMany(site => site.Offers.Select(offer =>
             (site.Id, offer.UnitId, offer.StartingStock))));
+        Assert.Equal(new[] { ("flora.thorn-guard", 12), ("flora.sprout", 3) },
+            first.StartingArmy.Select(stack => (stack.UnitTypeId, stack.Count)));
+        Assert.Null(first.Map.Tiles.Single(tile => tile.Coordinate == new Game.Core.Geometry.HexCoord(12, -8)).RequiredUnlock);
+        Assert.Equal("north-gate", first.Map.Tiles.Single(tile => tile.Coordinate == new Game.Core.Geometry.HexCoord(13, -8)).RequiredUnlock);
         Assert.Empty(campaigns[1].Definition!.RecruitmentSites);
         Assert.Empty(campaigns[2].Definition!.RecruitmentSites);
-        var encounter = Assert.Single(first.Encounters);
-        Assert.Equal("road-patrol", encounter.Id);
-        Assert.Equal("iron-road", encounter.PointOfInterestId);
-        Assert.Equal(new[] { ("human.militia", 4), ("human.spearman", 2), ("human.longbow", 1) },
-            encounter.EnemyArmy.Select(troop => (troop.UnitTypeId, troop.Count)));
+        Assert.Equal(9, first.Encounters.Count);
+        Assert.Contains(first.Encounters, encounter => encounter.Id == "mountain-outpost" &&
+            encounter.BattlefieldId == "mountain-outpost");
+        Assert.Contains(first.Encounters, encounter => encounter.Id == "final-landing" &&
+            new[] { "human.militia", "human.longbow", "human.banner-knight", "human.order-hunter", "human.inquisitor" }
+                .All(unitId => encounter.EnemyArmy.Any(troop => troop.UnitTypeId == unitId)));
         Assert.Empty(campaigns[1].Definition!.Encounters);
         Assert.Empty(campaigns[2].Definition!.Encounters);
         var state = first.CreateGameState();
         Assert.Equal(first.HeroName, state.Hero.Name);
         Assert.Equal(first.StartingGold, state.Hero.Gold);
-        Assert.Equal(3, state.Quests.Count);
-        Assert.Equal(3, state.RecruitmentSites.Count);
-        Assert.Same(encounter, Assert.Single(state.Encounters));
-        Assert.Equal(5, state.GetRecruitmentStockSnapshot().Count);
-        Assert.Equal(new[] { 3, 4, 5, 8, 15 }, state.GetRecruitmentStockSnapshot()
+        Assert.Equal(4, state.Quests.Count);
+        Assert.Equal(4, state.RecruitmentSites.Count);
+        Assert.Equal(first.Encounters.Count, state.Encounters.Count);
+        Assert.Equal(6, state.GetRecruitmentStockSnapshot().Count);
+        Assert.Equal(new[] { 3, 5, 5, 8, 12, 18 }, state.GetRecruitmentStockSnapshot()
             .Select(stock => stock.RemainingStock).Order().ToArray());
     }
 
@@ -166,9 +173,10 @@ public sealed class CampaignLoaderTests : IDisposable
         var result = UnitCatalog.Load(Path.Combine(AppContext.BaseDirectory, "content", "units", "units.json"));
 
         Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
-        Assert.Equal(15, result.Catalog!.Units.Count);
-        foreach (var faction in new[] { "flora", "human", "undead" })
-            Assert.Equal(5, result.Catalog.Units.Count(unit => unit.FactionId == faction));
+        Assert.Equal(17, result.Catalog!.Units.Count);
+        Assert.Equal(5, result.Catalog.Units.Count(unit => unit.FactionId == "flora"));
+        Assert.Equal(7, result.Catalog.Units.Count(unit => unit.FactionId == "human"));
+        Assert.Equal(5, result.Catalog.Units.Count(unit => unit.FactionId == "undead"));
         Assert.All(result.Catalog.Units, unit =>
         {
             Assert.InRange(unit.HitPoints, 5, 100);

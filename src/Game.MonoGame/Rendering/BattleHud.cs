@@ -29,15 +29,21 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
         var playerTurn = !battle.IsFinished && active?.Side == BattleSide.Player;
         var canHeal = playerTurn && active is { Ability: UnitAbility.HealAlly } &&
                       !battle.HasAttacked(active.Id);
+        var canChangeMode = playerTurn && active is { Ability: UnitAbility.RadiantModes } &&
+                            !battle.HasAttacked(active.Id);
 
         if (inspected is not null)
         {
             var name = units.Get(inspected.UnitTypeId)?.Name ?? inspected.UnitTypeId;
             var prefix = hoveredUnit is null ? "ХОД: " : "ЦЕЛЬ: ";
             _font.Draw(Shorten(prefix + name, 42), 110, 624, Text, 2);
+            var range = inspected.Ability == UnitAbility.RadiantModes && inspected.AttackMode == AttackMode.HolyFire
+                ? 4 : inspected.Range;
+            var mode = inspected.Ability == UnitAbility.RadiantModes
+                ? inspected.AttackMode == AttackMode.HolyFire ? "   РЕЖИМ: ОГОНЬ" : "   РЕЖИМ: МОЛОТ" : "";
             var details = $"БОЙЦОВ {inspected.Count}   ОЗ {inspected.RemainingHitPoints}/" +
                           $"{inspected.MaximumHitPointsAtBattleStart}   УРОН {inspected.DamagePerCreature} " +
-                          $"Х {inspected.Count}   ХОД {inspected.Movement}   ДАЛЬН. {inspected.Range}";
+                          $"Х {inspected.Count}   ХОД {inspected.Movement}   ДАЛЬН. {range}{mode}";
             _font.Draw(Shorten(details, 128), 110, 645, Muted, 1);
         }
         else
@@ -54,7 +60,8 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
         _font.Draw(activation, 450, 684, Muted, 1);
         _font.Draw("ЛКМ: ПУТЬ / ЦЕЛЬ    ESC: ВЫХОД    N: ДЕНЬ / НОЧЬ", 450, 701, Muted, 1);
 
-        DrawButton(HealButton, "H: ЛЕЧИТЬ", canHeal, canHeal && healMode);
+        DrawButton(HealButton, canChangeMode ? "M: РЕЖИМ" : "H: ЛЕЧИТЬ",
+            canHeal || canChangeMode, canHeal && healMode || canChangeMode && active!.AttackMode == AttackMode.HolyFire);
         DrawButton(EndTurnButton, "ENTER: ХОД", playerTurn, false);
         DrawButton(GridButton, "G: СЕТКА", true, showGrid);
         if (canHeal) _font.Draw("ЛЕЧЕНИЕ: ВЫБЕРИТЕ СОЮЗНИКА", 930, 684, Muted, 1);

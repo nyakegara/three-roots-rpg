@@ -17,6 +17,13 @@ internal sealed class AssetCatalog : IDisposable
     public const string ForestTree = "terrain.forest-tree";
     public const string Treasure = "poi.treasure";
     public const string AdventureGround = "exploration.ground";
+    public const string FloraIslandGround = "exploration.flora-island";
+    public const string FloraIslandNorthWest = "exploration.flora-island-nw";
+    public const string FloraIslandNorth = "exploration.flora-island-n";
+    public const string FloraIslandNorthEast = "exploration.flora-island-ne";
+    public const string FloraIslandSouthWest = "exploration.flora-island-sw";
+    public const string FloraIslandSouth = "exploration.flora-island-s";
+    public const string FloraIslandSouthEast = "exploration.flora-island-se";
     public const string RootGreenhouse = "poi.flora.root-greenhouse";
     public const string SunnyClearing = "poi.flora.sunny-clearing";
     public const string SporeCircle = "poi.flora.spore-circle";
@@ -27,7 +34,9 @@ internal sealed class AssetCatalog : IDisposable
     public AssetCatalog(GraphicsDevice device)
     {
         foreach (var key in new[] { FloraHero, HumanGuard, Rock, FloraPortrait,
-                     AncientOak, ForestTree, Treasure, AdventureGround,
+                     AncientOak, ForestTree, Treasure, AdventureGround, FloraIslandGround,
+                     FloraIslandNorthWest, FloraIslandNorth, FloraIslandNorthEast,
+                     FloraIslandSouthWest, FloraIslandSouth, FloraIslandSouthEast,
                      "unit.flora.sprout", "unit.flora.thorn-guard", "unit.flora.ember-bloom",
                      "unit.flora.pod-slinger", "unit.flora.root-warden",
                      RootGreenhouse, SunnyClearing, SporeCircle,

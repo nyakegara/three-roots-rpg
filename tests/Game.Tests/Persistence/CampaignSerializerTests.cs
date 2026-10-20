@@ -203,6 +203,8 @@ public sealed class CampaignSerializerTests
     [InlineData("skillIds")]
     [InlineData("artifactIds")]
     [InlineData("recruitmentStocks")]
+    [InlineData("completedEncounterIds")]
+    [InlineData("isDefeated")]
     public void Load_RejectsSaveMissingExplicitField(string field)
     {
         using var directory = new TemporaryDirectory();
@@ -261,7 +263,8 @@ public sealed class CampaignSerializerTests
         { "schemaVersion": {{schemaVersion}}, "campaignId": "flora-01", "heroId": "flora.hero", "heroName": "Liora",
           "mapId": "flora-01", "heroPosition": { "q": 0, "r": 0 }, "gold": 0,
           "reputation": 0, "experience": 0, "level": 1, "skillPoints": 0,
-          "army": [], "completedQuestIds": [], "selectedChoices": [], "skillIds": [], "artifactIds": [], "recruitmentStocks": [] }
+          "army": [], "completedQuestIds": [], "selectedChoices": [], "skillIds": [], "artifactIds": [], "recruitmentStocks": [],
+          "completedEncounterIds": [], "isDefeated": false }
         """;
 
     private sealed class TemporaryDirectory : IDisposable

@@ -1,4 +1,6 @@
 using Game.Core.Content;
+using Game.Core.Persistence;
+using Game.Core.Geometry;
 using Game.MonoGame.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,6 +18,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     private AssetCatalog _assets = null!;
     private IGameScreen _screen = null!;
     private RenderTarget2D _frame = null!;
+    private CampaignDefinition? _floraCampaign;
+    private UnitCatalog? _floraUnits;
 
     public Game1(GameLaunchOptions options)
     {
@@ -49,8 +53,40 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         else
         {
             var (campaign, units) = LoadFloraCampaign();
+            _floraCampaign = campaign;
+            _floraUnits = units;
+            CampaignSave? restoreSave = null;
+            string? saveWarning = null;
+            var canWriteSave = true;
+            var savePath = CampaignSavePath();
+            if (_options.ScreenshotPath is null && File.Exists(savePath))
+            {
+                var load = CampaignSerializer.Load(savePath);
+                if (load.Success) restoreSave = load.Save;
+                else
+                {
+                    System.Diagnostics.Trace.TraceWarning("Campaign save was not loaded: {0}", load.Message);
+                    canWriteSave = PreserveInvalidSave(savePath);
+                    saveWarning = canWriteSave
+                        ? "СТАРОЕ СОХРАНЕНИЕ НЕ ПРОЧИТАНО. НАЧИНАЕТСЯ НОВАЯ КАМПАНИЯ."
+                        : "СОХРАНЕНИЕ ПОВРЕЖДЕНО. ФАЙЛ СОХРАНЁН БЕЗ ИЗМЕНЕНИЙ, НОВЫЙ ПРОГРЕСС НЕ АВТОСОХРАНЯЕТСЯ.";
+                }
+            }
+            if (restoreSave is not null && !campaign.CreateGameState().TryRestoreSave(restoreSave,
+                    campaign.Id, campaign.PlayerFactionId, campaign.Map, units, out var restoreError))
+            {
+                System.Diagnostics.Trace.TraceWarning("Campaign save was rejected: {0}", restoreError);
+                restoreSave = null;
+                canWriteSave = PreserveInvalidSave(savePath);
+                saveWarning = canWriteSave
+                    ? "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ЭТОЙ ВЕРСИЕЙ КАМПАНИИ. НАЧИНАЕТСЯ НОВАЯ ИГРА."
+                    : "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ВЕРСИЕЙ ИГРЫ И НЕ ИЗМЕНЕНО. НОВЫЙ ПРОГРЕСС НЕ АВТОСОХРАНЯЕТСЯ.";
+            }
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
-                _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture);
+                _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture,
+                _options.PreviewNorthGate, _options.PreviewNorthGateOpen, restoreSave,
+                _options.ScreenshotPath is null && canWriteSave ? SaveCampaignProgress : null,
+                saveWarning);
         }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
             SurfaceFormat.Color, DepthFormat.None);
@@ -80,9 +116,44 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         return unitsResult.Catalog;
     }
 
+    private static string CampaignSavePath() => Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ThreeRoots", "saves", "flora-01.json");
+
+    private static bool PreserveInvalidSave(string savePath)
+    {
+        try
+        {
+            var backupPath = savePath + ".invalid-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmssfff") + ".bak";
+            File.Copy(savePath, backupPath, overwrite: false);
+            return true;
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or
+                                           ArgumentException or NotSupportedException)
+        {
+            System.Diagnostics.Trace.TraceWarning("Could not preserve the invalid save: {0}", exception.Message);
+            return false;
+        }
+    }
+
+    private static void SaveCampaignProgress(Game.Core.Campaigns.Campaign campaign, HexCoord position)
+    {
+        var save = campaign.CreateSave("flora-01", "flora-01", position);
+        var result = CampaignSerializer.Save(CampaignSavePath(), save);
+        if (!result.Success)
+            System.Diagnostics.Trace.TraceWarning("Campaign progress was not saved: {0}", result.Message);
+    }
+
     protected override void Update(GameTime gameTime)
     {
         var keyboard = Keyboard.GetState();
+        if (_screen is ExplorationScreen exploration &&
+            (exploration.IsCampaignDefeated || exploration.IsCampaignVictory) &&
+            keyboard.IsKeyDown(Keys.R) && !_previousKeyboard.IsKeyDown(Keys.R) &&
+            _floraCampaign is not null && _floraUnits is not null)
+        {
+            _screen = new ExplorationScreen(_canvas, _assets, _floraCampaign, _floraUnits,
+                exit: Exit, saveProgress: SaveCampaignProgress);
+        }
         if (keyboard.IsKeyDown(Keys.Escape) && !_previousKeyboard.IsKeyDown(Keys.Escape) &&
             _screen is not ExplorationScreen { HasOpenModal: true })
             Exit();

@@ -10,7 +10,7 @@ public static class CampaignSerializer
     [
         "schemaVersion", "campaignId", "heroId", "heroName", "mapId", "heroPosition", "gold",
         "reputation", "experience", "level", "skillPoints", "army", "completedQuestIds",
-        "selectedChoices", "skillIds", "artifactIds", "recruitmentStocks"
+        "selectedChoices", "skillIds", "artifactIds", "recruitmentStocks", "completedEncounterIds", "isDefeated"
     ];
 
     private static readonly JsonSerializerOptions JsonOptions = new()

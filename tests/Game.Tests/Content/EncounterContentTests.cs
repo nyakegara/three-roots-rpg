@@ -16,7 +16,7 @@ public sealed class EncounterContentTests : IDisposable
         Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
         var encounter = Assert.Single(result.Definition!.Encounters);
         Assert.Equal("road-patrol", encounter.Id);
-        Assert.Equal("iron-road", encounter.PointOfInterestId);
+        Assert.Equal("pasture-request", encounter.PointOfInterestId);
         Assert.Equal("Дозор у стройки", encounter.Name);
         Assert.Equal(20261019, encounter.Seed);
         Assert.Equal(60, encounter.GoldReward);
@@ -42,7 +42,7 @@ public sealed class EncounterContentTests : IDisposable
     [InlineData("name", "null", "name")]
     [InlineData("seed", "null", "seed")]
     [InlineData("pointOfInterestId", "\"missing-point\"", "missing point")]
-    [InlineData("pointOfInterestId", "\"root-greenhouse\"", "recruitment")]
+    [InlineData("pointOfInterestId", "\"starting-clearing\"", "recruitment")]
     [InlineData("goldReward", "-1", "goldReward")]
     [InlineData("goldReward", "null", "goldReward")]
     [InlineData("experienceReward", "-1", "experienceReward")]
@@ -111,7 +111,7 @@ public sealed class EncounterContentTests : IDisposable
     }
 
     private const string ValidEncounter = """
-        {"id":"road-patrol","pointOfInterestId":"iron-road","name":"Дозор у стройки","seed":20261019,
+        {"id":"road-patrol","pointOfInterestId":"pasture-request","name":"Дозор у стройки","seed":20261019,
          "enemyArmy":[{"unitId":"human.militia","count":4}],"goldReward":60,"experienceReward":60}
         """;
 
@@ -122,6 +122,7 @@ public sealed class EncounterContentTests : IDisposable
         Directory.CreateDirectory(Path.Combine(_folder, "maps"));
         File.Copy(Path.Combine(content, "maps", "flora-01.json"), Path.Combine(_folder, "maps", "flora-01.json"), true);
         var campaign = JsonNode.Parse(File.ReadAllText(Path.Combine(content, "campaigns", "flora-01.json")))!.AsObject();
+        campaign.Remove("progression");
         if (encounters is null) campaign.Remove("encounters");
         else campaign["encounters"] = JsonNode.Parse(encounters);
         var path = Path.Combine(_folder, "campaigns", "fixture.json");

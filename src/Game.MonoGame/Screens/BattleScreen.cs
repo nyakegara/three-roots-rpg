@@ -132,9 +132,20 @@ internal sealed class BattleScreen : IGameScreen
                 _message = "ХОД ПЕРЕДАН СЛЕДУЮЩЕМУ ОТРЯДУ.";
                 RefreshReachable();
             }
-            else if (Pressed(Keys.H) || clicked && BattleHud.HealButton.Contains(mouse.Position))
+            else if (Pressed(Keys.H) && Battle.ActiveUnit is { Ability: UnitAbility.HealAlly } ||
+                     Pressed(Keys.M) && Battle.ActiveUnit is { Ability: UnitAbility.RadiantModes } ||
+                     clicked && BattleHud.HealButton.Contains(mouse.Position))
             {
-                if (Battle.ActiveUnit is { Ability: UnitAbility.HealAlly } active && !Battle.HasAttacked(active.Id))
+                if (Battle.ActiveUnit is { Ability: UnitAbility.RadiantModes } inquisitor &&
+                    !Battle.HasAttacked(inquisitor.Id))
+                {
+                    var nextMode = inquisitor.AttackMode == AttackMode.Hammer ? AttackMode.HolyFire : AttackMode.Hammer;
+                    if (_interaction.TrySetAttackMode(nextMode))
+                        _message = nextMode == AttackMode.HolyFire
+                            ? "ИНКВИЗИТОР: СВЯЩЕННЫЙ ОГОНЬ, ДАЛЬНОСТЬ 4."
+                            : "ИНКВИЗИТОР: МОЛОТ, УДАР ПО СОСЕДНЕЙ КЛЕТКЕ.";
+                }
+                else if (Battle.ActiveUnit is { Ability: UnitAbility.HealAlly } active && !Battle.HasAttacked(active.Id))
                 {
                     _healMode = !_healMode;
                     _message = _healMode ? "ЛЕЧЕНИЕ: ЛКМ ПО РАНЕНОМУ СОЮЗНИКУ. +10 ОЗ ДО НАЧАЛЬНОГО МАКСИМУМА."
@@ -157,6 +168,8 @@ internal sealed class BattleScreen : IGameScreen
                     {
                         BattleActionType.Attack => Name(actor) + ": АТАКА ПО " + Name(Find(action.TargetId)!),
                         BattleActionType.Move => Name(actor) + ": ПЕРЕМЕЩЕНИЕ.",
+                        BattleActionType.SetAttackMode => Name(actor) + (action.Mode == AttackMode.HolyFire
+                            ? ": СВЯЩЕННЫЙ ОГОНЬ." : ": МОЛОТ."),
                         _ => Name(actor) + ": ХОД ЗАВЕРШЁН."
                     };
                 RefreshReachable();

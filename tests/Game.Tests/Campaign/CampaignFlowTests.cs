@@ -8,17 +8,18 @@ namespace Game.Tests.Campaigns;
 public sealed class CampaignFlowTests
 {
     [Fact]
-    public void CapturePartyUsesNormalGoldAndStockAndRegularCampaignStartsEmpty()
+    public void CampaignStartsWithStoryArmyAndCapturePartyUsesNormalGoldAndStock()
     {
         var (definition, _) = Load();
         var campaign = definition.CreateGameState();
-        Assert.Empty(campaign.Hero.Army.Stacks);
+        Assert.Equal(new[] { ("flora.thorn-guard", 12), ("flora.sprout", 3) },
+            campaign.Hero.Army.Stacks.Select(stack => (stack.UnitTypeId, stack.Count)));
         CampaignCaptureSetup.RecruitParty(campaign);
-        Assert.Equal(34, campaign.Hero.Gold);
-        Assert.Equal(4, campaign.Hero.Army.Stacks.Count);
-        Assert.Equal(7, campaign.RecruitmentSites.Single(site => site.Id == "root-greenhouse")
+        Assert.Equal(128, campaign.Hero.Gold);
+        Assert.Equal(2, campaign.Hero.Army.Stacks.Count);
+        Assert.Equal(10, campaign.RecruitmentSites.Single(site => site.Id == "starting-clearing")
             .GetOffer("flora.thorn-guard")!.RemainingStock);
-        Assert.Empty(definition.CreateGameState().Hero.Army.Stacks);
+        Assert.Equal(2, definition.CreateGameState().Hero.Army.Stacks.Count);
     }
 
     [Fact]
@@ -27,7 +28,7 @@ public sealed class CampaignFlowTests
         var (definition, units) = Load();
         var campaign = definition.CreateGameState();
         CampaignCaptureSetup.RecruitParty(campaign);
-        var encounter = Assert.Single(campaign.Encounters);
+        var encounter = campaign.Encounters.Single(candidate => candidate.Id == "optional-patrol");
         var point = definition.Map.PointsOfInterest.Single(poi => poi.Id == encounter.PointOfInterestId);
         var session = campaign.TryStartEncounter(point, point.Coordinate, units).Session!;
         var starting = campaign.Hero.Army.Stacks.ToDictionary(stack => stack.UnitTypeId, stack => stack.Count);
@@ -35,8 +36,8 @@ public sealed class CampaignFlowTests
         Assert.Equal(BattleSide.Player, session.Battle.Winner);
         var expected = session.Battle.GetOutcome().SurvivingPlayerStacks.ToDictionary(stack => stack.UnitTypeId, stack => stack.Count);
         Assert.True(campaign.ResolveEncounter(session).Success);
-        Assert.Equal(94, campaign.Hero.Gold);
-        Assert.Equal(60, campaign.Hero.Experience);
+        Assert.Equal(173, campaign.Hero.Gold);
+        Assert.Equal(65, campaign.Hero.Experience);
         Assert.Contains(encounter.Id, campaign.CompletedEncounterIds);
         foreach (var stack in campaign.Hero.Army.Stacks)
         {
@@ -46,7 +47,54 @@ public sealed class CampaignFlowTests
         Assert.Equal(expected.Count, campaign.Hero.Army.Stacks.Count);
         Assert.False(campaign.ResolveEncounter(session).Success);
         Assert.False(campaign.TryStartEncounter(point, point.Coordinate, units).Success);
-        Assert.Equal(94, campaign.Hero.Gold);
+        Assert.Equal(173, campaign.Hero.Gold);
+    }
+
+    [Theory]
+    [InlineData("artifact-ash-quest", "artifact-ash", 75)]
+    [InlineData("artifact-spore-quest", "artifact-spore", 90)]
+    public void ArtifactRewardIsGrantedByWinningEncounterNotByChoosingIt(string questId, string encounterId,
+        int expectedGold)
+    {
+        var (definition, _) = Load();
+        var campaign = definition.CreateGameState();
+        var startingGold = campaign.Hero.Gold;
+
+        var choice = campaign.ApplyChoice(questId, "claim");
+
+        Assert.True(choice.Success, choice.Message);
+        Assert.Equal(startingGold, campaign.Hero.Gold);
+        Assert.Equal(expectedGold, campaign.Encounters.Single(encounter => encounter.Id == encounterId).GoldReward);
+        Assert.True(campaign.CanAccessEncounter(encounterId));
+    }
+
+    [Fact]
+    public void CampaignSaveRestoresChoicePositionArmyAndRecruitmentStock()
+    {
+        var (definition, units) = Load();
+        var campaign = definition.CreateGameState();
+        var start = definition.Map.StartPosition!.Value;
+        Assert.True(campaign.ApplyChoice("guide-introduction", "begin").Success);
+        var site = campaign.RecruitmentSites.Single(candidate => candidate.Id == "starting-clearing");
+        var economy = new Game.Core.Economy.EconomyRules();
+        Assert.True(economy.TryRecruit(campaign.Hero, site, "flora.thorn-guard", 1).Success);
+        campaign.Hero.ChangeReputation(1);
+        campaign.Hero.GainExperience(115);
+        var save = campaign.CreateSave(definition.Id, definition.Map.Id, start);
+
+        var restored = definition.CreateGameState();
+
+        Assert.True(restored.TryRestoreSave(save, definition.Id, definition.PlayerFactionId,
+            definition.Map, units, out var error), error);
+        Assert.Equal(campaign.Hero.Gold, restored.Hero.Gold);
+        Assert.Equal(campaign.Hero.Reputation, restored.Hero.Reputation);
+        Assert.Equal(campaign.Hero.Level, restored.Hero.Level);
+        Assert.Equal(campaign.Hero.Experience, restored.Hero.Experience);
+        Assert.Equal(campaign.Hero.Army.Stacks.Select(stack => (stack.UnitTypeId, stack.Count)),
+            restored.Hero.Army.Stacks.Select(stack => (stack.UnitTypeId, stack.Count)));
+        Assert.Equal(campaign.SelectedChoiceIds, restored.SelectedChoiceIds);
+        Assert.Equal(17, restored.RecruitmentSites.Single(candidate => candidate.Id == "starting-clearing")
+            .GetOffer("flora.thorn-guard")!.RemainingStock);
     }
 
     private static (CampaignDefinition, UnitCatalog) Load()

@@ -4,7 +4,8 @@ namespace Game.Core.Campaigns;
 public sealed record CampaignAccessRequirement(
     IReadOnlyList<string> RequiredEncounterIds,
     string? QuestId = null,
-    string? ChoiceId = null);
+    string? ChoiceId = null,
+    IReadOnlyList<string>? RequiredUnlockIds = null);
 
 /// <summary>Content-defined progression; completed encounters are the source of truth for unlocks.</summary>
 public sealed class CampaignProgressionRules
@@ -12,6 +13,7 @@ public sealed class CampaignProgressionRules
     public IReadOnlyDictionary<string, CampaignAccessRequirement> EncounterRequirements { get; }
     public IReadOnlyDictionary<string, CampaignAccessRequirement> RecruitmentRequirements { get; }
     public IReadOnlyDictionary<string, string> UnlockEncounterIds { get; }
+    public IReadOnlyDictionary<string, IReadOnlyList<string>> UnlockEncounterOptions { get; }
     public IReadOnlyDictionary<string, int> EncounterReputationRewards { get; }
     public string? VictoryEncounterId { get; }
     public bool DefeatOnArmyWipe { get; }
@@ -22,16 +24,33 @@ public sealed class CampaignProgressionRules
         IReadOnlyDictionary<string, string>? unlockEncounterIds = null,
         IReadOnlyDictionary<string, int>? encounterReputationRewards = null,
         string? victoryEncounterId = null,
-        bool defeatOnArmyWipe = false)
+        bool defeatOnArmyWipe = false,
+        IReadOnlyDictionary<string, IReadOnlyList<string>>? unlockEncounterOptions = null)
     {
         EncounterRequirements = CopyRequirements(encounterRequirements);
         RecruitmentRequirements = CopyRequirements(recruitmentRequirements);
         UnlockEncounterIds = Copy(unlockEncounterIds);
+        UnlockEncounterOptions = CopyOptions(unlockEncounterOptions);
         EncounterReputationRewards = encounterReputationRewards is null
             ? new Dictionary<string, int>(StringComparer.Ordinal)
             : new Dictionary<string, int>(encounterReputationRewards, StringComparer.Ordinal);
         VictoryEncounterId = victoryEncounterId;
         DefeatOnArmyWipe = defeatOnArmyWipe;
+    }
+
+    private static IReadOnlyDictionary<string, IReadOnlyList<string>> CopyOptions(
+        IReadOnlyDictionary<string, IReadOnlyList<string>>? source)
+    {
+        var copy = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (var (id, encounterIds) in source ?? new Dictionary<string, IReadOnlyList<string>>())
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(id);
+            ArgumentNullException.ThrowIfNull(encounterIds);
+            if (encounterIds.Count == 0 || encounterIds.Any(string.IsNullOrWhiteSpace))
+                throw new ArgumentException("Unlock alternatives must contain encounter ids.", nameof(source));
+            copy.Add(id, Array.AsReadOnly(encounterIds.Distinct(StringComparer.Ordinal).ToArray()));
+        }
+        return copy;
     }
 
     private static IReadOnlyDictionary<string, CampaignAccessRequirement> CopyRequirements(
@@ -44,10 +63,11 @@ public sealed class CampaignProgressionRules
             ArgumentNullException.ThrowIfNull(requirement);
             if (requirement.RequiredEncounterIds is null ||
                 requirement.RequiredEncounterIds.Any(string.IsNullOrWhiteSpace) ||
+                requirement.RequiredUnlockIds?.Any(string.IsNullOrWhiteSpace) == true ||
                 (requirement.ChoiceId is not null && string.IsNullOrWhiteSpace(requirement.QuestId)))
                 throw new ArgumentException("Invalid campaign access requirement.", nameof(source));
             copy.Add(id, new CampaignAccessRequirement(requirement.RequiredEncounterIds.ToArray(),
-                requirement.QuestId, requirement.ChoiceId));
+                requirement.QuestId, requirement.ChoiceId, requirement.RequiredUnlockIds?.ToArray()));
         }
         return copy;
     }

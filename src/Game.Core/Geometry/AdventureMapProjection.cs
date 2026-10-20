@@ -15,12 +15,14 @@ public sealed class AdventureMapProjection
 
     public Vector2 WorldSize { get; }
 
-    public AdventureMapProjection(WorldMap map, float tileWidth, float tileHeight, float elevationStep)
+    public AdventureMapProjection(WorldMap map, float tileWidth, float tileHeight, float elevationStep,
+        float verticalPaddingTiles = 7)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(tileWidth);
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(tileHeight);
         ArgumentOutOfRangeException.ThrowIfNegative(elevationStep);
+        ArgumentOutOfRangeException.ThrowIfNegative(verticalPaddingTiles);
         if (map.Tiles.Count == 0) throw new ArgumentException("An adventure map needs at least one tile.", nameof(map));
 
         _map = map;
@@ -29,7 +31,7 @@ public sealed class AdventureMapProjection
         _elevationStep = elevationStep;
         var points = map.Tiles.Select(tile => ProjectRaw(tile.Coordinate, tile.Height)).ToArray();
         var horizontalPadding = tileWidth * 2;
-        var verticalPadding = tileHeight * 7;
+        var verticalPadding = tileHeight * verticalPaddingTiles;
         _minX = points.Min(point => point.X) - horizontalPadding;
         _minY = points.Min(point => point.Y) - verticalPadding;
         WorldSize = new Vector2(points.Max(point => point.X) - points.Min(point => point.X) + horizontalPadding * 2,

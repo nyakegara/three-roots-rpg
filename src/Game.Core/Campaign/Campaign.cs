@@ -36,8 +36,10 @@ public sealed class Campaign
         _completedEncounterIds.Contains(_progression.VictoryEncounterId);
     public bool IsDefeated { get; private set; }
     public bool IsUnlocked(string unlockId) => !string.IsNullOrWhiteSpace(unlockId) &&
-        _progression.UnlockEncounterIds.TryGetValue(unlockId, out var encounterId) &&
-        _completedEncounterIds.Contains(encounterId);
+        ((_progression.UnlockEncounterIds.TryGetValue(unlockId, out var encounterId) &&
+          _completedEncounterIds.Contains(encounterId)) ||
+         (_progression.UnlockEncounterOptions.TryGetValue(unlockId, out var encounterOptions) &&
+          encounterOptions.Any(_completedEncounterIds.Contains)));
     public bool CanAccessEncounter(string encounterId) => !IsDefeated && !IsVictory &&
         !_completedEncounterIds.Contains(encounterId) &&
         _encounters.Any(encounter => encounter.Id == encounterId) &&
@@ -45,6 +47,31 @@ public sealed class Campaign
     public bool CanAccessRecruitmentSite(string siteId) => !IsDefeated && !IsVictory &&
         _recruitmentSites.ContainsKey(siteId) &&
         Meets(_progression.RecruitmentRequirements.GetValueOrDefault(siteId));
+
+    public BattleMap CreateTravelMap(WorldMap map, HexCoord currentPosition)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        var markedLocations = map.PointsOfInterest.Select(point => point.Coordinate).ToHashSet();
+        var tiles = map.Tiles.Select(tile => new BattleTile(tile.Coordinate, tile.Height,
+            tile.IsPassable &&
+            (tile.IsRoad || markedLocations.Contains(tile.Coordinate) || tile.Coordinate == currentPosition) &&
+            (tile.Coordinate == currentPosition || tile.RequiredUnlock is null || IsUnlocked(tile.RequiredUnlock))));
+        return new BattleMap(tiles);
+    }
+
+    public WorldPointOfInterest? FindEncounterPointAt(WorldMap map, HexCoord coordinate)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        var candidates = map.PointsOfInterest
+            .Where(point => point.Coordinate == coordinate)
+            .Select(point => (Point: point, Encounter: _encounters.FirstOrDefault(encounter =>
+                encounter.PointOfInterestId == point.Id)))
+            .Where(candidate => candidate.Encounter is not null)
+            .ToArray();
+
+        return candidates.FirstOrDefault(candidate => CanAccessEncounter(candidate.Encounter!.Id)).Point ??
+               candidates.FirstOrDefault().Point;
+    }
 
     public bool TryGetRecruitmentSiteAt(WorldPointOfInterest point, HexCoord heroPosition,
         out RecruitmentSite? site)
@@ -121,7 +148,14 @@ public sealed class Campaign
                 return new(false, $"Unit type '{troop.UnitTypeId}' has missing or invalid battle values.");
         }
 
-        var field = new BattlefieldGenerator().Generate(encounter.Seed);
+        var field = encounter.BattlefieldId switch
+        {
+            null or "generated" => new BattlefieldGenerator().Generate(encounter.Seed),
+            "mountain-outpost" => MountainOutpostBattlefield.Create(encounter.Seed),
+            _ => null
+        };
+        if (field is null)
+            return new(false, $"Unknown battlefield '{encounter.BattlefieldId}'.");
         var units = Deploy(startingArmy, BattleSide.Player).Concat(Deploy(encounter.EnemyArmy, BattleSide.Enemy));
         var battle = new Battle(field.Map, units, new Random(encounter.Seed));
         _activeEncounter = new CampaignBattle(this, encounter, field, battle, startingArmy);
@@ -247,6 +281,102 @@ public sealed class Campaign
     public CampaignProgressSnapshot GetProgressSnapshot() => new(
         _completedEncounterIds.Order(StringComparer.Ordinal).ToArray(), IsDefeated);
 
+    public CampaignSave CreateSave(string campaignId, string mapId, HexCoord heroPosition)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(campaignId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(mapId);
+        return new CampaignSave(campaignId, Hero.Id, Hero.Name, mapId, heroPosition, Hero.Gold,
+            Hero.Reputation, Hero.Experience, Hero.Level, Hero.SkillPoints,
+            Hero.Army.Stacks.Select(stack => new SavedTroopStack(stack.UnitTypeId, stack.Count)).ToArray(),
+            _completedQuestIds.Order(StringComparer.Ordinal).ToArray(),
+            _selectedChoiceIds.OrderBy(pair => pair.Key, StringComparer.Ordinal)
+                .Select(pair => new SavedQuestChoice(pair.Key, pair.Value)).ToArray(),
+            Hero.Skills.Select(skill => skill.Id).ToArray(), Hero.Artifacts.Select(artifact => artifact.Id).ToArray())
+        {
+            RecruitmentStocks = GetRecruitmentStockSnapshot(),
+            CompletedEncounterIds = _completedEncounterIds.Order(StringComparer.Ordinal).ToArray(),
+            IsDefeated = IsDefeated
+        };
+    }
+
+    public bool TryRestoreSave(CampaignSave save, string campaignId, string playerFactionId,
+        WorldMap map, UnitCatalog units, out string error)
+    {
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(units);
+        error = "Campaign save restored.";
+        if (save is null || save.CompletedEncounterIds is null || save.CompletedQuestIds is null ||
+            save.SelectedChoices is null || save.RecruitmentStocks is null || save.Army is null ||
+            save.SkillIds is null || save.ArtifactIds is null ||
+            save.CampaignId != campaignId || save.HeroId != Hero.Id ||
+            save.HeroName != Hero.Name || save.MapId != map.Id || save.SkillIds.Count != 0 || save.ArtifactIds.Count != 0)
+            return Fail(out error, "Save belongs to another campaign or contains unsupported hero items.");
+
+        var positionTile = map.GetTile(save.HeroPosition);
+        if (positionTile is null || !positionTile.IsPassable)
+            return Fail(out error, "Saved hero position is missing or impassable.");
+
+        var completedEncounters = save.CompletedEncounterIds.ToHashSet(StringComparer.Ordinal);
+        if (completedEncounters.Count != save.CompletedEncounterIds.Count ||
+            completedEncounters.Any(id => !_encounters.Any(encounter => encounter.Id == id)))
+            return Fail(out error, "Saved encounter progress contains unknown or duplicate ids.");
+        if (save.SelectedChoices.Any(choice => choice is null || string.IsNullOrWhiteSpace(choice.QuestId) ||
+                string.IsNullOrWhiteSpace(choice.ChoiceId)))
+            return Fail(out error, "Saved quest choices contain empty ids.");
+        var selectedChoices = save.SelectedChoices.GroupBy(choice => choice.QuestId, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First().ChoiceId, StringComparer.Ordinal);
+        if (selectedChoices.Count != save.SelectedChoices.Count ||
+            selectedChoices.Any(choice => !_quests.TryGetValue(choice.Key, out var quest) ||
+                                          quest.GetChoice(choice.Value) is null) ||
+            !save.CompletedQuestIds.Order(StringComparer.Ordinal)
+                .SequenceEqual(selectedChoices.Keys.Order(StringComparer.Ordinal)))
+            return Fail(out error, "Saved choices and completed quests do not match this campaign.");
+        if (save.IsDefeated && (!_progression.DefeatOnArmyWipe || save.Army.Count != 0))
+            return Fail(out error, "Defeated save must belong to a campaign that ends on an army wipe and have no army.");
+        if (save.Army.Any(stack => stack is null || units.Get(stack.UnitId) is not { } unit ||
+                                   unit.FactionId != playerFactionId))
+            return Fail(out error, "Saved army contains unknown units or units from another faction.");
+        if (save.SkillIds.Count != 0 || save.ArtifactIds.Count != 0)
+            return Fail(out error, "This campaign build cannot restore skills or artifacts yet.");
+
+        if (save.RecruitmentStocks.Any(stock => stock is null || string.IsNullOrWhiteSpace(stock.SiteId) ||
+                string.IsNullOrWhiteSpace(stock.UnitId)))
+            return Fail(out error, "Saved recruitment stock contains invalid keys.");
+        var savedStocks = save.RecruitmentStocks.GroupBy(stock => (stock.SiteId, stock.UnitId))
+            .ToDictionary(group => group.Key, group => group.First().RemainingStock);
+        var expectedStocks = _recruitmentSites.Values.SelectMany(site => site.Offers.Select(offer =>
+            (Key: (site.Id, offer.UnitTypeId), offer.StartingStock))).ToArray();
+        if (savedStocks.Count != save.RecruitmentStocks.Count || savedStocks.Count != expectedStocks.Length ||
+            expectedStocks.Any(stock => !savedStocks.TryGetValue(stock.Key, out var count) ||
+                                        count < 0 || count > stock.StartingStock))
+            return Fail(out error, "Saved recruitment stock is incomplete or outside its valid range.");
+
+        if (save.IsDefeated && save.Army.Count != 0)
+            return Fail(out error, "Defeated save cannot contain a surviving army.");
+        if (positionTile.RequiredUnlock is { } requiredUnlock && !IsUnlockedInSave(requiredUnlock))
+            return Fail(out error, "Saved hero position is behind a locked route.");
+        if (!Hero.TryRestoreCampaignState(save.Gold, save.Reputation, save.Experience, save.Level,
+                save.SkillPoints, save.Army))
+            return Fail(out error, "Saved hero resources or army are invalid.");
+        if (!TryRestoreChoices(save.SelectedChoices) ||
+            !TryRestoreProgress(new CampaignProgressSnapshot(save.CompletedEncounterIds, save.IsDefeated)) ||
+            !TryRestoreRecruitmentStock(save.RecruitmentStocks).Success)
+            return Fail(out error, "Campaign progress could not be restored.");
+
+        return true;
+
+        bool IsUnlockedInSave(string unlockId) =>
+            _progression.UnlockEncounterIds.TryGetValue(unlockId, out var encounterId) && completedEncounters.Contains(encounterId) ||
+            _progression.UnlockEncounterOptions.TryGetValue(unlockId, out var encounterOptions) &&
+            encounterOptions.Any(completedEncounters.Contains);
+    }
+
+    private static bool Fail(out string error, string message)
+    {
+        error = message;
+        return false;
+    }
+
     public bool TryRestoreChoices(IReadOnlyList<SavedQuestChoice> choices)
     {
         if (choices is null || choices.Any(choice => choice is null ||
@@ -280,6 +410,7 @@ public sealed class Campaign
 
     private bool Meets(CampaignAccessRequirement? requirement) => requirement is null ||
         (requirement.RequiredEncounterIds.All(_completedEncounterIds.Contains) &&
+         (requirement.RequiredUnlockIds?.All(IsUnlocked) ?? true) &&
          (requirement.QuestId is null ||
           (_selectedChoiceIds.TryGetValue(requirement.QuestId, out var choiceId) &&
            (requirement.ChoiceId is null || choiceId == requirement.ChoiceId))));

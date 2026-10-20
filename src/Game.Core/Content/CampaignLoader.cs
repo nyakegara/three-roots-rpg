@@ -158,7 +158,8 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                     errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' references unknown unitId '{offer.UnitId}'."));
                     continue;
                 }
-                if (document.PlayerFactionId is not null && unit.FactionId != document.PlayerFactionId)
+                if (document.PlayerFactionId is not null && unit.FactionId != document.PlayerFactionId &&
+                    !site.AllowForeignUnits)
                 {
                     errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' offer '{offer.UnitId}' does not belong to player faction '{document.PlayerFactionId}'."));
                     continue;
@@ -226,7 +227,7 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                 choices.Add(new QuestChoice(choice.Id, choice.Description, choice.GoldChange, choice.ReputationChange));
             }
             if (choices.Count > 0) quests.Add(new CampaignQuest(quest.PointOfInterestId,
-                new Quest(quest.Id, quest.Title, choices)));
+                new Quest(quest.Id, quest.Title, choices, quest.PointOfInterestId, quest.Narrative)));
         }
         if (document.Quests is null || document.Quests.Count == 0)
             errors.Add(new ContentError(path, "Campaign must define at least one quest."));
@@ -252,6 +253,10 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
             Require(encounter.Name, "encounters.name", path, errors);
             if (encounter.Seed is null)
                 errors.Add(new ContentError(path, "Encounter requires an integer seed."));
+            var encounterFactionId = encounter.EnemyFactionId ?? document.EnemyFactionId;
+            if (!string.IsNullOrWhiteSpace(encounter.EnemyFactionId) &&
+                !units.Factions.Contains(encounter.EnemyFactionId, StringComparer.Ordinal))
+                errors.Add(new ContentError(path, $"Encounter references unknown enemyFactionId '{encounter.EnemyFactionId}'."));
             if (encounter.GoldReward is null or < 0)
                 errors.Add(new ContentError(path, "Encounter goldReward must be zero or a positive integer."));
             if (encounter.ExperienceReward is null or < 0)
@@ -293,23 +298,123 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                     errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' references unknown unitId '{troop.UnitId}'."));
                     continue;
                 }
-                if (unit.FactionId != document.EnemyFactionId)
-                    errors.Add(new ContentError(path, $"Encounter unit '{troop.UnitId}' does not belong to enemy faction '{document.EnemyFactionId}'."));
+                var expectedFaction = encounterFactionId;
+                if (unit.FactionId != expectedFaction)
+                    errors.Add(new ContentError(path, $"Encounter unit '{troop.UnitId}' does not belong to enemy faction '{expectedFaction}'."));
                 if ((long)unit.HitPoints * troop.Count.Value > int.MaxValue)
                     errors.Add(new ContentError(path, $"Encounter unit '{troop.UnitId}' total hit points exceed the integer limit."));
                 enemyArmy.Add(new EncounterTroop(unit.Id, troop.Count.Value));
             }
             if (errors.Count == initialErrorCount)
                 encounters.Add(new CampaignEncounter(encounter.Id!, encounter.PointOfInterestId!, encounter.Name!,
-                    encounter.Seed!.Value, enemyArmy, encounter.GoldReward!.Value, encounter.ExperienceReward!.Value));
+                    encounter.Seed!.Value, enemyArmy, encounter.GoldReward!.Value, encounter.ExperienceReward!.Value,
+                    encounter.EnemyFactionId, encounter.BattlefieldId));
         }
+
+        var progression = BuildProgression(document.Progression, encounters, recruitmentSites, quests, path, errors);
+        var startingArmy = new List<EncounterTroop>();
+        foreach (var troop in document.StartingArmy ?? [])
+        {
+            if (troop is null || string.IsNullOrWhiteSpace(troop.UnitId) || troop.Count is null or <= 0)
+            {
+                errors.Add(new ContentError(path, "Each startingArmy entry must define unitId and positive count."));
+                continue;
+            }
+            var unit = units.Get(troop.UnitId);
+            if (unit is null || unit.FactionId != document.PlayerFactionId)
+            {
+                errors.Add(new ContentError(path, $"Starting army references missing or non-player unit '{troop.UnitId}'."));
+                continue;
+            }
+            if (startingArmy.Any(entry => entry.UnitTypeId == troop.UnitId))
+                errors.Add(new ContentError(path, $"Starting army contains duplicate unit '{troop.UnitId}'."));
+            else startingArmy.Add(new EncounterTroop(troop.UnitId, troop.Count.Value));
+        }
+        if (startingArmy.Count > 5)
+            errors.Add(new ContentError(path, "Starting army must contain at most five stacks."));
 
         if (errors.Count > 0 || map is null || document.Hero is null)
             return new CampaignLoadResult(false, null, errors.AsReadOnly());
 
         return new CampaignLoadResult(true, new CampaignDefinition(document.Id!, document.Name!, document.Description!,
             document.PlayerFactionId!, document.EnemyFactionId!, mapPath, map, document.Hero.Id!, document.Hero.Name!,
-            document.Hero.StartingGold!.Value, recruitment, recruitmentSites, quests, encounters), Array.Empty<ContentError>());
+            document.Hero.StartingGold!.Value, recruitment, recruitmentSites, quests, encounters,
+            startingArmy, progression), Array.Empty<ContentError>());
+    }
+
+    private static CampaignProgressionRules BuildProgression(ProgressionDocument? definition,
+        IReadOnlyCollection<CampaignEncounter> encounters, IReadOnlyCollection<CampaignRecruitmentSite> sites,
+        IReadOnlyCollection<CampaignQuest> quests, string path, ICollection<ContentError> errors)
+    {
+        if (definition is null) return new CampaignProgressionRules();
+        var encounterIds = encounters.Select(encounter => encounter.Id).ToHashSet(StringComparer.Ordinal);
+        var questIds = quests.Select(entry => entry.Quest.Id).ToHashSet(StringComparer.Ordinal);
+        var siteIds = sites.Select(site => site.Id).ToHashSet(StringComparer.Ordinal);
+        var unlockIds = new HashSet<string>(StringComparer.Ordinal);
+        if (definition.UnlockEncounterIds is not null)
+            unlockIds.UnionWith(definition.UnlockEncounterIds.Keys);
+        if (definition.UnlockEncounterOptions is not null)
+            unlockIds.UnionWith(definition.UnlockEncounterOptions.Keys);
+        var encounterRequirements = BuildRequirements(definition.Encounters, encounterIds, encounterIds, questIds, unlockIds,
+            "encounter", path, errors);
+        var recruitmentRequirements = BuildRequirements(definition.RecruitmentSites, siteIds, encounterIds, questIds, unlockIds,
+            "recruitment site", path, errors);
+        var unlocks = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (id, encounterId) in definition.UnlockEncounterIds ?? new Dictionary<string, string?>())
+        {
+            if (string.IsNullOrWhiteSpace(id) || string.IsNullOrWhiteSpace(encounterId) || !encounterIds.Contains(encounterId))
+                errors.Add(new ContentError(path, $"Unlock '{id}' references an unknown encounter."));
+            else unlocks.Add(id, encounterId);
+        }
+        var alternatives = new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal);
+        foreach (var (id, options) in definition.UnlockEncounterOptions ?? new Dictionary<string, List<string>?>())
+        {
+            if (string.IsNullOrWhiteSpace(id) || options is null || options.Count == 0 || options.Any(option => !encounterIds.Contains(option)))
+            {
+                errors.Add(new ContentError(path, $"Unlock '{id}' must reference one or more known encounters."));
+                continue;
+            }
+            alternatives.Add(id, options);
+        }
+        var reputation = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var (encounterId, amount) in definition.ReputationRewards ?? new Dictionary<string, int>())
+        {
+            if (!encounterIds.Contains(encounterId)) errors.Add(new ContentError(path, $"Reputation reward references unknown encounter '{encounterId}'."));
+            else reputation.Add(encounterId, amount);
+        }
+        if (definition.VictoryEncounterId is not null && !encounterIds.Contains(definition.VictoryEncounterId))
+            errors.Add(new ContentError(path, $"Victory encounter '{definition.VictoryEncounterId}' is unknown."));
+        return new CampaignProgressionRules(encounterRequirements, recruitmentRequirements, unlocks, reputation,
+            definition.VictoryEncounterId, definition.DefeatOnArmyWipe, alternatives);
+    }
+
+    private static Dictionary<string, CampaignAccessRequirement> BuildRequirements(
+        Dictionary<string, AccessRequirementDocument?>? source, HashSet<string> validActionIds,
+        HashSet<string> validEncounterIds, HashSet<string> validQuestIds, HashSet<string> validUnlockIds,
+        string actionName, string path, ICollection<ContentError> errors)
+    {
+        var result = new Dictionary<string, CampaignAccessRequirement>(StringComparer.Ordinal);
+        foreach (var (id, requirement) in source ?? new Dictionary<string, AccessRequirementDocument?>())
+        {
+            if (!validActionIds.Contains(id) || requirement is null)
+            {
+                errors.Add(new ContentError(path, $"Progression references an unknown {actionName} '{id}'."));
+                continue;
+            }
+            var required = requirement.RequiredEncounterIds ?? [];
+            var requiredUnlocks = requirement.RequiredUnlockIds ?? [];
+            if (required.Any(id => string.IsNullOrWhiteSpace(id) || !validEncounterIds.Contains(id)) ||
+                requiredUnlocks.Any(id => string.IsNullOrWhiteSpace(id) || !validUnlockIds.Contains(id)) ||
+                requirement.QuestId is not null && !validQuestIds.Contains(requirement.QuestId) ||
+                requirement.ChoiceId is not null && string.IsNullOrWhiteSpace(requirement.QuestId))
+            {
+                errors.Add(new ContentError(path, $"Progression requirement for '{id}' is invalid."));
+                continue;
+            }
+            result.Add(id, new CampaignAccessRequirement(required, requirement.QuestId, requirement.ChoiceId,
+                requiredUnlocks));
+        }
+        return result;
     }
 
     private static void Require(string? value, string field, string path, ICollection<ContentError> errors)
@@ -333,6 +438,8 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
         public List<RecruitmentSiteDocument?>? RecruitmentSites { get; init; }
         public List<QuestDocument?>? Quests { get; init; }
         public List<EncounterDocument?>? Encounters { get; init; }
+        public List<EncounterTroopDocument?>? StartingArmy { get; init; }
+        public ProgressionDocument? Progression { get; init; }
     }
     private sealed class HeroDocument { public string? Id { get; init; } public string? Name { get; init; } public int? StartingGold { get; init; } }
     private sealed class EncounterDocument
@@ -344,6 +451,8 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
         public List<EncounterTroopDocument?>? EnemyArmy { get; init; }
         public int? GoldReward { get; init; }
         public int? ExperienceReward { get; init; }
+        public string? EnemyFactionId { get; init; }
+        public string? BattlefieldId { get; init; }
     }
     private sealed class EncounterTroopDocument { public string? UnitId { get; init; } public int? Count { get; init; } }
     private sealed class RecruitmentDocument { public string? UnitId { get; init; } public int? StartingStock { get; init; } }
@@ -351,6 +460,7 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
     {
         public string? Id { get; init; }
         public string? PointOfInterestId { get; init; }
+        public bool AllowForeignUnits { get; init; }
         public List<RecruitmentDocument?>? Offers { get; init; }
     }
     private sealed class QuestDocument
@@ -358,6 +468,7 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
         public string? Id { get; init; }
         public string? Title { get; init; }
         public string? PointOfInterestId { get; init; }
+        public string? Narrative { get; init; }
         public List<ChoiceDocument?>? Choices { get; init; }
     }
     private sealed class ChoiceDocument
@@ -366,5 +477,22 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
         public string? Description { get; init; }
         public int GoldChange { get; init; }
         public int ReputationChange { get; init; }
+    }
+    private sealed class ProgressionDocument
+    {
+        public Dictionary<string, AccessRequirementDocument?>? Encounters { get; init; }
+        public Dictionary<string, AccessRequirementDocument?>? RecruitmentSites { get; init; }
+        public Dictionary<string, string?>? UnlockEncounterIds { get; init; }
+        public Dictionary<string, List<string>?>? UnlockEncounterOptions { get; init; }
+        public Dictionary<string, int>? ReputationRewards { get; init; }
+        public string? VictoryEncounterId { get; init; }
+        public bool DefeatOnArmyWipe { get; init; }
+    }
+    private sealed class AccessRequirementDocument
+    {
+        public List<string>? RequiredEncounterIds { get; init; }
+        public List<string>? RequiredUnlockIds { get; init; }
+        public string? QuestId { get; init; }
+        public string? ChoiceId { get; init; }
     }
 }
