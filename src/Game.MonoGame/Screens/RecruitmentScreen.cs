@@ -132,7 +132,7 @@ internal sealed class RecruitmentScreen : IGameScreen
                 selected ? new Color(221, 209, 167) : SoftInk, 1);
             _font.Draw($"ОСТАЛОСЬ {offer.RemainingStock}", 570, y + 16,
                 selected ? Gold : Ink, 1);
-            var price = _economy.GetAdjustedUnitCost(_hero, offer);
+            var price = _economy.GetAdjustedUnitCost(_hero, _site, offer);
             _font.Draw(price is null ? "ЦЕНА —" : $"{price} ЗА ШТ.", 570, y + 39,
                 selected ? Parchment : SoftInk, 1);
         }
@@ -162,7 +162,7 @@ internal sealed class RecruitmentScreen : IGameScreen
         var plusBounds = RecruitmentLayout.QuantityPlusBounds;
         DrawButton(plusBounds.X, plusBounds.Y, plusBounds.Width, plusBounds.Height, "+", Parchment);
         var unitCost = _site.Offers[_selectedOffer] is { } selectedOffer
-            ? _economy.GetAdjustedUnitCost(_hero, selectedOffer) : null;
+            ? _economy.GetAdjustedUnitCost(_hero, _site, selectedOffer) : null;
         var total = unitCost is null ? 0L : (long)unitCost.Value * _quantity;
         _font.Draw($"ИТОГО: {(unitCost is null ? "---" : total.ToString())} ЗОЛОТА", 990, 359, Ink, 1);
         _font.Draw($"АРМИЯ {_hero.Army.Stacks.Count}/{Army.MaximumStacks}", 800, 408, Ink, 1);

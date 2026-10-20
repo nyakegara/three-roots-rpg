@@ -138,6 +138,12 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                 errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' must have at least one offer."));
                 continue;
             }
+            var siteFactionId = site.FactionId ?? document.PlayerFactionId;
+            if (string.IsNullOrWhiteSpace(siteFactionId))
+            {
+                errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' must define factionId or belong to a campaign with playerFactionId."));
+                continue;
+            }
             var offers = new List<CampaignRecruitmentOffer>();
             var offeredIds = new HashSet<string>(StringComparer.Ordinal);
             foreach (var offer in site.Offers)
@@ -158,15 +164,17 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                     errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' references unknown unitId '{offer.UnitId}'."));
                     continue;
                 }
-                if (document.PlayerFactionId is not null && unit.FactionId != document.PlayerFactionId &&
+                if (unit.FactionId != siteFactionId &&
                     !site.AllowForeignUnits)
                 {
-                    errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' offer '{offer.UnitId}' does not belong to player faction '{document.PlayerFactionId}'."));
+                    var factionContext = site.FactionId is null ? "player" : "settlement";
+                    errors.Add(new ContentError(path, $"Recruitment site '{site.Id}' offer '{offer.UnitId}' does not belong to {factionContext} faction '{siteFactionId}'."));
                     continue;
                 }
                 offers.Add(new CampaignRecruitmentOffer(unit.Id, offer.StartingStock.Value, unit.RecruitmentCost));
             }
-            if (offers.Count > 0) recruitmentSites.Add(new CampaignRecruitmentSite(site.Id, site.PointOfInterestId, offers));
+            if (offers.Count > 0) recruitmentSites.Add(new CampaignRecruitmentSite(site.Id,
+                site.PointOfInterestId, offers, siteFactionId));
         }
         if (recruitment.Count == 0 && recruitmentSites.Count == 0)
             errors.Add(new ContentError(path, "Campaign must offer at least one recruitable unit."));
@@ -460,6 +468,7 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
     {
         public string? Id { get; init; }
         public string? PointOfInterestId { get; init; }
+        public string? FactionId { get; init; }
         public bool AllowForeignUnits { get; init; }
         public List<RecruitmentDocument?>? Offers { get; init; }
     }

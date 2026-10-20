@@ -24,6 +24,7 @@
     {
       "id": "starting-clearing",
       "pointOfInterestId": "starting-clearing",
+      "factionId": "flora",
       "offers": [
         {
           "unitId": "flora.thorn-guard",
@@ -38,6 +39,7 @@
     {
       "id": "peasant-recruitment",
       "pointOfInterestId": "peasant-recruitment",
+      "factionId": "human",
       "allowForeignUnits": true,
       "offers": [
         {
@@ -49,6 +51,7 @@
     {
       "id": "flora-tier-two",
       "pointOfInterestId": "flora-tier-two",
+      "factionId": "flora",
       "offers": [
         {
           "unitId": "flora.ember-bloom",
@@ -63,6 +66,7 @@
     {
       "id": "flora-tier-three",
       "pointOfInterestId": "flora-tier-three",
+      "factionId": "flora",
       "offers": [
         {
           "unitId": "flora.root-warden",

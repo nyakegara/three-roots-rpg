@@ -9,13 +9,15 @@ public sealed class RecruitmentSite
     private readonly ReadOnlyCollection<RecruitmentOffer> _offerView;
 
     public string Id { get; }
+    public string? FactionId { get; }
     public IReadOnlyList<RecruitmentOffer> Offers => _offerView;
 
-    public RecruitmentSite(string id, IEnumerable<RecruitmentOffer> offers)
+    public RecruitmentSite(string id, IEnumerable<RecruitmentOffer> offers, string? factionId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentNullException.ThrowIfNull(offers);
         Id = id;
+        FactionId = string.IsNullOrWhiteSpace(factionId) ? null : factionId;
         _offers = new Dictionary<string, RecruitmentOffer>(StringComparer.Ordinal);
         foreach (var offer in offers)
         {

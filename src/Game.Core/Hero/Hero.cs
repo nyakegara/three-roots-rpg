@@ -17,6 +17,7 @@ public sealed class Hero
 
     public string Id { get; }
     public string Name { get; }
+    public string? FactionId { get; }
     public int Gold { get; private set; }
     public int Reputation { get; private set; }
     public int Level { get; private set; } = 1;
@@ -31,7 +32,7 @@ public sealed class Hero
     public IReadOnlyList<Artifact> Artifacts => _artifactView;
 
     public Hero(string id, string name, int startingGold = 0, int initialReputation = 0,
-        int baseAttack = 1, int baseDefense = 1, int baseMaxHitPoints = 10)
+        int baseAttack = 1, int baseDefense = 1, int baseMaxHitPoints = 10, string? factionId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -41,6 +42,7 @@ public sealed class Hero
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(baseMaxHitPoints);
         Id = id;
         Name = name;
+        FactionId = string.IsNullOrWhiteSpace(factionId) ? null : factionId;
         Gold = startingGold;
         Reputation = Math.Clamp(initialReputation, -3, 3);
         _baseAttack = baseAttack;

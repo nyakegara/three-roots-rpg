@@ -1,4 +1,5 @@
 using Game.Core.Content;
+using Game.Core.Economy;
 using Xunit;
 
 namespace Game.Tests.Content;
@@ -159,6 +160,15 @@ public sealed class CampaignLoaderTests : IDisposable
         var state = first.CreateGameState();
         Assert.Equal(first.HeroName, state.Hero.Name);
         Assert.Equal(first.StartingGold, state.Hero.Gold);
+        Assert.Equal("flora", state.Hero.FactionId);
+        var grove = state.RecruitmentSites.Single(site => site.Id == "starting-clearing");
+        var pasture = state.RecruitmentSites.Single(site => site.Id == "peasant-recruitment");
+        Assert.Equal("flora", grove.FactionId);
+        Assert.Equal("human", pasture.FactionId);
+        state.Hero.ChangeReputation(2);
+        var economy = new EconomyRules();
+        Assert.Equal(7, economy.GetAdjustedUnitCost(state.Hero, grove, grove.GetOffer("flora.thorn-guard")!));
+        Assert.Equal(16, economy.GetAdjustedUnitCost(state.Hero, pasture, pasture.GetOffer("human.militia")!));
         Assert.Equal(4, state.Quests.Count);
         Assert.Equal(4, state.RecruitmentSites.Count);
         Assert.Equal(first.Encounters.Count, state.Encounters.Count);

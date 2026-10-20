@@ -12,16 +12,19 @@ public sealed class CampaignRecruitmentSite
 {
     public string Id { get; }
     public string PointOfInterestId { get; }
+    public string FactionId { get; }
     public IReadOnlyList<CampaignRecruitmentOffer> Offers { get; }
 
     public CampaignRecruitmentSite(string id, string pointOfInterestId,
-        IEnumerable<CampaignRecruitmentOffer> offers)
+        IEnumerable<CampaignRecruitmentOffer> offers, string factionId)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(pointOfInterestId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(factionId);
         ArgumentNullException.ThrowIfNull(offers);
         Id = id;
         PointOfInterestId = pointOfInterestId;
+        FactionId = factionId;
         Offers = Array.AsReadOnly(offers.ToArray());
     }
 }
@@ -75,12 +78,12 @@ public sealed class CampaignDefinition
 
     public Campaign CreateGameState()
     {
-        var hero = new Hero(HeroId, HeroName, StartingGold);
+        var hero = new Hero(HeroId, HeroName, StartingGold, factionId: PlayerFactionId);
         foreach (var troop in StartingArmy)
             if (!hero.Army.TryAdd(troop.UnitTypeId, troop.Count))
                 throw new InvalidOperationException($"Could not add starting army stack '{troop.UnitTypeId}'.");
         return new Campaign(hero, Quests.Select(entry => entry.Quest), RecruitmentSites.Select(site => new Game.Core.Economy.RecruitmentSite(
             site.Id, site.Offers.Select(offer => new Game.Core.Economy.RecruitmentOffer(
-                offer.UnitId, offer.UnitCost, offer.StartingStock)))), Encounters, Progression);
+                offer.UnitId, offer.UnitCost, offer.StartingStock)), site.FactionId)), Encounters, Progression);
     }
 }
