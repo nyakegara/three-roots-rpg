@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Range, Target, RangedTarget }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -70,6 +70,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-combat-magic":
                 case "--screenshot-combat-arrow-impact":
                 case "--screenshot-combat-magic-impact":
+                case "--screenshot-combat-melee":
                 case "--screenshot-combat-range":
                 case "--screenshot-combat-target":
                 case "--screenshot-combat-ranged-target":
@@ -92,6 +93,7 @@ public sealed record GameLaunchOptions
             or "--screenshot-combat-heal" or "--screenshot-combat-result"
             or "--screenshot-combat-arrow" or "--screenshot-combat-magic"
             or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
+            or "--screenshot-combat-melee"
             or "--screenshot-combat-range" or "--screenshot-combat-target" or "--screenshot-combat-ranged-target";
         if ((hasSeed || night) && !battle && !combat)
             throw new ArgumentException("--seed and --night require --battle, --combat or their screenshot modes.");
@@ -120,6 +122,7 @@ public sealed record GameLaunchOptions
                 "--screenshot-combat-magic" => BattleCaptureStage.Magic,
                 "--screenshot-combat-arrow-impact" => BattleCaptureStage.ArrowImpact,
                 "--screenshot-combat-magic-impact" => BattleCaptureStage.MagicImpact,
+                "--screenshot-combat-melee" => BattleCaptureStage.Melee,
                 "--screenshot-combat-range" => BattleCaptureStage.Range,
                 "--screenshot-combat-target" => BattleCaptureStage.Target,
                 "--screenshot-combat-ranged-target" => BattleCaptureStage.RangedTarget,

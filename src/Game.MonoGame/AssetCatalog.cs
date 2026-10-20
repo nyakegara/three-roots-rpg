@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Game.MonoGame.Rendering;
 
 namespace Game.MonoGame;
 
@@ -30,6 +31,7 @@ internal sealed class AssetCatalog : IDisposable
     private readonly Dictionary<string, TextureAsset> _textures = new();
     private readonly Dictionary<string, Texture2D> _idleTextures = new();
     private readonly Dictionary<string, Texture2D> _actionTextures = new();
+    private readonly Dictionary<string, Rectangle[]> _actionFrameBounds = new();
 
     public AssetCatalog(GraphicsDevice device)
     {
@@ -93,7 +95,19 @@ internal sealed class AssetCatalog : IDisposable
             {
                 using var stream = File.OpenRead(path);
                 var texture = LoadPremultiplied(device, stream, out _);
-                if (texture.Width == 256 && texture.Height is 160 or 320) _actionTextures.Add(key, texture);
+                if (texture.Width == 256 && texture.Height is 160 or 320)
+                {
+                    var frames = new Rectangle[texture.Height / 80 * 4];
+                    var pixels = new Color[texture.Width * texture.Height];
+                    texture.GetData(pixels);
+                    for (var index = 0; index < frames.Length; index++)
+                    {
+                        var frame = new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80);
+                        frames[index] = ActionFrameLayout.FindVisibleBounds(pixels, texture.Width, frame);
+                    }
+                    _actionTextures.Add(key, texture);
+                    _actionFrameBounds.Add(key, frames);
+                }
                 else texture.Dispose();
             }
             catch (Exception exception) when (exception is IOException or InvalidOperationException)
@@ -138,7 +152,11 @@ internal sealed class AssetCatalog : IDisposable
     {
         if (!_actionTextures.TryGetValue(key, out var texture)) return false;
         var index = Math.Clamp(frame, 0, 7) + (secondary && texture.Height == 320 ? 8 : 0);
-        canvas.Texture(texture, new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80), destination, flipHorizontally);
+        var source = _actionFrameBounds[key][index];
+        if (source.IsEmpty)
+            source = new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80);
+        var fitted = ActionFrameLayout.FitToHeight(source, destination);
+        canvas.Texture(texture, source, fitted, flipHorizontally);
         return true;
     }
 
@@ -204,6 +222,7 @@ internal sealed class AssetCatalog : IDisposable
         _idleTextures.Clear();
         foreach (var texture in _actionTextures.Values) texture.Dispose();
         _actionTextures.Clear();
+        _actionFrameBounds.Clear();
     }
 
     private sealed record TextureAsset(Texture2D Texture, Rectangle ContentBounds);

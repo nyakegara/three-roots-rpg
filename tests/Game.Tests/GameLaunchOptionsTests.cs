@@ -29,6 +29,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-magic")]
     [InlineData("--screenshot-combat-arrow-impact")]
     [InlineData("--screenshot-combat-magic-impact")]
+    [InlineData("--screenshot-combat-melee")]
     [InlineData("--screenshot-combat-range")]
     [InlineData("--screenshot-combat-ranged-target")]
     public void PlayableCombatIsDistinctFromTerrainPreview(string mode)
@@ -44,6 +45,7 @@ public sealed class GameLaunchOptionsTests
             mode.EndsWith("-result") ? BattleCaptureStage.Result :
             mode.EndsWith("-arrow-impact") ? BattleCaptureStage.ArrowImpact :
             mode.EndsWith("-magic-impact") ? BattleCaptureStage.MagicImpact :
+            mode.EndsWith("-melee") ? BattleCaptureStage.Melee :
             mode.EndsWith("-range") ? BattleCaptureStage.Range :
             mode.EndsWith("-ranged-target") ? BattleCaptureStage.RangedTarget :
             mode.EndsWith("-arrow") ? BattleCaptureStage.Arrow :

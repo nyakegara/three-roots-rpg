@@ -39,21 +39,22 @@ internal sealed class BattleAttackEffect
     {
         if (_elapsed < Windup || IsFinished) return;
         var travel = Math.Clamp((_elapsed - Windup) / Flight, 0f, 1f);
+        if (_kind == Kind.Melee && travel < 1f)
+        {
+            var swing = MathHelper.Lerp(-0.95f, -0.15f, travel);
+            var slash = new Vector2(MathF.Cos(swing), MathF.Sin(swing));
+            var center = GetMeleeSlashCenter(_from, _to) + new Vector2(0, -8);
+            canvas.Line(center - slash * 12, center + slash * 12, new Color(44, 33, 25), 7);
+            canvas.Line(center - slash * 9, center + slash * 9, new Color(245, 225, 174), 3);
+            canvas.Rect((int)center.X - 2, (int)center.Y - 2, 4, 4, new Color(255, 245, 207));
+            return;
+        }
         if (travel < 1f)
         {
             var point = Vector2.Lerp(_from, _to, travel);
             var direction = Vector2.Normalize(_to - _from);
             if (!float.IsFinite(direction.X)) direction = Vector2.UnitX;
             var across = new Vector2(-direction.Y, direction.X);
-            if (_kind == Kind.Melee)
-            {
-                var swing = MathHelper.Lerp(-0.8f, 0.8f, travel);
-                var slash = new Vector2(MathF.Cos(swing), MathF.Sin(swing));
-                var center = Vector2.Lerp(point, _to, 0.65f);
-                canvas.Line(center - slash * 12, center + slash * 12, new Color(48, 37, 28), 6);
-                canvas.Line(center - slash * 10, center + slash * 10, new Color(230, 218, 177), 3);
-                return;
-            }
             var tail = point - direction * 28;
             var farTail = point - direction * 42;
             using (canvas.PushTint(Color.White))
@@ -137,6 +138,14 @@ internal sealed class BattleAttackEffect
             canvas.Line(new Vector2(x, y + 2), new Vector2(x, y - radius - 8), color * fade, 3);
         if (_kind == Kind.Spore)
             canvas.Rect(x - radius - 6, y - radius / 2, 4, 4, color * fade);
+    }
+
+    internal static Vector2 GetMeleeSlashCenter(Vector2 from, Vector2 to)
+    {
+        var direction = to - from;
+        if (direction.LengthSquared() > 0.001f) direction.Normalize();
+        else direction = Vector2.UnitX;
+        return from + direction * 14;
     }
 
     private enum Kind { Melee, Arrow, Vine, HealingLeaf, Ember, Spore, HolyFire }

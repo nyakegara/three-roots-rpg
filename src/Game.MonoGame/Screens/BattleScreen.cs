@@ -50,7 +50,6 @@ internal sealed class BattleScreen : IGameScreen
     private static readonly Color Red = new(210, 118, 89);
     private static readonly Color Blue = new(125, 195, 185);
     private static readonly int[] EdgeByNeighbor = [1, 0, 5, 4, 3, 2];
-    private const float ActionSpriteScale = 1.5f;
     private static readonly Rectangle RestartButton = new(444, 488, 186, 34);
     private static readonly Rectangle ExitButton = new(650, 488, 186, 34);
     private static readonly Rectangle ReturnButton = new(517, 488, 246, 34);
@@ -74,7 +73,7 @@ internal sealed class BattleScreen : IGameScreen
                     Battle.Units.All(unit => unit.Position != cell))
                 .OrderBy(cell => cell.DistanceTo(Battle.ActiveUnit!.Position))
                 .LastOrDefault();
-            _message = "ЗЕЛЕНЫЙ: ХОД. ЗОЛОТО: ДАЛЬНОСТЬ. КРАСНЫЙ: ДОСТУПНАЯ ЦЕЛЬ.";
+            _message = "ЗЕЛЁНЫЙ: ХОД. СВЕТЛОЕ ЗОЛОТО С ТЁМНОЙ ОБВОДКОЙ: ДАЛЬНОСТЬ. КРАСНЫЙ: ЦЕЛЬ.";
             return;
         }
         if (capture == BattleCaptureStage.Target)
@@ -92,8 +91,18 @@ internal sealed class BattleScreen : IGameScreen
             return;
         }
         if (capture is BattleCaptureStage.Arrow or BattleCaptureStage.Magic or
-            BattleCaptureStage.ArrowImpact or BattleCaptureStage.MagicImpact)
+            BattleCaptureStage.ArrowImpact or BattleCaptureStage.MagicImpact or BattleCaptureStage.Melee)
         {
+            if (capture == BattleCaptureStage.Melee)
+            {
+                var meleeActor = Battle.Units.First(unit => unit.UnitTypeId == "flora.thorn-guard");
+                var meleeTarget = Battle.Units.First(unit => unit.Side != meleeActor.Side);
+                BeginAttackAnimation(meleeActor, meleeTarget);
+                for (var frame = 0; frame < 4; frame++) _attackEffect!.Advance(0.1f);
+                _actionSeconds = 0.4f;
+                _message = "ПРЕДПРОСМОТР: УДАР КАБАЧКА БЕЗ СНАРЯДА.";
+                return;
+            }
             var arrow = capture is BattleCaptureStage.Arrow or BattleCaptureStage.ArrowImpact;
             var impact = capture is BattleCaptureStage.ArrowImpact or BattleCaptureStage.MagicImpact;
             var attackerId = arrow ? "human.longbow" : "flora.ember-bloom";
@@ -344,24 +353,20 @@ internal sealed class BattleScreen : IGameScreen
         if (_interaction.IsPlayerTurn && !_healMode)
         {
             if (Battle.ActiveUnit is { } active && !Battle.HasAttacked(active.Id))
+            {
+                foreach (var coordinate in _reachable)
+                {
+                    var corners = _field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 5);
+                    _canvas.Polygon(corners, Green * 0.28f);
+                    _canvas.Outline(corners, Green * 0.9f, 2);
+                }
                 foreach (var coordinate in _attackArea)
                 {
-                    var tile = Battle.Map.GetTile(coordinate)!;
-                    _canvas.Polygon(_field.Layout.Corners(tile, 5), Gold * 0.09f);
-                    var corners = _field.Layout.Corners(tile, 4);
-                    var neighbors = coordinate.GetNeighbors();
-                    for (var edge = 0; edge < neighbors.Count; edge++)
-                        if (!_attackArea.Contains(neighbors[edge]))
-                        {
-                            var side = EdgeByNeighbor[edge];
-                            _canvas.Line(corners[side], corners[(side + 1) % 6], Gold * 0.74f, 2);
-                        }
+                    var corners = _field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 4);
+                    _canvas.Polygon(corners, new Color(218, 150, 45) * 0.23f);
+                    _canvas.Outline(corners, new Color(34, 27, 20) * 0.82f, 3);
+                    _canvas.Outline(corners, new Color(255, 226, 142) * 0.96f, 1);
                 }
-            foreach (var coordinate in _reachable)
-            {
-                var corners = _field.Layout.Corners(Battle.Map.GetTile(coordinate)!, 5);
-                _canvas.Polygon(corners, Green * 0.28f);
-                _canvas.Outline(corners, Green * 0.9f, 2);
             }
         }
         if (!_healMode)
@@ -539,13 +544,8 @@ internal sealed class BattleScreen : IGameScreen
         _font.Draw(label, x + 16, y + 15, Gold, 1);
     }
 
-    private static Rectangle ActionSpriteBounds(int centerX, int groundY, int width, int height)
-    {
-        var scaledWidth = (int)MathF.Round(width * ActionSpriteScale);
-        var scaledHeight = (int)MathF.Round(height * ActionSpriteScale);
-        var anchorY = (int)MathF.Round(scaledHeight * 72f / 80f);
-        return new Rectangle(centerX - scaledWidth / 2, groundY - anchorY, scaledWidth, scaledHeight);
-    }
+    private static Rectangle ActionSpriteBounds(int centerX, int groundY, int width, int height) =>
+        new(centerX - width / 2, groundY - height, width, height);
 
     private string DescribeHover(BattleUnit? unit)
     {
