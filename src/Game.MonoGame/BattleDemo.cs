@@ -20,7 +20,7 @@ public sealed record BattleDemo(GeneratedBattlefield Field, Battle Battle)
             Stack("flora.pod-slinger", BattleSide.Player, 3, 2, 5),
             Stack("flora.root-warden", BattleSide.Player, 1, 1, 6),
             Stack("human.militia", BattleSide.Enemy, 10, 10, 1),
-            Stack("human.spearman", BattleSide.Enemy, 6, 10, 3),
+            Stack("human.banner-knight", BattleSide.Enemy, 3, 10, 3),
             Stack("human.longbow", BattleSide.Enemy, 5, 10, 6)
         };
         return new BattleDemo(field, new Battle(field.Map, units, new Random(seed)));

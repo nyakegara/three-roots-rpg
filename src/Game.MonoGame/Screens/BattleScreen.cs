@@ -338,10 +338,19 @@ internal sealed class BattleScreen : IGameScreen
         {
             var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
             var bounds = new Rectangle(x - 28, y - 49, 56, 66);
-            var animating = _actionSeconds > 0f && _actionUnitId == unit.Id &&
+            var actionFrame = _actionSeconds > 0f && _actionUnitId == unit.Id
+                ? Math.Min(7, (int)((0.8f - _actionSeconds) / 0.1f)) : -1;
+            // The older human action atlas contains miniature figures. Keep the new full-resolution
+            // silhouette visible during attacks and give it a short recoil until its poses are redrawn.
+            if (actionFrame >= 0 && unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal))
+            {
+                var recoil = new[] { 0, 1, 3, 5, 5, 3, 1, 0 }[actionFrame];
+                bounds.Offset(unit.Side == BattleSide.Enemy ? -recoil : recoil, 0);
+            }
+            var animating = actionFrame >= 0 && !unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal) &&
                 _assets.TryDrawAction(_canvas, "unit." + unit.UnitTypeId + ".actions",
                     new Rectangle(x - 28, y - 49, 56, 70),
-                    Math.Min(7, (int)((0.8f - _actionSeconds) / 0.1f)), _actionSecondary,
+                    actionFrame, _actionSecondary,
                     unit.Side == BattleSide.Enemy);
             if (!animating && !_assets.TryDrawCropped(_canvas, key, bounds, unit.Side == BattleSide.Enemy) &&
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
@@ -351,7 +360,7 @@ internal sealed class BattleScreen : IGameScreen
         var label = unit.UnitTypeId switch
         {
             "human.militia" => "О " + unit.Count,
-            "human.spearman" => "К " + unit.Count,
+            "human.banner-knight" => "Р " + unit.Count,
             "human.longbow" => "Л " + unit.Count,
             _ => unit.Count.ToString()
         };
