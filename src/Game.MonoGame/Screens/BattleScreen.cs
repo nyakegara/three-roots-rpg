@@ -50,6 +50,7 @@ internal sealed class BattleScreen : IGameScreen
     private static readonly Color Red = new(210, 118, 89);
     private static readonly Color Blue = new(125, 195, 185);
     private static readonly int[] EdgeByNeighbor = [1, 0, 5, 4, 3, 2];
+    private const float ActionSpriteScale = 1.5f;
     private static readonly Rectangle RestartButton = new(444, 488, 186, 34);
     private static readonly Rectangle ExitButton = new(650, 488, 186, 34);
     private static readonly Rectangle ReturnButton = new(517, 488, 246, 34);
@@ -81,6 +82,13 @@ internal sealed class BattleScreen : IGameScreen
             _hover = BattleCaptureSetup.Advance(Battle, capture);
             RefreshReachable();
             _message = "КРАСНЫЙ КОНТУР: ЦЕЛЬ МОЖНО АТАКОВАТЬ СЕЙЧАС.";
+            return;
+        }
+        if (capture == BattleCaptureStage.RangedTarget)
+        {
+            _hover = BattleCaptureSetup.Advance(Battle, capture);
+            RefreshReachable();
+            _message = "ЗОЛОТО: РАДИУС. КРАСНЫЙ: ДОСТУПНАЯ ЦЕЛЬ. МЕЧ: АТАКА.";
             return;
         }
         if (capture is BattleCaptureStage.Arrow or BattleCaptureStage.Magic or
@@ -267,7 +275,7 @@ internal sealed class BattleScreen : IGameScreen
             var before = target.RemainingHitPoints;
             if (_interaction.TryAttack(target.Id))
             {
-                BeginAttackAnimation(active, target);
+                BeginAttackAnimation(active, target, conversion: target.Side == active.Side);
                 _message = $"{Name(active)}: УРОН {before - target.RemainingHitPoints}. " +
                     (target.Side == active.Side ? "ВРАГ НА НАШЕЙ СТОРОНЕ ДО КОНЦА БОЯ!" : $"В ЦЕЛИ ОСТАЛОСЬ {target.Count}.");
             }
@@ -291,7 +299,7 @@ internal sealed class BattleScreen : IGameScreen
         if (!_interaction.IsPlayerTurn || Battle.ActiveUnit is not { } active) return;
         if (!Battle.HasAttacked(active.Id))
             foreach (var tile in Battle.Map.Tiles)
-                if (BattleRules.CanAttackTile(active, tile, Battle.Map))
+                if (tile.IsPassable && BattleRules.IsWithinAttackRange(active, tile))
                     _attackArea.Add(tile.Coordinate);
         if (Battle.HasMoved(active.Id)) return;
         var occupied = Battle.Units.Where(unit => unit.IsAlive && unit.Id != active.Id).Select(unit => unit.Position).ToHashSet();
@@ -303,13 +311,12 @@ internal sealed class BattleScreen : IGameScreen
         }
     }
 
-    private void BeginAttackAnimation(BattleUnit actor, BattleUnit target, bool healing = false)
+    private void BeginAttackAnimation(BattleUnit actor, BattleUnit target, bool healing = false,
+        bool conversion = false)
     {
-        if (!healing && !actor.IsRanged && actor.AttackMode != AttackMode.HolyFire &&
-            !actor.UnitTypeId.StartsWith("human.", StringComparison.Ordinal)) return;
         _actionUnitId = actor.Id;
         _actionTargetId = target.Id;
-        _actionSecondary = actor.Ability == UnitAbility.RadiantModes && actor.AttackMode == AttackMode.HolyFire;
+        _actionSecondary = BattleAnimationSelector.UsesSecondaryClip(actor, healing, conversion);
         _actionSeconds = 0.8f;
         _attackEffect = new BattleAttackEffect(actor,
             _field.Layout.Center(Battle.Map.GetTile(actor.Position)!),
@@ -385,7 +392,7 @@ internal sealed class BattleScreen : IGameScreen
                 CursorColor(GetCursorKind(hover)), 3);
     }
 
-    private enum CursorKind { Move, Attack, Heal, InRange, Blocked }
+    private enum CursorKind { Move, Attack, RangedAttack, Heal, InRange, Blocked }
 
     private CursorKind GetCursorKind(HexCoord coordinate)
     {
@@ -396,16 +403,22 @@ internal sealed class BattleScreen : IGameScreen
                 ally.RemainingHitPoints < ally.MaximumHitPointsAtBattleStart && !Battle.HasAttacked(active.Id)
                 ? CursorKind.Heal : CursorKind.Blocked;
         if (occupant is not null)
-            return occupant.Side != active.Side && !Battle.HasAttacked(active.Id) &&
-                BattleRules.CanAttack(active, occupant, Battle.Map) ? CursorKind.Attack : CursorKind.Blocked;
+        {
+            if (occupant.Side == active.Side || Battle.HasAttacked(active.Id) ||
+                !BattleRules.CanAttack(active, occupant, Battle.Map)) return CursorKind.Blocked;
+            return active.IsRanged || active.Ability == UnitAbility.RadiantModes && active.AttackMode == AttackMode.HolyFire
+                ? CursorKind.RangedAttack : CursorKind.Attack;
+        }
         if (_reachable.Contains(coordinate)) return CursorKind.Move;
-        return _attackArea.Contains(coordinate) ? CursorKind.InRange : CursorKind.Blocked;
+        var tile = Battle.Map.GetTile(coordinate);
+        return tile is not null && _attackArea.Contains(coordinate) &&
+            BattleRules.CanAttackTile(active, tile, Battle.Map) ? CursorKind.InRange : CursorKind.Blocked;
     }
 
     private static Color CursorColor(CursorKind kind) => kind switch
     {
         CursorKind.Move => Green,
-        CursorKind.Attack => Red,
+        CursorKind.Attack or CursorKind.RangedAttack => Red,
         CursorKind.Heal => Blue,
         CursorKind.InRange => Gold,
         _ => new Color(120, 104, 91)
@@ -438,6 +451,13 @@ internal sealed class BattleScreen : IGameScreen
         {
             _canvas.Rect(x + 11, y + 5, 4, 15, color);
             _canvas.Rect(x + 6, y + 10, 14, 4, color);
+        }
+        else if (kind == CursorKind.RangedAttack)
+        {
+            _canvas.Line(new Vector2(x + 5, y + 20), new Vector2(x + 20, y + 5), color, 3);
+            _canvas.Line(new Vector2(x + 11, y + 5), new Vector2(x + 20, y + 5), color, 2);
+            _canvas.Line(new Vector2(x + 20, y + 5), new Vector2(x + 20, y + 14), color, 2);
+            _canvas.Line(new Vector2(x + 5, y + 13), new Vector2(x + 12, y + 20), Gold, 2);
         }
         else if (kind == CursorKind.Attack)
         {
@@ -491,7 +511,7 @@ internal sealed class BattleScreen : IGameScreen
             }
             var animating = actionFrame >= 0 && !unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal) &&
                 _assets.TryDrawAction(_canvas, "unit." + unit.UnitTypeId + ".actions",
-                    new Rectangle(x - 28, y - 49, 56, 70),
+                    ActionSpriteBounds(x, y + 17, spriteWidth, spriteHeight),
                     actionFrame, _actionSecondary,
                     unit.Side == BattleSide.Enemy);
             var drawKey = key;
@@ -519,6 +539,14 @@ internal sealed class BattleScreen : IGameScreen
         _font.Draw(label, x + 16, y + 15, Gold, 1);
     }
 
+    private static Rectangle ActionSpriteBounds(int centerX, int groundY, int width, int height)
+    {
+        var scaledWidth = (int)MathF.Round(width * ActionSpriteScale);
+        var scaledHeight = (int)MathF.Round(height * ActionSpriteScale);
+        var anchorY = (int)MathF.Round(scaledHeight * 72f / 80f);
+        return new Rectangle(centerX - scaledWidth / 2, groundY - anchorY, scaledWidth, scaledHeight);
+    }
+
     private string DescribeHover(BattleUnit? unit)
     {
         if (Battle.IsFinished || !_interaction.IsPlayerTurn) return _message;
@@ -527,19 +555,41 @@ internal sealed class BattleScreen : IGameScreen
             if (_healMode) return unit.Side == active.Side ? "ЛКМ: ВОССТАНОВИТЬ 10 ОЗ В ПРЕДЕЛАХ НАЧАЛЬНОГО ЗДОРОВЬЯ."
                 : "ВРАЖЕСКИЙ ОТРЯД НЕЛЬЗЯ ЛЕЧИТЬ.";
             if (unit.Side != active.Side)
-                return Battle.HasAttacked(active.Id) ? "ДЕЙСТВИЕ УЖЕ ИСПОЛЬЗОВАНО." :
-                    BattleRules.CanAttack(active, unit, Battle.Map) ? "ЛКМ: АТАКОВАТЬ. УРОН " + (long)active.Count * active.DamagePerCreature
-                    : "ВРАГ НЕДОСТУПЕН: ДАЛЬНОСТЬ ИЛИ ЛИНИЯ ВИДИМОСТИ.";
+            {
+                if (Battle.HasAttacked(active.Id)) return "ДЕЙСТВИЕ УЖЕ ИСПОЛЬЗОВАНО.";
+                var reason = BattleRules.GetAttackFailureReason(active, unit, Battle.Map);
+                if (reason == AttackFailureReason.None)
+                {
+                    var ranged = active.IsRanged || active.Ability == UnitAbility.RadiantModes &&
+                        active.AttackMode == AttackMode.HolyFire;
+                    return (ranged ? "ЛКМ: ВЫСТРЕЛИТЬ. " : "ЛКМ: АТАКОВАТЬ. ") +
+                           "УРОН " + (long)active.Count * active.DamagePerCreature;
+                }
+
+                return reason switch
+                {
+                    AttackFailureReason.OutOfRange => $"ВНЕ ДАЛЬНОСТИ: {active.Position.DistanceTo(unit.Position)} КЛЕТОК. " +
+                        $"РАДИУС {BattleRules.GetEffectiveRange(active, Battle.Map.GetTile(unit.Position)!)}.",
+                    AttackFailureReason.BlockedLineOfSight => "ВЫСТРЕЛ ПЕРЕКРЫТ: МЕЖДУ ОТРЯДАМИ ПРЕПЯТСТВИЕ ИЛИ ВЫСОТА.",
+                    AttackFailureReason.FriendlyTarget => "НЕЛЬЗЯ АТАКОВАТЬ СОЮЗНИКА.",
+                    _ => "ЦЕЛЬ НЕ МОЖЕТ БЫТЬ АТАКОВАНА."
+                };
+            }
         }
         if (_hover is { } coordinate && Battle.ActiveUnit is { } actor)
         {
-            var height = Battle.Map.GetTile(coordinate)!.Height;
+            var tile = Battle.Map.GetTile(coordinate)!;
+            var ranged = actor.IsRanged || actor.Ability == UnitAbility.RadiantModes && actor.AttackMode == AttackMode.HolyFire;
+            if (ranged && !Battle.HasAttacked(actor.Id) &&
+                BattleRules.IsWithinAttackRange(actor, tile) && !BattleRules.CanAttackTile(actor, tile, Battle.Map))
+                return "ДАЛЬНОСТЬ ДОСТАТОЧНА, НО ЛИНИЯ ВЫСТРЕЛА ПЕРЕКРЫТА.";
+            var height = tile.Height;
             var delta = height - actor.Height;
             if (delta != 0 && unit is null)
             {
                 var enemies = Battle.GetEnemies(actor.Side).Select(target => target.Height);
                 var preview = ElevationChangePreview.Between(actor.Height, height, enemies);
-                return $"ВЫСОТА {height} ({delta:+0;-0}). " + (!actor.IsRanged ? "БОНУС ДАЛЬНОСТИ ТОЛЬКО У СТРЕЛКОВ." :
+                return $"ВЫСОТА {height} ({delta:+0;-0}). " + (!ranged ? "БОНУС ДАЛЬНОСТИ ТОЛЬКО У СТРЕЛКОВ." :
                     $"+2 ДАЛЬНОСТИ: ПОТЕРЯ У {preview.LostRangeBonusTargetCount}, ПОЛУЧЕНИЕ У {preview.GainedRangeBonusTargetCount} ЦЕЛЕЙ.");
             }
         }

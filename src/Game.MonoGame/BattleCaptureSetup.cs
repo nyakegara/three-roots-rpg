@@ -23,6 +23,13 @@ public static class BattleCaptureSetup
                     BattleRules.CanAttack(active, unit, battle.Map));
                 if (target is not null) return target.Position;
             }
+            if (stage == BattleCaptureStage.RangedTarget && active.Side == BattleSide.Player && active.IsRanged &&
+                !battle.HasAttacked(active.Id))
+            {
+                var target = battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Side != active.Side &&
+                    BattleRules.CanAttack(active, unit, battle.Map));
+                if (target is not null) return target.Position;
+            }
             if (stage == BattleCaptureStage.Healing && active is { Side: BattleSide.Player, Ability: UnitAbility.HealAlly })
             {
                 var wounded = battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Id != active.Id &&

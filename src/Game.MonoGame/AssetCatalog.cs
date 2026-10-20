@@ -81,7 +81,9 @@ internal sealed class AssetCatalog : IDisposable
                 System.Diagnostics.Trace.TraceWarning("Cannot load idle art '{0}': {1}", path, exception.Message);
             }
         }
-        foreach (var key in new[] { "unit.human.militia.actions", "unit.human.longbow.actions",
+        foreach (var key in new[] { "unit.flora.sprout.actions", "unit.flora.thorn-guard.actions",
+                     "unit.flora.ember-bloom.actions", "unit.flora.pod-slinger.actions",
+                     "unit.flora.root-warden.actions", "unit.human.militia.actions", "unit.human.longbow.actions",
                      "unit.human.banner-knight.actions", "unit.human.order-hunter.actions",
                      "unit.human.inquisitor.actions" })
         {

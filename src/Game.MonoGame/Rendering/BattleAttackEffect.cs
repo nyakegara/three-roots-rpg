@@ -41,11 +41,19 @@ internal sealed class BattleAttackEffect
         var travel = Math.Clamp((_elapsed - Windup) / Flight, 0f, 1f);
         if (travel < 1f)
         {
-            if (_kind == Kind.Melee) return;
             var point = Vector2.Lerp(_from, _to, travel);
             var direction = Vector2.Normalize(_to - _from);
             if (!float.IsFinite(direction.X)) direction = Vector2.UnitX;
             var across = new Vector2(-direction.Y, direction.X);
+            if (_kind == Kind.Melee)
+            {
+                var swing = MathHelper.Lerp(-0.8f, 0.8f, travel);
+                var slash = new Vector2(MathF.Cos(swing), MathF.Sin(swing));
+                var center = Vector2.Lerp(point, _to, 0.65f);
+                canvas.Line(center - slash * 12, center + slash * 12, new Color(48, 37, 28), 6);
+                canvas.Line(center - slash * 10, center + slash * 10, new Color(230, 218, 177), 3);
+                return;
+            }
             var tail = point - direction * 28;
             var farTail = point - direction * 42;
             using (canvas.PushTint(Color.White))
