@@ -17,6 +17,8 @@ public sealed record GameLaunchOptions
     public bool PreviewQuestHover { get; init; }
     public bool PreviewNorthTrail { get; init; }
     public bool PreviewIdleMap { get; init; }
+    public bool PreviewMapPanel { get; init; }
+    public bool PreviewJournalPanel { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
     public bool Night { get; init; }
@@ -52,6 +54,8 @@ public sealed record GameLaunchOptions
                 case "--screenshot-quest-hover":
                 case "--screenshot-north-trail":
                 case "--screenshot-idle-map":
+                case "--screenshot-map":
+                case "--screenshot-journal":
                 case "--screenshot-encounter-empty":
                 case "--screenshot-encounter":
                 case "--screenshot-campaign-battle":
@@ -108,6 +112,8 @@ public sealed record GameLaunchOptions
             PreviewQuestHover = mode == "--screenshot-quest-hover",
             PreviewNorthTrail = mode == "--screenshot-north-trail",
             PreviewIdleMap = mode == "--screenshot-idle-map",
+            PreviewMapPanel = mode == "--screenshot-map",
+            PreviewJournalPanel = mode == "--screenshot-journal",
             PreviewRecruitmentSiteId = mode switch
             {
                 "--screenshot-recruitment" => "starting-clearing",

@@ -93,6 +93,17 @@ public sealed class GameLaunchOptionsTests
     }
 
     [Theory]
+    [InlineData("--screenshot-map", true, false)]
+    [InlineData("--screenshot-journal", false, true)]
+    public void ExplorationPanelScreenshotOpensRequestedPanel(string mode, bool map, bool journal)
+    {
+        var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "panel.png")]);
+        Assert.True(options.PreviewMapPanel == map);
+        Assert.True(options.PreviewJournalPanel == journal);
+        Assert.False(options.PlayableCombat);
+    }
+
+    [Theory]
     [InlineData("--seed")]
     [InlineData("--night")]
     [InlineData("--unknown")]

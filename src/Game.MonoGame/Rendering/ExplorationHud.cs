@@ -8,6 +8,8 @@ namespace Game.MonoGame.Rendering;
 /// <summary>Screen-fixed campaign bar styled as wood, bronze, and parchment.</summary>
 internal sealed class ExplorationHud(PixelCanvas canvas, AssetCatalog assets, UnitCatalog? units = null)
 {
+    public static readonly Rectangle MapButton = new(1002, 619, 100, 69);
+    public static readonly Rectangle JournalButton = new(1115, 619, 100, 69);
     private readonly PixelFont _font = new(canvas);
     private static readonly Color Wood = new(49, 35, 25);
     private static readonly Color Bronze = new(141, 107, 59);

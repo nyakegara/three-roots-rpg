@@ -47,13 +47,16 @@ internal sealed class ExplorationScreen : IGameScreen
     private EncounterScreen? _encounterScreen;
     private BattleScreen? _battleScreen;
     private QuestChoiceScreen? _questScreen;
+    private readonly ExplorationPanels _panels;
+    private ExplorationPanelKind _openPanel;
     private float _idleSeconds;
 
     public bool HasOpenRecruitmentScreen => _recruitmentScreen is not null;
     public bool IsCampaignDefeated => _campaign?.IsDefeated == true;
     public bool IsCampaignVictory => _campaign?.IsVictory == true;
     public bool HasOpenModal => _recruitmentScreen is not null || _encounterScreen is not null ||
-                                _battleScreen is not null || _questScreen is not null;
+                                _battleScreen is not null || _questScreen is not null ||
+                                _openPanel != ExplorationPanelKind.None;
 
     public ExplorationScreen(PixelCanvas canvas, AssetCatalog assets, WorldMap map,
         bool previewQuestHover = false)
@@ -66,10 +69,12 @@ internal sealed class ExplorationScreen : IGameScreen
         Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None,
         bool previewNorthTrail = false,
         bool previewIdleMap = false,
+        bool previewMapPanel = false, bool previewJournalPanel = false,
         CampaignSave? restoreSave = null, Action<Campaign, HexCoord>? saveProgress = null,
         string? startupMessage = null)
         : this(canvas, assets, definition.Map, definition.CreateGameState(), units,
             previewQuestHover, previewRecruitmentSiteId, exit, capture, previewNorthTrail, previewIdleMap,
+            previewMapPanel, previewJournalPanel,
             restoreSave, definition.Id, definition.PlayerFactionId, saveProgress, startupMessage)
     {
     }
@@ -78,10 +83,12 @@ internal sealed class ExplorationScreen : IGameScreen
         UnitCatalog units, bool previewQuestHover, string? previewRecruitmentSiteId, Action? exit,
         CampaignCaptureStage capture, bool previewNorthTrail = false,
         bool previewIdleMap = false,
+        bool previewMapPanel = false, bool previewJournalPanel = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
         Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
         : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId,
-            exit, capture, previewNorthTrail, previewIdleMap, restoreSave, campaignId, playerFactionId,
+            exit, capture, previewNorthTrail, previewIdleMap, previewMapPanel, previewJournalPanel,
+            restoreSave, campaignId, playerFactionId,
             saveProgress, startupMessage)
     {
     }
@@ -91,6 +98,7 @@ internal sealed class ExplorationScreen : IGameScreen
         Action? exit = null, CampaignCaptureStage capture = CampaignCaptureStage.None,
         bool previewNorthTrail = false,
         bool previewIdleMap = false,
+        bool previewMapPanel = false, bool previewJournalPanel = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
         Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
     {
@@ -131,6 +139,9 @@ internal sealed class ExplorationScreen : IGameScreen
             new NumericsVector2(startPosition.X - 640, startPosition.Y - 300));
         _renderer = new AdventureMapRenderer(canvas, assets);
         _hud = new ExplorationHud(canvas, assets, units);
+        _panels = new ExplorationPanels(canvas, assets);
+        _openPanel = previewMapPanel ? ExplorationPanelKind.Map :
+            previewJournalPanel ? ExplorationPanelKind.Journal : ExplorationPanelKind.None;
         _movement = new MovementSelection(CreateMovementMap(start), start);
         if (previewNorthTrail && campaign is not null && floraMap)
         {
@@ -178,7 +189,8 @@ internal sealed class ExplorationScreen : IGameScreen
                 }
             }
         }
-        else if (!previewNorthTrail && !previewIdleMap && restoreSave is null && startupMessage is null && floraMap && campaign is not null && units is not null &&
+        else if (!previewNorthTrail && !previewIdleMap && !previewMapPanel && !previewJournalPanel &&
+                 restoreSave is null && startupMessage is null && floraMap && campaign is not null && units is not null &&
                  _pointsByCoordinate.Values.SelectMany(points => points).FirstOrDefault(point => point.Id == "guide-dialogue") is { } guide)
         {
             _movement = new MovementSelection(CreateMovementMap(start), start);
@@ -211,6 +223,36 @@ internal sealed class ExplorationScreen : IGameScreen
             return;
         }
 
+        var clicked = mouse.LeftButton == ButtonState.Pressed &&
+                      _previousMouse.LeftButton == ButtonState.Released;
+        if (_openPanel != ExplorationPanelKind.None)
+        {
+            if (IsPressed(keyboard, _previousKeyboard, Keys.Escape) ||
+                IsPressed(keyboard, _previousKeyboard, Keys.Back) ||
+                clicked && ExplorationPanels.CloseButton.Contains(mouse.Position) ||
+                _openPanel == ExplorationPanelKind.Map && IsPressed(keyboard, _previousKeyboard, Keys.M) ||
+                _openPanel == ExplorationPanelKind.Journal && IsPressed(keyboard, _previousKeyboard, Keys.J))
+                _openPanel = ExplorationPanelKind.None;
+            else if (IsPressed(keyboard, _previousKeyboard, Keys.M)) _openPanel = ExplorationPanelKind.Map;
+            else if (IsPressed(keyboard, _previousKeyboard, Keys.J)) _openPanel = ExplorationPanelKind.Journal;
+            _previousMouse = mouse;
+            _previousKeyboard = keyboard;
+            return;
+        }
+
+        if (IsPressed(keyboard, _previousKeyboard, Keys.M) ||
+            clicked && ExplorationHud.MapButton.Contains(mouse.Position))
+            _openPanel = ExplorationPanelKind.Map;
+        else if (IsPressed(keyboard, _previousKeyboard, Keys.J) ||
+                 clicked && ExplorationHud.JournalButton.Contains(mouse.Position))
+            _openPanel = ExplorationPanelKind.Journal;
+        if (_openPanel != ExplorationPanelKind.None)
+        {
+            _previousMouse = mouse;
+            _previousKeyboard = keyboard;
+            return;
+        }
+
         if (_campaign?.IsDefeated == true || _campaign?.IsVictory == true)
         {
             _previousMouse = mouse;
@@ -227,8 +269,6 @@ internal sealed class ExplorationScreen : IGameScreen
         else _hover = null;
 
         if (IsPressed(keyboard, _previousKeyboard, Keys.E)) InspectCurrentPointOfInterest();
-        var clicked = mouse.LeftButton == ButtonState.Pressed &&
-                      _previousMouse.LeftButton == ButtonState.Released;
         if (clicked && mouse.Y < MapViewportHeight && _hover is { } target)
         {
             _interactionMessage = null;
@@ -401,6 +441,10 @@ internal sealed class ExplorationScreen : IGameScreen
         if (_campaign?.IsDefeated == true || _campaign?.IsVictory == true) DrawCampaignEndingPanel();
         _encounterScreen?.Draw();
         _questScreen?.Draw();
+        if (_openPanel == ExplorationPanelKind.Map)
+            _panels.DrawMap(_map, _projection, _campaign, _movement.Position);
+        else if (_openPanel == ExplorationPanelKind.Journal)
+            _panels.DrawJournal(_campaign);
     }
 
     private IReadOnlyDictionary<string, string> VisibleIdleActors()
