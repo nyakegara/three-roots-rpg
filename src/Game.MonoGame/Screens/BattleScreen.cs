@@ -416,10 +416,13 @@ internal sealed class BattleScreen : IGameScreen
         if (_hover is not { } coordinate || !_interaction.IsPlayerTurn) return;
         var kind = GetCursorKind(coordinate);
         var previewPoint = _field.Layout.Center(Battle.Map.GetTile(coordinate)!);
-        var mouseX = _currentMouse.X == 0 && _currentMouse.Y == 0 ? (int)previewPoint.X : _currentMouse.X;
-        var mouseY = _currentMouse.X == 0 && _currentMouse.Y == 0 ? (int)previewPoint.Y : _currentMouse.Y;
-        var x = Math.Clamp(mouseX + (kind == CursorKind.Attack ? 22 : -13), 4, 1246);
-        var y = Math.Clamp(mouseY + (kind == CursorKind.Attack ? 10 : -37), 4, 570);
+        var screenshotCursor = _currentMouse.X == 0 && _currentMouse.Y == 0;
+        var mouseX = screenshotCursor ? (int)previewPoint.X + 8 : _currentMouse.X;
+        var mouseY = screenshotCursor ? (int)previewPoint.Y - 24 : _currentMouse.Y;
+        // Keep the action mark at the pointer hotspot. A displaced badge can sit over
+        // a neighboring hex and show a different action than the cell the click uses.
+        var x = Math.Clamp(mouseX + 2, 4, 1246);
+        var y = Math.Clamp(mouseY + 2, 4, 570);
         var color = CursorColor(kind);
         _canvas.Rect(x, y, 26, 25, new Color(39, 32, 23) * 0.9f);
         _canvas.Frame(x, y, 26, 25, color, 2);
@@ -438,9 +441,9 @@ internal sealed class BattleScreen : IGameScreen
         }
         else if (kind == CursorKind.Attack)
         {
-            _canvas.Line(a, b, color, 3);
-            _canvas.Line(new Vector2(x + 19, y + 6), new Vector2(x + 6, y + 18), color, 3);
-            _canvas.Line(new Vector2(x + 5, y + 14), new Vector2(x + 10, y + 19), Gold, 2);
+            _canvas.Line(new Vector2(x + 5, y + 20), new Vector2(x + 20, y + 5), color, 3);
+            _canvas.Line(new Vector2(x + 6, y + 12), new Vector2(x + 13, y + 19), Gold, 2);
+            _canvas.Rect(x + 3, y + 18, 5, 4, Gold);
         }
         else if (kind == CursorKind.InRange)
         {
