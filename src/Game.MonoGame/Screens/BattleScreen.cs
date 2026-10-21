@@ -106,11 +106,12 @@ internal sealed class BattleScreen : IGameScreen
             }
             return;
         }
-        if (capture == BattleCaptureStage.RangedTarget)
+        if (capture is BattleCaptureStage.RangedTarget or BattleCaptureStage.SpriteTarget)
         {
-            _hover = BattleCaptureSetup.Advance(Battle, capture);
+            _hover = BattleCaptureSetup.Advance(Battle, BattleCaptureStage.RangedTarget);
             RefreshReachable();
             _message = "ЗОЛОТО: РАДИУС. КРАСНЫЙ: ДОСТУПНАЯ ЦЕЛЬ. МЕЧ: АТАКА.";
+            if (capture == BattleCaptureStage.SpriteTarget) CaptureSpriteTarget();
             return;
         }
         if (capture is BattleCaptureStage.Arrow or BattleCaptureStage.Magic or
@@ -200,7 +201,7 @@ internal sealed class BattleScreen : IGameScreen
     {
         _nightBlend = BattleLighting.AdvanceFade(_nightBlend, _nightTarget, elapsedSeconds);
         _currentMouse = mouse;
-        _hover = mouse.Y < 600 ? _field.HitTest(mouse.Position) : null;
+        _hover = mouse.Y < 600 && mouse.Y >= 0 ? HitTestBattle(mouse.Position) : null;
         var clicked = mouse.LeftButton == ButtonState.Pressed && _previousMouse.LeftButton == ButtonState.Released;
         if (Pressed(Keys.G) || clicked && BattleHud.GridButton.Contains(mouse.Position)) _showGrid = !_showGrid;
         if (Pressed(Keys.N)) _nightTarget = 1f - _nightTarget;
@@ -516,15 +517,7 @@ internal sealed class BattleScreen : IGameScreen
         using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
         {
             var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
-            var (spriteWidth, spriteHeight) = unit.UnitTypeId switch
-            {
-                "human.inquisitor" => (88, 100),
-                "human.banner-knight" => (83, 94),
-                "flora.root-warden" => (75, 88),
-                _ => (56, 66)
-            };
-            var bounds = new Rectangle(x - spriteWidth / 2, y + 17 - spriteHeight,
-                spriteWidth, spriteHeight);
+            var bounds = BattleUnitSpriteLayout.Bounds(unit.UnitTypeId, new Point(x, y));
             var actionFrame = _actionSeconds > 0f && _actionUnitId == unit.Id
                 ? AttackAnimationTiming.FrameAt(_actionSeconds) : -1;
             var actionKey = BattleAnimationSelector.HumanPoseKey(key, _actionSecondary);
@@ -553,17 +546,53 @@ internal sealed class BattleScreen : IGameScreen
                 FantasyArt.DrawGuard(_canvas, x, y);
         }
         if (!unit.IsAlive) return; // Keep a defeated target visible until the projectile lands.
-        var label = unit.UnitTypeId switch
-        {
-            "human.militia" => "О " + unit.Count,
-            "human.banner-knight" => "Р " + unit.Count,
-            "human.longbow" => "Л " + unit.Count,
-            _ => unit.Count.ToString()
-        };
-        var width = label.Length * 6 + 8;
-        _canvas.Rect(x + 12, y + 12, width, 13, new Color(35, 29, 23));
-        _canvas.Frame(x + 12, y + 12, width, 13, unit.Side == BattleSide.Player ? Green : Red, 1);
+        var label = BattleUnitSpriteLayout.CountLabel(unit.UnitTypeId, unit.Count);
+        var badge = BattleUnitSpriteLayout.CountBounds(label, new Point(x, y));
+        _canvas.Rect(badge.X, badge.Y, badge.Width, badge.Height, new Color(35, 29, 23));
+        _canvas.Frame(badge.X, badge.Y, badge.Width, badge.Height, unit.Side == BattleSide.Player ? Green : Red, 1);
         _font.Draw(label, x + 16, y + 15, Gold, 1);
+    }
+
+    private HexCoord? HitTestBattle(Point pointer)
+    {
+        // Commands are locked during action poses. Resting sprites are the selectable shapes.
+        if (_actionSeconds <= 0)
+        foreach (var unit in Battle.Units.Where(unit => unit.IsAlive)
+                     .OrderByDescending(unit => unit.Position.R).ThenByDescending(unit => unit.Position.Q))
+        {
+            var center = _field.Layout.Center(Battle.Map.GetTile(unit.Position)!);
+            var anchor = new Point((int)center.X, (int)center.Y);
+            var bounds = BattleUnitSpriteLayout.Bounds(unit.UnitTypeId, anchor);
+            var label = BattleUnitSpriteLayout.CountLabel(unit.UnitTypeId, unit.Count);
+            if (BattleUnitSpriteLayout.CountBounds(label, anchor).Contains(pointer)) return unit.Position;
+            var key = _catalog.Get(unit.UnitTypeId)!.ArtKey;
+            if (_assets.IsCroppedPixelHit(key, bounds, pointer, unit.Side == BattleSide.Enemy))
+                return unit.Position;
+        }
+        return _field.HitTest(pointer);
+    }
+
+    private void CaptureSpriteTarget()
+    {
+        var target = Battle.Units.First(unit => unit.IsAlive && unit.Position == _hover);
+        var center = _field.Layout.Center(Battle.Map.GetTile(target.Position)!);
+        var bounds = BattleUnitSpriteLayout.Bounds(target.UnitTypeId, new Point((int)center.X, (int)center.Y));
+        var key = _catalog.Get(target.UnitTypeId)!.ArtKey;
+        // Pick a genuinely visible pixel over another ground hex: the old input selected that hex.
+        for (var y = bounds.Top; y < bounds.Bottom; y++)
+        foreach (var x in Enumerable.Range(bounds.Left, bounds.Width).OrderBy(x => Math.Abs(x - bounds.Center.X)))
+        {
+            var point = new Point(x, y);
+            if (_field.HitTest(point) == target.Position ||
+                !_assets.IsCroppedPixelHit(key, bounds, point, target.Side == BattleSide.Enemy) ||
+                HitTestBattle(point) != target.Position) continue;
+            _currentMouse = new MouseState(x, y, 0, ButtonState.Released, ButtonState.Released,
+                ButtonState.Released, ButtonState.Released, ButtonState.Released);
+            _hover = HitTestBattle(point);
+            _message = "НАВЕДЕНИЕ НА ВЕРХ МОДЕЛИ ВЫБИРАЕТ ЕЁ ОТРЯД, А НЕ СОСЕДНЮЮ КЛЕТКУ.";
+            return;
+        }
+        throw new InvalidOperationException("No visible sprite pixel outside its ground hex in the capture fixture.");
     }
 
     private string DescribeHover(BattleUnit? unit)

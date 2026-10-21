@@ -32,6 +32,7 @@ internal sealed class AssetCatalog : IDisposable
     private readonly Dictionary<string, Texture2D> _idleTextures = new();
     private readonly Dictionary<string, Texture2D> _actionTextures = new();
     private readonly Dictionary<string, Rectangle[]> _actionFrameBounds = new();
+    private readonly Dictionary<string, byte[]> _hitAlpha = new();
     private Texture2D? _heroWalkTexture;
 
     public AssetCatalog(GraphicsDevice device)
@@ -219,6 +220,22 @@ internal sealed class AssetCatalog : IDisposable
             bounds.Y + (bounds.Height - height) / 2, width, height);
     }
 
+    public bool IsCroppedPixelHit(string key, Rectangle bounds, Point point, bool flip = false)
+    {
+        if (!_textures.TryGetValue(key, out var asset)) return false;
+        var destination = GetCroppedDestination(key, bounds);
+        if (!destination.Contains(point)) return false;
+        if (!_hitAlpha.TryGetValue(key, out var alpha))
+        {
+            // Cache only sprites actually hovered; never duplicate the large map textures.
+            var pixels = new Color[asset.Texture.Width * asset.Texture.Height];
+            asset.Texture.GetData(pixels);
+            alpha = pixels.Select(pixel => pixel.A).ToArray();
+            _hitAlpha.Add(key, alpha);
+        }
+        return SpriteHitTest.IsVisible(alpha, asset.Texture.Width, asset.ContentBounds, destination, point, flip);
+    }
+
     private static Rectangle FindVisibleBounds(IReadOnlyList<Color> pixels, int width, int height)
     {
         var minX = width;
@@ -259,6 +276,7 @@ internal sealed class AssetCatalog : IDisposable
         foreach (var texture in _actionTextures.Values) texture.Dispose();
         _actionTextures.Clear();
         _actionFrameBounds.Clear();
+        _hitAlpha.Clear();
     }
 
     private sealed record TextureAsset(Texture2D Texture, Rectangle ContentBounds);
