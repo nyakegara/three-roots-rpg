@@ -305,7 +305,6 @@ internal sealed class ExplorationScreen : IGameScreen
         }
 
         var pointer = new NumericsVector2(mouse.X, mouse.Y);
-        _camera.Update(pointer, elapsedSeconds);
         if (_travel is not null)
         {
             UpdateFreeTravel(pointer, clicked, keyboard, elapsedSeconds);
@@ -313,6 +312,7 @@ internal sealed class ExplorationScreen : IGameScreen
             _previousKeyboard = keyboard;
             return;
         }
+        _camera.CenterOn(_projection.Project(_movement.Position, _map.GetTile(_movement.Position)!.Height));
         if (mouse.Y < MapViewportHeight && mouse.X >= 0 && mouse.X < 1280)
         {
             _hover = _projection.TryPick(_camera.ToWorld(pointer), out var coordinate) ? coordinate : null;
@@ -586,7 +586,9 @@ internal sealed class ExplorationScreen : IGameScreen
     private void UpdateFreeTravel(NumericsVector2 pointer, bool clicked, KeyboardState keyboard, float elapsedSeconds)
     {
         var travel = _travel!;
-        if (travel.Advance(Math.Clamp(elapsedSeconds, 0, 0.1f)))
+        var arrived = travel.Advance(Math.Clamp(elapsedSeconds, 0, 0.1f));
+        _camera.CenterOn(_projection.FromArt(travel.Position));
+        if (arrived)
         {
             var target = _travelPoint;
             _travelPoint = null;
@@ -636,10 +638,14 @@ internal sealed class ExplorationScreen : IGameScreen
             .Select(point =>
             {
                 var anchor = InteractionPosition(point);
+                var actorHit = hitSprites && actors.ContainsKey(point.Id) && AdventureMapRenderer.IsIdleActorHit(
+                    _projection.FromArt(position), _projection.FromArt(anchor), _map.Id == "flora-01",
+                    activeQuests?.Contains(point.Id) == true);
                 if (hitSprites) anchor = new(anchor.X, anchor.Y - 15);
-                return (Point: point, Anchor: anchor, Distance: MapPosition.Distance(position, anchor));
+                var distance = MapPosition.Distance(position, anchor);
+                return (Point: point, Anchor: anchor, Distance: distance, Hit: actorHit || distance <= radius);
             })
-            .Where(item => item.Distance <= radius && (hitSprites || _travel!.CanInteractWith(item.Anchor, radius)))
+            .Where(item => item.Hit && (hitSprites || _travel!.CanInteractWith(item.Anchor, radius)))
             .OrderBy(item => item.Distance)
             .ThenBy(item => item.Point.Type == "quest" ? 0 : 1)
             .Select(item => item.Point).FirstOrDefault();

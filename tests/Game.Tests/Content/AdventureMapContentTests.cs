@@ -50,7 +50,15 @@ public sealed class AdventureMapContentTests
 
     private static AdventureNavigation Load()
     {
-        var result = new MapLoader().Load(Path.Combine(AppContext.BaseDirectory, "content", "maps", "flora-01.json"));
+        var path = Path.Combine(AppContext.BaseDirectory, "content", "maps", "flora-01.json");
+        using var document = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path));
+        var navigation = System.Text.Json.JsonSerializer.Deserialize<AdventureNavigation>(
+            document.RootElement.GetProperty("navigation").GetRawText(),
+            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })!;
+        var surface = new AdventureSurface(navigation, _ => true);
+        var blocked = navigation.Points.Where(point => !surface.IsWalkable(point.Value)).ToArray();
+        Assert.True(blocked.Length == 0, "Blocked landmarks: " + string.Join("; ", blocked));
+        var result = new MapLoader().Load(path);
         Assert.True(result.Success, string.Join("; ", result.Errors));
         return Assert.IsType<AdventureNavigation>(result.Map!.Navigation);
     }
@@ -82,19 +90,73 @@ public sealed class AdventureMapContentTests
     }
 
     [Fact]
-    public void FloraMap_PastureIsOpenButNorthAndMountainsRequireStoryProgress()
+    public void FloraMap_NorthRequiresChoiceBattleButMountainApproachIsOpen()
     {
         var nav = Load();
         var finder = new AdventurePathfinder(new(nav));
         Assert.True(finder.FindPath(nav.Start, nav.Points["pasture-request"]).IsReachable);
         Assert.False(finder.FindPath(nav.Start, nav.Points["burned-forest"]).IsReachable);
-        Assert.False(finder.FindPath(nav.Start, nav.Points["mountain-outpost"]).IsReachable);
+        Assert.True(finder.FindPath(nav.Start, nav.Points["mountain-outpost"]).IsReachable);
+        Assert.False(finder.FindPath(nav.Start, nav.Points["artifact-ash-guard"]).IsReachable);
         finder = new(new(nav, id => id == "north-gate"));
         Assert.True(finder.FindPath(nav.Start, nav.Points["burned-forest"]).IsReachable);
-        Assert.False(finder.FindPath(nav.Start, nav.Points["mountain-outpost"]).IsReachable);
+        Assert.True(finder.FindPath(nav.Start, nav.Points["mountain-outpost"]).IsReachable);
         finder = new(new(nav, id => id is "north-gate" or "burnt-cleared"));
         Assert.True(finder.FindPath(nav.Start, nav.Points["mountain-outpost"]).IsReachable);
         Assert.False(finder.FindPath(nav.Start, nav.Points["mushroom-outpost"]).IsReachable);
+        finder = new(new(nav, id => id == "mountain-route"));
+        Assert.True(finder.FindPath(nav.Start, nav.Points["mushroom-outpost"]).IsReachable);
+        Assert.False(finder.FindPath(nav.Start, nav.Points["burned-forest"]).IsReachable);
+        Assert.False(finder.FindPath(nav.Start, nav.Points["final-landing"]).IsReachable);
+    }
+
+    [Theory]
+    [InlineData("burned-forest", .590f, .334f)]
+    [InlineData("mountain-outpost", .468f, .532f)]
+    [InlineData("optional-patrol", .577f, .467f)]
+    [InlineData("plants-pasture-battle", .711f, .648f)]
+    [InlineData("mad-forest-plants", .717f, .337f)]
+    [InlineData("mushroom-outpost", .425f, .662f)]
+    [InlineData("artifact-ash-guard", .290f, .630f)]
+    [InlineData("artifact-spore-guard", .339f, .444f)]
+    [InlineData("final-landing", .188f, .501f)]
+    public void MarkedBattlesMatchTheNineReferenceLocations(string id, float x, float y)
+    {
+        var nav = Load();
+        // Percentages refer to the complete 1280x720 screenshot; the artwork
+        // occupies 110,123,1060,462 inside it.
+        var expected = new MapPosition((x * 1280 - 110) / 1060 * nav.Width,
+            (y * 720 - 123) / 462 * nav.Height);
+        // The southern plants stand just above the tree obstacle under the marker.
+        Assert.InRange(MapPosition.Distance(nav.Points[id], expected), 0,
+            id == "plants-pasture-battle" ? 16 : .02f);
+    }
+
+    [Fact]
+    public void NineMarkedBattlesHaveDistinctRolesAndInquisitorDebutsAtFinalLanding()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "content");
+        var units = UnitCatalog.Load(Path.Combine(root, "units", "units.json")).Catalog!;
+        var loaded = new CampaignLoader(units).Load(Path.Combine(root, "campaigns", "flora-01.json"));
+        Assert.True(loaded.Success, string.Join("; ", loaded.Errors));
+        var encounters = loaded.Definition!.Encounters.ToDictionary(e => e.Id);
+        Assert.Equal(10, encounters.Count); // Nine red markers plus the refusal fight at the peasants.
+        Assert.Equal(3, encounters["burned-forest"].EnemyArmy.Count);
+        Assert.Equal(2, encounters["mountain-outpost"].EnemyArmy.Single(t => t.UnitTypeId == "human.banner-knight").Count);
+        Assert.Equal(2, encounters["mountain-outpost"].EnemyArmy.Single(t => t.UnitTypeId == "human.order-hunter").Count);
+        Assert.Single(encounters["optional-patrol"].EnemyArmy);
+        Assert.All(encounters["optional-patrol"].EnemyArmy, t => Assert.Equal("human.militia", t.UnitTypeId));
+        Assert.All(encounters["plants-pasture-battle"].EnemyArmy, t => Assert.StartsWith("flora.", t.UnitTypeId));
+        Assert.All(encounters["mad-forest-plants"].EnemyArmy, t => Assert.StartsWith("flora.", t.UnitTypeId));
+        Assert.Equal(4, encounters["mushroom-outpost"].EnemyArmy.Count);
+        Assert.All(encounters.Values.Where(e => e.Id != "final-landing"), e =>
+            Assert.DoesNotContain(e.EnemyArmy, t => t.UnitTypeId == "human.inquisitor"));
+        Assert.Equal(5, encounters["final-landing"].EnemyArmy.Count);
+        Assert.Contains(encounters["final-landing"].EnemyArmy, t => t.UnitTypeId == "human.inquisitor");
+        Assert.Equal(loaded.Definition.Map.PointsOfInterest.Single(p => p.Id == "pasture-request").Coordinate,
+            loaded.Definition.Map.PointsOfInterest.Single(p => p.Id == "farmers-pasture-battle").Coordinate);
+        Assert.NotEqual(loaded.Definition.Map.PointsOfInterest.Single(p => p.Id == "pasture-request").Coordinate,
+            loaded.Definition.Map.PointsOfInterest.Single(p => p.Id == "plants-pasture-battle").Coordinate);
     }
 
     [Theory]

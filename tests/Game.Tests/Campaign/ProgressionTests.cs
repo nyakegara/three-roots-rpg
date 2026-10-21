@@ -145,8 +145,12 @@ public sealed class ProgressionTests
         Assert.False(new AStarPathfinder().FindPath(campaign.CreateTravelMap(definition.Map, start), start, north).IsReachable);
         Assert.False(campaign.IsUnlocked("north-gate"));
         Assert.True(campaign.ApplyChoice("pasture-choice", choiceId).Success);
+        var chosenBattlePoint = definition.Map.PointsOfInterest.Single(point => point.Id == chosenEncounter);
         Assert.Equal(chosenEncounter, campaign.FindEncounterPointAt(definition.Map,
-            definition.Map.PointsOfInterest.Single(point => point.Id == "pasture-request").Coordinate)?.Id);
+            chosenBattlePoint.Coordinate)?.Id);
+        if (choiceId == "help")
+            Assert.NotEqual(chosenBattlePoint.Coordinate,
+                definition.Map.PointsOfInterest.Single(point => point.Id == "pasture-request").Coordinate);
         Assert.True(campaign.CanAccessEncounter(chosenEncounter));
         Assert.False(campaign.CanAccessEncounter(rejectedEncounter));
         Assert.False(campaign.CanAccessRecruitmentSite("peasant-recruitment"));
@@ -163,7 +167,7 @@ public sealed class ProgressionTests
         Assert.Equal(peasantsCanBeRecruited, campaign.CanAccessRecruitmentSite("peasant-recruitment"));
         Assert.True(new AStarPathfinder().FindPath(campaign.CreateTravelMap(definition.Map, start), start, north).IsReachable);
         Assert.True(campaign.CanAccessEncounter("burned-forest"));
-        Assert.False(campaign.CanAccessEncounter("mountain-outpost"));
+        Assert.True(campaign.CanAccessEncounter("mountain-outpost"));
 
         var previousPosition = point.Coordinate;
         WinReachableEncounter("burned-forest");
@@ -197,6 +201,21 @@ public sealed class ProgressionTests
             Assert.True(campaign.ResolveEncounter(nextBattle).Victory);
             previousPosition = nextPoint.Coordinate;
         }
+    }
+
+    [Fact]
+    public void MountainOutpostCanBeReachedAndFoughtBeforeNorthernForest()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "content");
+        var units = UnitCatalog.Load(Path.Combine(root, "units", "units.json")).Catalog!;
+        var definition = new CampaignLoader(units).Load(Path.Combine(root, "campaigns", "flora-01.json")).Definition!;
+        var campaign = definition.CreateGameState();
+        var start = definition.Map.StartPosition!.Value;
+        var outpost = definition.Map.PointsOfInterest.Single(p => p.Id == "mountain-outpost");
+        Assert.True(campaign.CanAccessEncounter(outpost.Id));
+        Assert.True(new AStarPathfinder().FindPath(campaign.CreateTravelMap(definition.Map, start),
+            start, outpost.Coordinate).IsReachable);
+        Assert.False(campaign.CanAccessEncounter("burned-forest"));
     }
 
     [Fact]

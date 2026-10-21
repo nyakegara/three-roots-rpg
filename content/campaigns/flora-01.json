@@ -200,6 +200,10 @@
           "count": 2
         },
         {
+          "unitId": "human.militia",
+          "count": 3
+        },
+        {
           "unitId": "human.longbow",
           "count": 2
         }
@@ -220,11 +224,11 @@
         },
         {
           "unitId": "human.longbow",
-          "count": 2
+          "count": 4
         },
         {
           "unitId": "human.order-hunter",
-          "count": 1
+          "count": 2
         }
       ],
       "goldReward": 70,
@@ -241,12 +245,16 @@
           "count": 2
         },
         {
-          "unitId": "human.longbow",
+          "unitId": "human.order-hunter",
           "count": 2
         },
         {
-          "unitId": "human.inquisitor",
-          "count": 1
+          "unitId": "human.militia",
+          "count": 4
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 3
         }
       ],
       "goldReward": 90,
@@ -260,15 +268,15 @@
       "enemyArmy": [
         {
           "unitId": "human.militia",
-          "count": 4
+          "count": 6
         },
         {
           "unitId": "human.longbow",
-          "count": 3
+          "count": 4
         },
         {
           "unitId": "human.banner-knight",
-          "count": 2
+          "count": 3
         },
         {
           "unitId": "human.order-hunter",
@@ -291,10 +299,6 @@
         {
           "unitId": "human.militia",
           "count": 3
-        },
-        {
-          "unitId": "human.longbow",
-          "count": 1
         }
       ],
       "goldReward": 45,
@@ -308,11 +312,15 @@
       "enemyArmy": [
         {
           "unitId": "human.banner-knight",
-          "count": 1
+          "count": 2
         },
         {
           "unitId": "human.longbow",
-          "count": 2
+          "count": 3
+        },
+        {
+          "unitId": "human.order-hunter",
+          "count": 1
         }
       ],
       "goldReward": 75,
@@ -325,16 +333,39 @@
       "seed": 50219,
       "enemyArmy": [
         {
-          "unitId": "human.order-hunter",
+          "unitId": "human.banner-knight",
           "count": 2
         },
         {
-          "unitId": "human.inquisitor",
-          "count": 1
+          "unitId": "human.order-hunter",
+          "count": 3
+        },
+        {
+          "unitId": "human.longbow",
+          "count": 3
         }
       ],
       "goldReward": 90,
       "experienceReward": 75
+    },
+    {
+      "id": "mad-forest-plants",
+      "pointOfInterestId": "mad-forest-plants",
+      "name": "Обезумевшие растения в северном лесу",
+      "seed": 50220,
+      "enemyFactionId": "flora",
+      "enemyArmy": [
+        {
+          "unitId": "flora.thorn-guard",
+          "count": 3
+        },
+        {
+          "unitId": "flora.sprout",
+          "count": 2
+        }
+      ],
+      "goldReward": 40,
+      "experienceReward": 55
     }
   ],
   "progression": {
@@ -351,11 +382,6 @@
         "questId": "pasture-choice",
         "requiredUnlockIds": [
           "north-gate"
-        ]
-      },
-      "mountain-outpost": {
-        "requiredEncounterIds": [
-          "burned-forest"
         ]
       },
       "mushroom-outpost": {
@@ -378,7 +404,8 @@
         "requiredUnlockIds": [
           "fungus-route"
         ]
-      }
+      },
+      "mad-forest-plants": {}
     },
     "recruitmentSites": {
       "peasant-recruitment": {

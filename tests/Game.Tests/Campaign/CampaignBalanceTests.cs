@@ -50,18 +50,18 @@ public sealed class CampaignBalanceTests
         Recruit("flora-tier-two", "flora.pod-slinger");
         Win("mountain-outpost");
         Win("mushroom-outpost");
-        Recruit("flora-tier-three", "flora.root-warden");
+        Recruit("flora-tier-three", "flora.root-warden", 3);
         Win("final-landing");
 
         Assert.True(campaign.IsVictory);
         Assert.DoesNotContain(campaign.CompletedEncounterIds, id => id.StartsWith("artifact-", StringComparison.Ordinal));
 
-        void Recruit(string siteId, string unitId)
+        void Recruit(string siteId, string unitId, int count = 1)
         {
             Assert.True(campaign.CanAccessRecruitmentSite(siteId), $"Recruitment site '{siteId}' is not unlocked.");
             var site = campaign.RecruitmentSites.Single(candidate => candidate.Id == siteId);
             TravelTo(definition.Map.PointsOfInterest.Single(point => point.RecruitmentSiteId == siteId).Id);
-            var result = economy.TryRecruit(campaign.Hero, site, unitId, 1);
+            var result = economy.TryRecruit(campaign.Hero, site, unitId, count);
             Assert.True(result.Success, result.Message);
         }
 

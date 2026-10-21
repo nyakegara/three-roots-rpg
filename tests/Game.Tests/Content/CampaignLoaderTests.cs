@@ -146,12 +146,13 @@ public sealed class CampaignLoaderTests : IDisposable
         Assert.Equal(new[] { ("flora.thorn-guard", 12), ("flora.sprout", 3) },
             first.StartingArmy.Select(stack => (stack.UnitTypeId, stack.Count)));
         Assert.Null(first.Map.Tiles.Single(tile => tile.Coordinate == new Game.Core.Geometry.HexCoord(12, -8)).RequiredUnlock);
-        Assert.Equal("north-gate", first.Map.Tiles.Single(tile => tile.Coordinate == new Game.Core.Geometry.HexCoord(13, -8)).RequiredUnlock);
+        Assert.Null(first.Map.Tiles.Single(tile => tile.Coordinate == new Game.Core.Geometry.HexCoord(13, -8)).RequiredUnlock);
+        Assert.Equal("north-gate", first.Map.Tiles.Single(tile => tile.Coordinate == new Game.Core.Geometry.HexCoord(10, -16)).RequiredUnlock);
         Assert.Equal(new Game.Core.Geometry.HexCoord(12, -12),
             first.Map.PointsOfInterest.Single(point => point.Id == "north-gate").Coordinate);
         Assert.Empty(campaigns[1].Definition!.RecruitmentSites);
         Assert.Empty(campaigns[2].Definition!.RecruitmentSites);
-        Assert.Equal(9, first.Encounters.Count);
+        Assert.Equal(10, first.Encounters.Count);
         Assert.Contains(first.Encounters, encounter => encounter.Id == "mountain-outpost" &&
             encounter.BattlefieldId == "mountain-outpost");
         Assert.Contains(first.Encounters, encounter => encounter.Id == "final-landing" &&

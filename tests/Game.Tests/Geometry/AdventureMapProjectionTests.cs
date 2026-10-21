@@ -46,9 +46,9 @@ public sealed class AdventureMapProjectionTests
     [Theory]
     [InlineData("guide-dialogue", 1475, 214)]
     [InlineData("north-gate", 1114, 389)]
-    [InlineData("mountain-outpost", 839, 501)]
-    [InlineData("mushroom-outpost", 690, 725)]
-    [InlineData("final-landing", 233, 461)]
+    [InlineData("mountain-outpost", 859, 476)]
+    [InlineData("mushroom-outpost", 762, 647)]
+    [InlineData("final-landing", 229, 435)]
     public void FloraLandmark_ProjectsNearPaintedLocation(string pointId, int expectedX, int expectedY)
     {
         var map = LoadFloraMap();

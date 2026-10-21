@@ -22,6 +22,17 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     internal static WorldVector2 IdleActorOffset(string pointId) =>
         pointId == "guide-dialogue" ? new WorldVector2(-56, 5) : WorldVector2.Zero;
 
+    internal static Rectangle IdleActorBounds(WorldVector2 ground, bool compact) => compact
+        ? new Rectangle((int)ground.X - 32, (int)ground.Y - 72, 64, 80)
+        : new Rectangle((int)ground.X - 40, (int)ground.Y - 82, 80, 100);
+
+    internal static bool IsIdleActorHit(WorldVector2 pointer, WorldVector2 ground, bool compact, bool questMarker)
+    {
+        var bounds = IdleActorBounds(ground, compact);
+        if (questMarker) bounds = new(bounds.X, bounds.Y - 22, bounds.Width, bounds.Height + 22);
+        return bounds.Contains((int)pointer.X, (int)pointer.Y);
+    }
+
     internal static bool IsPointVisible(WorldPointOfInterest point, bool compactMap,
         IReadOnlyDictionary<string, string> idleActors, IReadOnlySet<string>? activeQuestPoints)
     {
@@ -288,8 +299,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         var phase = point.Id.Sum(character => (int)character) & 3;
         var frameMs = idleKey.StartsWith("unit.human.", StringComparison.Ordinal) ? 320f : 260f;
         var frame = ((int)(seconds * 1000f / frameMs) + phase) % 4;
-        var size = _compactMap ? new Rectangle((int)p.X - 32, (int)p.Y - 72, 64, 80)
-            : new Rectangle((int)p.X - 40, (int)p.Y - 82, 80, 100);
+        var size = IdleActorBounds(p, _compactMap);
         FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 2, _compactMap ? 34 : 42, 9, Ink * 0.65f);
         if (!assets.TryDrawIdle(canvas, idleKey, size, frame, out var visibleTop))
         {
