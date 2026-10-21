@@ -3,7 +3,7 @@ using System.Globalization;
 namespace Game.MonoGame;
 
 public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget }
-public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned }
+public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned, AfterChoice }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
 public sealed record GameLaunchOptions
@@ -65,6 +65,8 @@ public sealed record GameLaunchOptions
                 case "--screenshot-campaign-battle":
                 case "--screenshot-campaign-result":
                 case "--screenshot-after-encounter":
+                case "--screenshot-after-choice":
+                case "--screenshot-map-after-choice":
                 case "--screenshot-grid":
                 case "--screenshot-combat":
                 case "--screenshot-combat-night":
@@ -123,6 +125,7 @@ public sealed record GameLaunchOptions
                 "--screenshot-campaign-battle" => CampaignCaptureStage.Combat,
                 "--screenshot-campaign-result" => CampaignCaptureStage.Result,
                 "--screenshot-after-encounter" => CampaignCaptureStage.Returned,
+                "--screenshot-after-choice" or "--screenshot-map-after-choice" => CampaignCaptureStage.AfterChoice,
                 _ => CampaignCaptureStage.None
             },
             CombatCapture = mode switch
@@ -147,7 +150,7 @@ public sealed record GameLaunchOptions
             PreviewQuestHover = mode == "--screenshot-quest-hover",
             PreviewNorthTrail = mode == "--screenshot-north-trail",
             PreviewIdleMap = mode == "--screenshot-idle-map",
-            PreviewMapPanel = mode is "--screenshot-map" or "--screenshot-navigation",
+            PreviewMapPanel = mode is "--screenshot-map" or "--screenshot-navigation" or "--screenshot-map-after-choice",
             PreviewNavigation = mode == "--screenshot-navigation",
             PreviewFreeTravel = mode == "--screenshot-travel",
             PreviewJournalPanel = mode == "--screenshot-journal",

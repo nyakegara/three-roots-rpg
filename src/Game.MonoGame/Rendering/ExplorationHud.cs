@@ -34,7 +34,9 @@ internal sealed class ExplorationHud(PixelCanvas canvas, AssetCatalog assets, Un
 
         _font.Draw(hero.Name, 128, 614, Parchment, 2);
         _font.Draw($"УРОВЕНЬ {hero.Level}   ОПЫТ {hero.Experience}/{hero.ExperienceToNextLevel}", 128, 638, Gold, 1);
-        _font.Draw(hoveredPoint?.Name.ToUpperInvariant() ?? "ПУТЕШЕСТВИЕ", 128, 662,
+        var locationName = hoveredPoint?.Name.ToUpperInvariant() ?? "ПУТЕШЕСТВИЕ";
+        if (locationName.Length > 30) locationName = locationName[..28] + "..";
+        _font.Draw(locationName, 128, 662,
             hoveredPoint is null ? Parchment : Gold, 2);
         _font.Draw(actionText.Length <= 60 ? actionText : actionText[..58] + "..", 128, 688, new Color(172, 163, 132), 1);
 

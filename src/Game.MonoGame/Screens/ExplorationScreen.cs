@@ -174,7 +174,15 @@ internal sealed class ExplorationScreen : IGameScreen
                 VisitPoint(recruitmentPoint);
             }
         }
-        if (capture != CampaignCaptureStage.None && campaign is not null && units is not null)
+        if (capture == CampaignCaptureStage.AfterChoice && campaign is not null)
+        {
+            if (!campaign.ApplyChoice("guide-introduction", "begin").Success ||
+                !campaign.ApplyChoice("pasture-choice", "help").Success)
+                throw new InvalidOperationException("Cannot prepare the completed-choice capture.");
+            var point = map.PointsOfInterest.Single(point => point.Id == "pasture-request");
+            _movement = new MovementSelection(CreateMovementMap(point.Coordinate), point.Coordinate);
+        }
+        else if (capture != CampaignCaptureStage.None && campaign is not null && units is not null)
         {
             var encounter = campaign.Encounters.First(candidate => campaign.CanAccessEncounter(candidate.Id));
             var point = map.PointsOfInterest.Single(candidate => candidate.Id == encounter.PointOfInterestId);
@@ -473,8 +481,7 @@ internal sealed class ExplorationScreen : IGameScreen
             _movement.Path.IsReachable ? _movement.Path.Coordinates : Array.Empty<HexCoord>(), _hover,
             VisibleIdleActors(), _idleSeconds,
             drawHero: !_previewNorthTrail, travel: _travel, hoverPosition: _hoverPosition, showNavigation: ShowNavigation,
-            activeQuestPoints: _campaign?.Quests.Where(q => !_campaign.CompletedQuestIds.Contains(q.Id))
-                .Select(q => q.PointOfInterestId).OfType<string>().ToHashSet());
+            activeQuestPoints: ActiveQuestPoints());
         DrawMapPlaque();
         var hoveredPoint = _travel is not null ? _hoverPoint : _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var points)
             ? points.FirstOrDefault() : null;
@@ -548,6 +555,10 @@ internal sealed class ExplorationScreen : IGameScreen
             if (_travel.IsMoving) return "В ПУТИ. ЛКМ — ВЫБРАТЬ НОВЫЙ МАРШРУТ.";
             if (_travel.Destination is not null)
                 return _travel.Preview.IsReachable ? "ЛКМ ЕЩЁ РАЗ — ИДТИ ПО МАРШРУТУ" : "ПУТЬ ПЕРЕКРЫТ";
+            if (NearestVisiblePoint(_travel.Position, 17) is { } nearby)
+                return hoveredPoint?.Id == nearby.Id &&
+                    MapPosition.Distance(_travel.Position, _map.Navigation!.Points[nearby.Id]) <= 6
+                    ? "ЛКМ / E — ОСМОТРЕТЬ МЕСТО" : "E — ОСМОТРЕТЬ БЛИЖАЙШЕЕ МЕСТО";
             return hoveredPoint is not null ? "ЛКМ — ПОДОЙТИ К МЕСТУ" : "ЛКМ — ВЫБРАТЬ ЛЮБУЮ ТОЧКУ ТРОПЫ";
         }
         if (hoveredPoint is not null && hoveredPoint.Coordinate != _movement.Position)
@@ -595,7 +606,10 @@ internal sealed class ExplorationScreen : IGameScreen
 
     private WorldPointOfInterest? NearestVisiblePoint(MapPosition position, float radius, bool hitSprites = false)
     {
-        return _map.PointsOfInterest.Where(point => point.Type != "gate" &&
+        var actors = VisibleIdleActors();
+        var activeQuests = ActiveQuestPoints();
+        return _map.PointsOfInterest.Where(point => AdventureMapRenderer.IsPointVisible(point,
+                _map.Id == "flora-01", actors, activeQuests) &&
                 (point.Type != "recruitment" || _campaign?.CanAccessRecruitmentSite(point.RecruitmentSiteId ?? "") == true) &&
                 (point.Type != "encounter" || _campaign?.Encounters.Any(encounter =>
                     encounter.PointOfInterestId == point.Id && _campaign.CanAccessEncounter(encounter.Id)) == true))
@@ -610,6 +624,14 @@ internal sealed class ExplorationScreen : IGameScreen
             .OrderBy(item => item.Distance)
             .ThenBy(item => item.Point.Type == "quest" ? 0 : 1)
             .Select(item => item.Point).FirstOrDefault();
+    }
+
+    private IReadOnlySet<string>? ActiveQuestPoints()
+    {
+        if (_campaign is null) return null;
+        var completed = _campaign.CompletedQuestIds;
+        return _campaign.Quests.Where(quest => !completed.Contains(quest.Id))
+            .Select(quest => quest.PointOfInterestId).OfType<string>().ToHashSet(StringComparer.Ordinal);
     }
 
     internal void PrepareTravelPreview()

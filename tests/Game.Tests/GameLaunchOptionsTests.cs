@@ -11,6 +11,8 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-campaign-battle", CampaignCaptureStage.Combat)]
     [InlineData("--screenshot-campaign-result", CampaignCaptureStage.Result)]
     [InlineData("--screenshot-after-encounter", CampaignCaptureStage.Returned)]
+    [InlineData("--screenshot-after-choice", CampaignCaptureStage.AfterChoice)]
+    [InlineData("--screenshot-map-after-choice", CampaignCaptureStage.AfterChoice)]
     public void CampaignCaptureRemainsExplorationMode(string mode, CampaignCaptureStage stage)
     {
         var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "campaign.png")]);

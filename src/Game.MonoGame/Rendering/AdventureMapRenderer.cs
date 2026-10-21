@@ -19,6 +19,17 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private bool _compactMap;
     private IReadOnlySet<string>? _activeQuestPoints;
 
+    internal static bool IsPointVisible(WorldPointOfInterest point, bool compactMap,
+        IReadOnlyDictionary<string, string> idleActors, IReadOnlySet<string>? activeQuestPoints)
+    {
+        if (point.Type.Equals("gate", StringComparison.OrdinalIgnoreCase)) return false;
+        if (compactMap && point.Type.Equals("encounter", StringComparison.OrdinalIgnoreCase))
+            return idleActors.ContainsKey(point.Id);
+        if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase) && activeQuestPoints is not null)
+            return activeQuestPoints.Contains(point.Id) || idleActors.ContainsKey(point.Id);
+        return true;
+    }
+
     public void Draw(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
         HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile,
         IReadOnlyDictionary<string, string> idleActors, float idleSeconds, bool drawHero = true,
@@ -59,8 +70,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         foreach (var point in map.PointsOfInterest)
         {
             if (map.GetTile(point.Coordinate) is not { } tile) continue;
-            if (_compactMap && point.Type.Equals("encounter", StringComparison.OrdinalIgnoreCase) &&
-                !idleActors.ContainsKey(point.Id)) continue;
+            if (!IsPointVisible(point, _compactMap, idleActors, activeQuestPoints)) continue;
             var screen = camera.ToScreen(projection.ProjectPoint(point));
             if (idleActors.TryGetValue(point.Id, out var idleKey))
                 objects.Add((screen.Y, () => DrawIdleActor(point, idleKey, screen, idleSeconds)));

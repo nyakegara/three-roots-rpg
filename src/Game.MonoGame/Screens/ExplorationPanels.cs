@@ -52,8 +52,13 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
                 return new Vector2(pixel.X, pixel.Y);
             }).ToArray(), color, 2);
         }
+        var completedQuests = campaign?.CompletedQuestIds;
+        var activeQuestPoints = campaign?.Quests.Where(quest => !completedQuests!.Contains(quest.Id))
+            .Select(quest => quest.PointOfInterestId).OfType<string>().ToHashSet(StringComparer.Ordinal);
         foreach (var point in map.PointsOfInterest)
         {
+            if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase) &&
+                activeQuestPoints is not null && !activeQuestPoints.Contains(point.Id)) continue;
             var encounter = campaign?.Encounters.FirstOrDefault(item => item.PointOfInterestId == point.Id);
             var recruitment = point.Type.Equals("recruitment", StringComparison.OrdinalIgnoreCase);
             if (encounter is not null && !campaign!.CanAccessEncounter(encounter.Id) ||
@@ -61,7 +66,7 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
                 (point.RecruitmentSiteId is null || !campaign.CanAccessRecruitmentSite(point.RecruitmentSiteId)))
                 continue;
             if (encounter is null && !recruitment && point.Type != "quest") continue;
-            var p = MapPoint(projection, point.Coordinate, map.GetTile(point.Coordinate)!.Height);
+            var p = MapPixel(projection, projection.ProjectPoint(point));
             var color = encounter is not null ? new Color(189, 67, 53) :
                 recruitment ? new Color(103, 157, 87) : Gold;
             canvas.Rect(p.X - 4, p.Y - 4, 9, 9, Wood);
