@@ -6,16 +6,18 @@ namespace Game.MonoGame;
 internal sealed class PixelFont(PixelCanvas canvas)
 {
     private static readonly Dictionary<char, string[]> Glyphs = CreateGlyphs();
+    internal static IReadOnlyList<string>? GetGlyph(char character) =>
+        Glyphs.GetValueOrDefault(char.ToUpperInvariant(character));
 
     public void Draw(string text, int x, int y, Color color, int scale = 2)
     {
         var origin = x;
-        foreach (var character in text.ToUpperInvariant())
+        foreach (var character in text)
         {
             if (character == '\n') { y += 10 * scale; x = origin; continue; }
-            if (Glyphs.TryGetValue(character, out var rows))
+            if (GetGlyph(character) is { } rows)
             {
-                for (var row = 0; row < rows.Length; row++)
+                for (var row = 0; row < rows.Count; row++)
                     for (var col = 0; col < rows[row].Length; col++)
                         if (rows[row][col] == '1')
                             canvas.Rect(x + col * scale, y + row * scale, scale, scale, color);
@@ -93,6 +95,8 @@ internal sealed class PixelFont(PixelCanvas canvas)
         Add('8', "01110/10001/10001/01110/10001/10001/01110");
         Add('9', "01110/10001/10001/01111/00001/00001/01110");
         Add('-', "00000/00000/00000/11111/00000/00000/00000");
+        foreach (var dash in new[] { '—', '–', '−' }) result[dash] = result['-'];
+        Add('!', "00100/00100/00100/00100/00100/00000/00100");
         Add('/', "00001/00001/00010/00100/01000/10000/10000");
         Add(':', "00000/00100/00100/00000/00100/00100/00000");
         Add('.', "00000/00000/00000/00000/00000/00100/00100");
