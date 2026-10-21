@@ -144,4 +144,23 @@ public sealed class BattleAiTests
         Assert.Equal(BattleActionType.Attack, action.Type);
         Assert.Equal("player", action.TargetId);
     }
+
+    [Fact]
+    public void ChooseAction_WhenDirectRouteIsBlocked_MovesAlongShortestRouteToAttackPosition()
+    {
+        var ai = new BattleAi();
+        var enemy = new BattleUnit("ai-melee", BattleSide.Enemy, new(0, 0), 3, 10, 3,
+            speed: 6, movement: 1, range: 1, isRanged: false);
+        var player = new BattleUnit("player", BattleSide.Player, new(2, 0), 3, 10, 2,
+            speed: 1, movement: 1, range: 1, isRanged: false);
+        var coordinates = new[] { new HexCoord(0, 0), new(0, 1), new(0, 2),
+            new(1, 2), new(2, 1), new(2, 0) };
+        var battle = new Battle(new BattleMap(coordinates.Select(c => new BattleTile(c))), new[] { enemy, player });
+        battle.StartRound();
+
+        var action = ai.ChooseAction(battle, "ai-melee");
+
+        Assert.Equal(BattleActionType.Move, action.Type);
+        Assert.Equal(new HexCoord(0, 1), action.Destination);
+    }
 }
