@@ -79,6 +79,17 @@ public static class BattleRules
             attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire) ? 2 : 0);
     }
 
+    /// <summary>Damage before applying target health, shared by the command and its preview.</summary>
+    public static long GetAttackDamage(BattleUnit attacker, BattleUnit target)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        var rangedTarget = target.IsRanged || target.Ability == UnitAbility.RadiantModes &&
+            target.AttackMode == AttackMode.HolyFire;
+        return attacker.Ability == UnitAbility.Hunter && rangedTarget
+            ? checked(attacker.TotalDamage * 3 / 2) : attacker.TotalDamage;
+    }
+
     public static bool CanAttack(BattleUnit attacker, BattleUnit target, BattleMap map)
     {
         ArgumentNullException.ThrowIfNull(attacker);

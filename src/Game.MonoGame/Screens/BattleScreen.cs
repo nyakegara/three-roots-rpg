@@ -583,7 +583,7 @@ internal sealed class BattleScreen : IGameScreen
                     var ranged = active.IsRanged || active.Ability == UnitAbility.RadiantModes &&
                         active.AttackMode == AttackMode.HolyFire;
                     return (ranged ? "ЛКМ: ВЫСТРЕЛИТЬ. " : "ЛКМ: АТАКОВАТЬ. ") +
-                           "УРОН " + (long)active.Count * active.DamagePerCreature;
+                           "УРОН " + BattleRules.GetAttackDamage(active, unit);
                 }
 
                 return reason switch

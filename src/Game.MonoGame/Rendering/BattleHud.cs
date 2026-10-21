@@ -36,29 +36,30 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
         {
             var name = units.Get(inspected.UnitTypeId)?.Name ?? inspected.UnitTypeId;
             var prefix = hoveredUnit is null ? "ХОД: " : "ЦЕЛЬ: ";
-            _font.Draw(Shorten(prefix + name, 42), 110, 624, Text, 2);
+            _font.Draw(Shorten(prefix + name, 42), 110, 622, Text, 2);
             var range = inspected.Ability == UnitAbility.RadiantModes && inspected.AttackMode == AttackMode.HolyFire
                 ? BattleRules.HolyFireRange : inspected.Range;
-            var mode = inspected.Ability == UnitAbility.RadiantModes
-                ? inspected.AttackMode == AttackMode.HolyFire ? "   РЕЖИМ: ОГОНЬ" : "   РЕЖИМ: МОЛОТ" : "";
-            var details = $"БОЙЦОВ {inspected.Count}   ОЗ {inspected.RemainingHitPoints}/" +
-                          $"{inspected.MaximumHitPointsAtBattleStart}   УРОН {inspected.DamagePerCreature} " +
-                          $"Х {inspected.Count}   ХОД {inspected.Movement}   ДАЛЬН. {range}{mode}";
-            _font.Draw(Shorten(details, 128), 110, 645, Muted, 1);
+            var ranged = inspected.IsRanged || inspected.Ability == UnitAbility.RadiantModes &&
+                inspected.AttackMode == AttackMode.HolyFire;
+            _font.Draw(Shorten($"БОЙЦЫ {inspected.Count} ОЗ {inspected.RemainingHitPoints}/" +
+                inspected.MaximumHitPointsAtBattleStart, 25), 110, 643, Text, 2);
+            _font.Draw(Shorten($"УРОН {(long)inspected.DamagePerCreature * inspected.Count}", 15),
+                430, 643, Text, 2);
+            _font.Draw(ranged ? $"ДАЛЬН.{range} (+2 НИЖЕ)" : "БЛИЖНИЙ БОЙ", 620, 643, Gold, 2);
         }
         else
             _font.Draw(battle.IsFinished ? "БОЙ ЗАВЕРШЁН" : "НАЧАЛО РАУНДА", 110, 624, Text, 2);
 
         var sideText = battle.IsFinished ? "ИТОГ" : active?.Side == BattleSide.Player ? "ВАШ ХОД" : "ХОД ВРАГА";
-        _font.Draw($"РАУНД {battle.Round}  {sideText}", 660, 626, Gold, 1);
-        _font.Draw(Shorten(message, 65), 110, 658, healMode && canHeal ? Gold : Text, 2);
+        _font.Draw(Shorten($"РАУНД {battle.Round}  {sideText}", 21), 660, 622, Gold, 2);
+        _font.Draw(Shorten(message, 65), 110, 660, healMode && canHeal ? Gold : Text, 2);
 
         DrawInitiative(battle, active);
         var activation = playerTurn && active is not null
-            ? $"ДВИЖЕНИЕ: {(battle.HasMoved(active.Id) ? "ИСП." : "ЕСТЬ")}   " +
-              $"ДЕЙСТВИЕ: {(battle.HasAttacked(active.Id) ? "ИСП." : "ЕСТЬ")}" : "";
-        _font.Draw(activation, 450, 684, Muted, 1);
-        _font.Draw("ЛКМ: ПУТЬ / ЦЕЛЬ    ESC: ВЫХОД    N: ДЕНЬ / НОЧЬ", 450, 701, Muted, 1);
+            ? $"ХОД {active.Movement}: {(battle.HasMoved(active.Id) ? "ИСП." : "ЕСТЬ")}  " +
+              $"АТАКА: {(battle.HasAttacked(active.Id) ? "ИСП." : "ЕСТЬ")}" : "";
+        _font.Draw(activation, 450, 684, Text, 2);
+        _font.Draw("ЛКМ: ПУТЬ / ЦЕЛЬ    ESC: ВЫХОД    N: ДЕНЬ / НОЧЬ", 450, 703, Muted, 1);
 
         DrawButton(HealButton, canChangeMode ? "M: РЕЖИМ" : "H: ЛЕЧИТЬ",
             canHeal || canChangeMode, canHeal && healMode || canChangeMode && active!.AttackMode == AttackMode.HolyFire);

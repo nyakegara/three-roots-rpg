@@ -161,12 +161,7 @@ public sealed class Battle
             return false;
         }
 
-        // The hunter is trained to close on bowmen and other ranged formations.
-        var rangedTarget = target.IsRanged || target.Ability == UnitAbility.RadiantModes &&
-            target.AttackMode == AttackMode.HolyFire;
-        var damage = attacker.Ability == UnitAbility.Hunter && rangedTarget
-            ? checked(attacker.TotalDamage * 3 / 2) : attacker.TotalDamage;
-        target.ApplyDamage(damage);
+        target.ApplyDamage(BattleRules.GetAttackDamage(attacker, target));
         if (attacker.Ability == UnitAbility.ConvertOnHit && target.IsAlive && _random.Next(8) == 0)
         {
             target.ConvertTo(attacker.Side);
