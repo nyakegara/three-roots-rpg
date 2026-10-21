@@ -1,9 +1,8 @@
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace Game.MonoGame.Rendering;
 
-/// <summary>Trims transparent atlas padding so every animation frame keeps the same visual height.</summary>
+/// <summary>Trims atlas padding while preserving one scale and body pivot for a complete action.</summary>
 internal static class ActionFrameLayout
 {
     private const byte VisibleAlphaCutoff = 128;
@@ -38,14 +37,25 @@ internal static class ActionFrameLayout
             : new Rectangle(left, top, right - left + 1, bottom - top + 1);
     }
 
-    public static Rectangle FitToHeight(Rectangle visibleSource, Rectangle targetBounds)
+    public static Rectangle FitToReference(Rectangle visibleSource, Rectangle referenceSource,
+        Rectangle targetBounds, bool flip = false)
     {
-        if (visibleSource.Width <= 0 || visibleSource.Height <= 0 || targetBounds.Height <= 0)
+        if (visibleSource.Width <= 0 || visibleSource.Height <= 0 || referenceSource.Width <= 0 ||
+            referenceSource.Height <= 0 || targetBounds.Width <= 0 || targetBounds.Height <= 0)
             return targetBounds;
 
-        var scale = targetBounds.Height / (float)visibleSource.Height;
-        var width = Math.Max(1, (int)MathF.Round(visibleSource.Width * scale));
-        return new Rectangle(targetBounds.Center.X - width / 2,
-            targetBounds.Bottom - targetBounds.Height, width, targetBounds.Height);
+        const int cellWidth = 64;
+        const int cellHeight = 80;
+        var scaleX = targetBounds.Width / (float)referenceSource.Width;
+        var scaleY = targetBounds.Height / (float)referenceSource.Height;
+        var pivotX = referenceSource.X % cellWidth + referenceSource.Width / 2f;
+        var groundY = referenceSource.Y % cellHeight + referenceSource.Height;
+        var localX = visibleSource.X % cellWidth;
+        var localY = visibleSource.Y % cellHeight;
+        var offsetX = flip ? pivotX - localX - visibleSource.Width : localX - pivotX;
+        var width = Math.Max(1, (int)MathF.Round(visibleSource.Width * scaleX));
+        var height = Math.Max(1, (int)MathF.Round(visibleSource.Height * scaleY));
+        return new Rectangle(targetBounds.X + (int)MathF.Round(targetBounds.Width / 2f + offsetX * scaleX),
+            targetBounds.Bottom - (int)MathF.Round((groundY - localY) * scaleY), width, height);
     }
 }

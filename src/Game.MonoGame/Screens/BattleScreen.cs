@@ -59,6 +59,22 @@ internal sealed class BattleScreen : IGameScreen
         : this(canvas, assets, catalog, exit, night)
     {
         _seed = seed;
+        if (capture == BattleCaptureStage.HolyFire)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, inquisitorPreview: true);
+            LoadBattle(demo.Battle, demo.Field);
+            var caster = Battle.Units.First(unit => unit.UnitTypeId == "human.inquisitor");
+            for (var step = 0; step < Battle.Units.Count && Battle.ActiveUnit != caster; step++)
+                Battle.EndActivation();
+            Battle.TrySetAttackMode(caster.Id, AttackMode.HolyFire);
+            RefreshReachable();
+            var target = Battle.Units.First(unit => unit.Side != caster.Side);
+            BeginAttackAnimation(caster, target);
+            for (var frame = 0; frame < 4; frame++) _attackEffect!.Advance(0.08f);
+            _actionSeconds = 0.48f;
+            _message = "ПРЕДПРОСМОТР: СВЯЩЕННЫЙ ОГОНЬ ИНКВИЗИТОРА.";
+            return;
+        }
         Restart();
         if (capture == BattleCaptureStage.Range)
         {
@@ -97,6 +113,9 @@ internal sealed class BattleScreen : IGameScreen
             {
                 var meleeActor = Battle.Units.First(unit => unit.UnitTypeId == "flora.thorn-guard");
                 var meleeTarget = Battle.Units.First(unit => unit.Side != meleeActor.Side);
+                for (var step = 0; step < Battle.Units.Count && Battle.ActiveUnit != meleeActor; step++)
+                    Battle.EndActivation();
+                RefreshReachable();
                 BeginAttackAnimation(meleeActor, meleeTarget);
                 for (var frame = 0; frame < 4; frame++) _attackEffect!.Advance(0.1f);
                 _actionSeconds = 0.4f;
@@ -108,9 +127,12 @@ internal sealed class BattleScreen : IGameScreen
             var attackerId = arrow ? "human.longbow" : "flora.ember-bloom";
             var attacker = Battle.Units.First(unit => unit.UnitTypeId == attackerId);
             var target = Battle.Units.First(unit => unit.Side != attacker.Side);
+            for (var step = 0; step < Battle.Units.Count && Battle.ActiveUnit != attacker; step++)
+                Battle.EndActivation();
+            RefreshReachable();
             BeginAttackAnimation(attacker, target);
             for (var frame = 0; frame < (impact ? 8 : 4); frame++) _attackEffect!.Advance(impact ? 0.075f : 0.08f);
-            _actionSeconds = impact ? 0.2f : 0.48f;
+            _actionSeconds = AttackAnimationTiming.Duration - (impact ? 0.6f : 0.32f);
             _message = arrow ? "ПРЕДПРОСМОТР: СТРЕЛА." : "ПРЕДПРОСМОТР: ПЛАМЕННЫЙ СНАРЯД.";
             return;
         }
@@ -326,7 +348,7 @@ internal sealed class BattleScreen : IGameScreen
         _actionUnitId = actor.Id;
         _actionTargetId = target.Id;
         _actionSecondary = BattleAnimationSelector.UsesSecondaryClip(actor, healing, conversion);
-        _actionSeconds = 0.8f;
+        _actionSeconds = AttackAnimationTiming.Duration;
         _attackEffect = new BattleAttackEffect(actor,
             _field.Layout.Center(Battle.Map.GetTile(actor.Position)!),
             _field.Layout.Center(Battle.Map.GetTile(target.Position)!), healing);
@@ -505,10 +527,11 @@ internal sealed class BattleScreen : IGameScreen
             var bounds = new Rectangle(x - spriteWidth / 2, y + 17 - spriteHeight,
                 spriteWidth, spriteHeight);
             var actionFrame = _actionSeconds > 0f && _actionUnitId == unit.Id
-                ? Math.Min(7, (int)((0.8f - _actionSeconds) / 0.1f)) : -1;
-            var humanAction = actionFrame >= 2 && actionFrame <= 5 &&
+                ? AttackAnimationTiming.FrameAt(_actionSeconds) : -1;
+            var actionKey = BattleAnimationSelector.HumanPoseKey(key, _actionSecondary);
+            var humanAction = actionFrame >= 1 && actionFrame <= 5 &&
                 unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal) &&
-                _assets.HasAsset(key + ".attack");
+                _assets.HasAsset(actionKey);
             if (actionFrame >= 0 && unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal))
             {
                 var recoil = actionFrame switch { 0 or 7 => 0, 1 or 6 => 1, 2 or 5 => 2, _ => 3 };
@@ -516,12 +539,12 @@ internal sealed class BattleScreen : IGameScreen
             }
             var animating = actionFrame >= 0 && !unit.UnitTypeId.StartsWith("human.", StringComparison.Ordinal) &&
                 _assets.TryDrawAction(_canvas, "unit." + unit.UnitTypeId + ".actions",
-                    ActionSpriteBounds(x, y + 17, spriteWidth, spriteHeight),
+                    _assets.GetCroppedDestination(key, bounds),
                     actionFrame, _actionSecondary,
                     unit.Side == BattleSide.Enemy);
             var drawKey = key;
-            if (humanAction) drawKey = key + ".attack";
-            if (humanAction && unit.UnitTypeId == "human.longbow" && actionFrame >= 3 &&
+            if (humanAction) drawKey = actionKey;
+            if (humanAction && unit.UnitTypeId == "human.longbow" && actionFrame >= AttackAnimationTiming.ReleaseFrame &&
                 _assets.HasAsset(key + ".released"))
                 drawKey = key + ".released";
             var drawBounds = humanAction
@@ -543,9 +566,6 @@ internal sealed class BattleScreen : IGameScreen
         _canvas.Frame(x + 12, y + 12, width, 13, unit.Side == BattleSide.Player ? Green : Red, 1);
         _font.Draw(label, x + 16, y + 15, Gold, 1);
     }
-
-    private static Rectangle ActionSpriteBounds(int centerX, int groundY, int width, int height) =>
-        new(centerX - width / 2, groundY - height, width, height);
 
     private string DescribeHover(BattleUnit? unit)
     {

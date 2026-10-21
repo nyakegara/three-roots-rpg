@@ -7,6 +7,15 @@ namespace Game.Tests;
 
 public sealed class BattleAnimationSelectorTests
 {
+    [Theory]
+    [InlineData("unit.human.inquisitor", true, "unit.human.inquisitor.cast")]
+    [InlineData("unit.human.inquisitor", false, "unit.human.inquisitor.attack")]
+    [InlineData("unit.human.longbow", false, "unit.human.longbow.attack")]
+    public void HumanPose_MatchesSelectedAttackMode(string artKey, bool secondary, string expected)
+    {
+        Assert.Equal(expected, BattleAnimationSelector.HumanPoseKey(artKey, secondary));
+    }
+
     [Fact]
     public void HealAbility_UsesSecondaryClipOnlyForHealing()
     {

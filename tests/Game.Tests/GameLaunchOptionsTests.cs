@@ -27,6 +27,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-result")]
     [InlineData("--screenshot-combat-arrow")]
     [InlineData("--screenshot-combat-magic")]
+    [InlineData("--screenshot-combat-holy-fire")]
     [InlineData("--screenshot-combat-arrow-impact")]
     [InlineData("--screenshot-combat-magic-impact")]
     [InlineData("--screenshot-combat-melee")]
@@ -49,7 +50,16 @@ public sealed class GameLaunchOptionsTests
             mode.EndsWith("-range") ? BattleCaptureStage.Range :
             mode.EndsWith("-ranged-target") ? BattleCaptureStage.RangedTarget :
             mode.EndsWith("-arrow") ? BattleCaptureStage.Arrow :
-            mode.EndsWith("-magic") ? BattleCaptureStage.Magic : BattleCaptureStage.Opening,
+            mode.EndsWith("-magic") ? BattleCaptureStage.Magic :
+            mode.EndsWith("-holy-fire") ? BattleCaptureStage.HolyFire : BattleCaptureStage.Opening,
+            options.CombatCapture);
+    }
+
+    [Fact]
+    public void HolyFireScreenshot_SelectsSpecializedPosePreview()
+    {
+        var options = GameLaunchOptions.Parse(["--screenshot-combat-holy-fire", Path.Combine(Path.GetTempPath(), "holy-fire.png")]);
+        Assert.Equal(BattleCaptureStage.HolyFire,
             options.CombatCapture);
     }
 

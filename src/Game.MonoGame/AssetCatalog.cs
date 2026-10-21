@@ -46,7 +46,7 @@ internal sealed class AssetCatalog : IDisposable
                      "unit.human.order-hunter", "unit.human.inquisitor",
                      "unit.human.militia.attack", "unit.human.longbow.attack",
                      "unit.human.banner-knight.attack", "unit.human.order-hunter.attack",
-                     "unit.human.inquisitor.attack", "unit.human.longbow.released",
+                     "unit.human.inquisitor.attack", "unit.human.inquisitor.cast", "unit.human.longbow.released",
                      RootGreenhouse, SunnyClearing, SporeCircle,
                      BattlefieldForestDay, BattlefieldForestNight })
         {
@@ -183,7 +183,9 @@ internal sealed class AssetCatalog : IDisposable
         var source = _actionFrameBounds[key][index];
         if (source.IsEmpty)
             source = new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80);
-        var fitted = ActionFrameLayout.FitToHeight(source, destination);
+        var reference = _actionFrameBounds[key][0];
+        if (reference.IsEmpty) reference = new Rectangle(0, 0, 64, 80);
+        var fitted = ActionFrameLayout.FitToReference(source, reference, destination, flipHorizontally);
         canvas.Texture(texture, source, fitted, flipHorizontally);
         return true;
     }
@@ -202,14 +204,19 @@ internal sealed class AssetCatalog : IDisposable
         if (!_textures.TryGetValue(key, out var asset))
             return false;
 
+        canvas.Texture(asset.Texture, asset.ContentBounds, GetCroppedDestination(key, bounds), flipHorizontally);
+        return true;
+    }
+
+    public Rectangle GetCroppedDestination(string key, Rectangle bounds)
+    {
+        if (!_textures.TryGetValue(key, out var asset)) return bounds;
         var source = asset.ContentBounds;
         var scale = Math.Min(bounds.Width / (float)source.Width, bounds.Height / (float)source.Height);
         var width = Math.Max(1, (int)MathF.Round(source.Width * scale));
         var height = Math.Max(1, (int)MathF.Round(source.Height * scale));
-        var destination = new Rectangle(bounds.X + (bounds.Width - width) / 2,
+        return new Rectangle(bounds.X + (bounds.Width - width) / 2,
             bounds.Y + (bounds.Height - height) / 2, width, height);
-        canvas.Texture(asset.Texture, source, destination, flipHorizontally);
-        return true;
     }
 
     private static Rectangle FindVisibleBounds(IReadOnlyList<Color> pixels, int width, int height)

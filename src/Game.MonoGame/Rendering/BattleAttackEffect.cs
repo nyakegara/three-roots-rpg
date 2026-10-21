@@ -6,9 +6,9 @@ namespace Game.MonoGame.Rendering;
 /// <summary>Short pixel-art feedback for an attack already resolved by the battle rules.</summary>
 internal sealed class BattleAttackEffect
 {
-    private const float Windup = 0.14f;
+    private const float Windup = AttackAnimationTiming.ReleaseSeconds;
     private const float Flight = 0.42f;
-    private const float Duration = 0.8f;
+    private const float Duration = AttackAnimationTiming.Duration;
     private readonly Vector2 _from;
     private readonly Vector2 _to;
     private readonly Kind _kind;

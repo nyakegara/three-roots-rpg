@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -72,6 +72,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-combat-result":
                 case "--screenshot-combat-arrow":
                 case "--screenshot-combat-magic":
+                case "--screenshot-combat-holy-fire":
                 case "--screenshot-combat-arrow-impact":
                 case "--screenshot-combat-magic-impact":
                 case "--screenshot-combat-melee":
@@ -96,6 +97,7 @@ public sealed record GameLaunchOptions
         var combat = mode is "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
             or "--screenshot-combat-heal" or "--screenshot-combat-result"
             or "--screenshot-combat-arrow" or "--screenshot-combat-magic"
+            or "--screenshot-combat-holy-fire"
             or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
             or "--screenshot-combat-melee"
             or "--screenshot-combat-range" or "--screenshot-combat-target" or "--screenshot-combat-ranged-target";
@@ -124,6 +126,7 @@ public sealed record GameLaunchOptions
                 "--screenshot-combat-result" => BattleCaptureStage.Result,
                 "--screenshot-combat-arrow" => BattleCaptureStage.Arrow,
                 "--screenshot-combat-magic" => BattleCaptureStage.Magic,
+                "--screenshot-combat-holy-fire" => BattleCaptureStage.HolyFire,
                 "--screenshot-combat-arrow-impact" => BattleCaptureStage.ArrowImpact,
                 "--screenshot-combat-magic-impact" => BattleCaptureStage.MagicImpact,
                 "--screenshot-combat-melee" => BattleCaptureStage.Melee,
