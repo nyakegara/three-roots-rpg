@@ -1,0 +1,480 @@
+{
+  "schemaVersion": 2,
+  "id": "unit.human.inquisitor.idle.v2",
+  "image": "unit.human.inquisitor.idle.v2.png",
+  "kind": "idle",
+  "width": 256,
+  "height": 80,
+  "columns": 4,
+  "rows": 1,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "contentBox": {
+    "x": 0,
+    "y": 4,
+    "width": 64,
+    "height": 68
+  },
+  "alphaCutoff": 128,
+  "alignBottom": 72,
+  "anchorMode": "body",
+  "frameOrder": "row-major",
+  "heroTwoFrame": false,
+  "heroCompactWalk": false,
+  "usedFrameCount": 4,
+  "unusedSlots": [],
+  "clips": [
+    {
+      "name": "idle",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "frameMs": 320,
+      "loop": true,
+      "impactFrame": null
+    }
+  ],
+  "frameDiagnostics": [
+    {
+      "frame": 0,
+      "empty": false,
+      "visibleBounds": {
+        "left": 0,
+        "top": 5,
+        "right": 57,
+        "bottom": 71
+      },
+      "edgePixels": 1
+    },
+    {
+      "frame": 1,
+      "empty": false,
+      "visibleBounds": {
+        "left": 0,
+        "top": 5,
+        "right": 56,
+        "bottom": 71
+      },
+      "edgePixels": 4
+    },
+    {
+      "frame": 2,
+      "empty": false,
+      "visibleBounds": {
+        "left": 0,
+        "top": 7,
+        "right": 56,
+        "bottom": 71
+      },
+      "edgePixels": 1
+    },
+    {
+      "frame": 3,
+      "empty": false,
+      "visibleBounds": {
+        "left": 1,
+        "top": 5,
+        "right": 55,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    }
+  ],
+  "registration": [
+    {
+      "frame": 0,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 1,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 2,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 3,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    }
+  ],
+  "sourceBorderDiagnostics": [],
+  "unpacking": {
+    "enabled": true,
+    "connectivity": 8,
+    "majorMinAreaFraction": 0.1,
+    "majorMinHeightFraction": 0.35,
+    "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
+    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sampling": "sourceX=floor(pivotX\u002B(x\u002B0.5-anchorX)/scale); sourceY=floor(pivotY\u002B(y-translationY\u002B0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
+    "sources": [
+      {
+        "source": "../../../docs/art/animations/sources/human-inquisitor.idle.v2.source.png",
+        "Width": 2172,
+        "Height": 724,
+        "Columns": 4,
+        "Rows": 1,
+        "expected": 4,
+        "primaryComponents": 4,
+        "totalComponents": 14,
+        "detachedComponents": 10,
+        "Scale": 0.1060758052213998,
+        "FitScale": 0.1060758052213998,
+        "RowGrounds": [
+          677
+        ],
+        "Attachments": [
+          {
+            "component": 1,
+            "Area": 315,
+            "bounds": {
+              "Left": 112,
+              "Top": 42,
+              "Right": 137,
+              "Bottom": 76
+            },
+            "frame": 0,
+            "bboxDistance": 5,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 2,
+            "Area": 324,
+            "bounds": {
+              "Left": 675,
+              "Top": 43,
+              "Right": 700,
+              "Bottom": 64
+            },
+            "frame": 1,
+            "bboxDistance": 3,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 3,
+            "Area": 314,
+            "bounds": {
+              "Left": 1742,
+              "Top": 50,
+              "Right": 1771,
+              "Bottom": 79
+            },
+            "frame": 3,
+            "bboxDistance": 3,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 5,
+            "Area": 196,
+            "bounds": {
+              "Left": 1196,
+              "Top": 68,
+              "Right": 1217,
+              "Bottom": 88
+            },
+            "frame": 2,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 9,
+            "Area": 448,
+            "bounds": {
+              "Left": 1160,
+              "Top": 98,
+              "Right": 1186,
+              "Bottom": 129
+            },
+            "frame": 2,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 10,
+            "Area": 37,
+            "bounds": {
+              "Left": 203,
+              "Top": 179,
+              "Right": 209,
+              "Bottom": 187
+            },
+            "frame": 0,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 11,
+            "Area": 26,
+            "bounds": {
+              "Left": 1831,
+              "Top": 179,
+              "Right": 1836,
+              "Bottom": 186
+            },
+            "frame": 3,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 12,
+            "Area": 22,
+            "bounds": {
+              "Left": 127,
+              "Top": 289,
+              "Right": 133,
+              "Bottom": 294
+            },
+            "frame": 0,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 13,
+            "Area": 20,
+            "bounds": {
+              "Left": 1757,
+              "Top": 290,
+              "Right": 1762,
+              "Bottom": 294
+            },
+            "frame": 3,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          },
+          {
+            "component": 14,
+            "Area": 20,
+            "bounds": {
+              "Left": 1214,
+              "Top": 295,
+              "Right": 1219,
+              "Bottom": 299
+            },
+            "frame": 2,
+            "bboxDistance": 0,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          }
+        ],
+        "sha256": "eda4bf3fda6a74018e6b1a8ea825e7ce73916cf30aaaff289161d94cd2700b91"
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.idle.v2.source.png",
+        "sourceFrame": 0,
+        "sourceColumn": 0,
+        "sourceRow": 0,
+        "primaryComponent": 6,
+        "componentIds": [
+          1,
+          6,
+          10,
+          12
+        ],
+        "sourceCropBounds": {
+          "left": 25,
+          "top": 42,
+          "right": 565,
+          "bottom": 677
+        },
+        "primaryBounds": {
+          "left": 25,
+          "top": 81,
+          "right": 565,
+          "bottom": 677
+        },
+        "scale": 0.1060758052213998,
+        "pivotX": 322.0267050123254,
+        "pivotY": 677,
+        "primaryBottom": 677,
+        "transform": {
+          "offsetX": -2.1592420369766003,
+          "offsetY": 0.18667986511233892
+        },
+        "nativeBounds": {
+          "left": 0,
+          "top": 5,
+          "rightExclusive": 58,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 1,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.idle.v2.source.png",
+        "sourceFrame": 1,
+        "sourceColumn": 1,
+        "sourceRow": 0,
+        "primaryComponent": 4,
+        "componentIds": [
+          2,
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 572,
+          "top": 43,
+          "right": 1114,
+          "bottom": 677
+        },
+        "primaryBounds": {
+          "left": 572,
+          "top": 67,
+          "right": 1114,
+          "bottom": 677
+        },
+        "scale": 0.1060758052213998,
+        "pivotX": 873.6710543295909,
+        "pivotY": 677,
+        "primaryBottom": 677,
+        "transform": {
+          "offsetX": -60.67536058664068,
+          "offsetY": 0.18667986511233892
+        },
+        "nativeBounds": {
+          "left": 0,
+          "top": 5,
+          "rightExclusive": 57,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 2,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.idle.v2.source.png",
+        "sourceFrame": 2,
+        "sourceColumn": 2,
+        "sourceRow": 0,
+        "primaryComponent": 8,
+        "componentIds": [
+          5,
+          8,
+          9,
+          14
+        ],
+        "sourceCropBounds": {
+          "left": 1107,
+          "top": 68,
+          "right": 1640,
+          "bottom": 677
+        },
+        "primaryBounds": {
+          "left": 1107,
+          "top": 83,
+          "right": 1640,
+          "bottom": 677
+        },
+        "scale": 0.1060758052213998,
+        "pivotX": 1406.9630623194387,
+        "pivotY": 677,
+        "primaryBottom": 677,
+        "transform": {
+          "offsetX": -117.24473975230097,
+          "offsetY": 0.18667986511233892
+        },
+        "nativeBounds": {
+          "left": 0,
+          "top": 7,
+          "rightExclusive": 57,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 3,
+        "source": "../../../docs/art/animations/sources/human-inquisitor.idle.v2.source.png",
+        "sourceFrame": 3,
+        "sourceColumn": 3,
+        "sourceRow": 0,
+        "primaryComponent": 7,
+        "componentIds": [
+          3,
+          7,
+          11,
+          13
+        ],
+        "sourceCropBounds": {
+          "left": 1655,
+          "top": 50,
+          "right": 2172,
+          "bottom": 677
+        },
+        "primaryBounds": {
+          "left": 1655,
+          "top": 82,
+          "right": 2172,
+          "bottom": 677
+        },
+        "scale": 0.1060758052213998,
+        "pivotX": 1950.2759702212725,
+        "pivotY": 677,
+        "primaryBottom": 677,
+        "transform": {
+          "offsetX": -174.8770939451682,
+          "offsetY": 0.18667986511233892
+        },
+        "nativeBounds": {
+          "left": 1,
+          "top": 5,
+          "rightExclusive": 56,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      }
+    ]
+  },
+  "source": {
+    "image": "../../../docs/art/animations/sources/human-inquisitor.idle.v2.source.png",
+    "width": 2172,
+    "height": 724,
+    "transparentPixels": 751833,
+    "partialAlphaPixels": 817666,
+    "opaquePixels": 3029
+  }
+}

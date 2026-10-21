@@ -273,19 +273,21 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     {
         if (point.Id == "guide-dialogue") p += new WorldVector2(-56, 5);
         var phase = point.Id.Sum(character => (int)character) & 3;
-        var frame = ((int)(seconds * 1000f / 260f) + phase) % 4;
+        var frameMs = idleKey.StartsWith("unit.human.", StringComparison.Ordinal) ? 320f : 260f;
+        var frame = ((int)(seconds * 1000f / frameMs) + phase) % 4;
         var size = _compactMap ? new Rectangle((int)p.X - 32, (int)p.Y - 72, 64, 80)
             : new Rectangle((int)p.X - 40, (int)p.Y - 82, 80, 100);
         FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 2, _compactMap ? 34 : 42, 9, Ink * 0.65f);
-        if (!assets.TryDrawIdle(canvas, idleKey, size, frame))
+        if (!assets.TryDrawIdle(canvas, idleKey, size, frame, out var visibleTop))
         {
             var staticKey = idleKey[..^".idle".Length];
             assets.TryDrawCropped(canvas, staticKey, size);
+            visibleTop = assets.GetCroppedDestination(staticKey, size).Top;
         }
         if (_activeQuestPoints?.Contains(point.Id) == true)
         {
-            canvas.Rect((int)p.X - 2, (int)p.Y - 87, 4, 10, new Color(245, 210, 124));
-            canvas.Rect((int)p.X - 2, (int)p.Y - 74, 4, 3, new Color(245, 210, 124));
+            canvas.Rect((int)p.X - 2, visibleTop - 22, 4, 10, new Color(245, 210, 124));
+            canvas.Rect((int)p.X - 2, visibleTop - 9, 4, 3, new Color(245, 210, 124));
         }
     }
 

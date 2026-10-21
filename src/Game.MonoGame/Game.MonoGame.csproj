@@ -21,6 +21,9 @@
     <Content Include="..\..\content\art\animations\*.idle.png"
              Link="Content\art\animations\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\art\animations\*.idle.v2.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\content\art\animations\unit.*.actions.png"
              Link="Content\art\animations\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />

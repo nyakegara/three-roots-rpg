@@ -30,6 +30,7 @@ internal sealed class AssetCatalog : IDisposable
     public const string BattlefieldForestNight = "battlefield.forest.night";
     private readonly Dictionary<string, TextureAsset> _textures = new();
     private readonly Dictionary<string, Texture2D> _idleTextures = new();
+    private readonly Dictionary<string, int> _idleTopPadding = new();
     private readonly Dictionary<string, Texture2D> _actionTextures = new();
     private readonly Dictionary<string, Rectangle[]> _actionFrameBounds = new();
     private readonly Dictionary<string, byte[]> _hitAlpha = new();
@@ -72,12 +73,18 @@ internal sealed class AssetCatalog : IDisposable
                      "unit.human.banner-knight.idle", "unit.human.inquisitor.idle" })
         {
             var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", key + ".png");
+            var revised = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", key + ".v2.png");
+            if (File.Exists(revised)) path = revised;
             if (!File.Exists(path)) continue;
             try
             {
                 using var stream = File.OpenRead(path);
-                var texture = LoadPremultiplied(device, stream, out _);
-                if (texture.Width == 256 && texture.Height == 80) _idleTextures.Add(key, texture);
+                var texture = LoadPremultiplied(device, stream, out var visible);
+                if (texture.Width == 256 && texture.Height == 80)
+                {
+                    _idleTextures.Add(key, texture);
+                    _idleTopPadding.Add(key, visible.Top);
+                }
                 else texture.Dispose();
             }
             catch (Exception exception) when (exception is IOException or InvalidOperationException)
@@ -169,9 +176,11 @@ internal sealed class AssetCatalog : IDisposable
         return true;
     }
 
-    public bool TryDrawIdle(PixelCanvas canvas, string key, Rectangle destination, int frame)
+    public bool TryDrawIdle(PixelCanvas canvas, string key, Rectangle destination, int frame, out int visibleTop)
     {
+        visibleTop = destination.Top;
         if (!_idleTextures.TryGetValue(key, out var texture)) return false;
+        visibleTop += (int)MathF.Round(_idleTopPadding[key] * destination.Height / 80f);
         canvas.Texture(texture, new Rectangle(Math.Abs(frame % 4) * 64, 0, 64, 80), destination);
         return true;
     }
@@ -273,6 +282,7 @@ internal sealed class AssetCatalog : IDisposable
         _textures.Clear();
         foreach (var texture in _idleTextures.Values) texture.Dispose();
         _idleTextures.Clear();
+        _idleTopPadding.Clear();
         foreach (var texture in _actionTextures.Values) texture.Dispose();
         _actionTextures.Clear();
         _actionFrameBounds.Clear();
