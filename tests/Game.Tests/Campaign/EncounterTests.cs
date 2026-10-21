@@ -38,10 +38,18 @@ public sealed class EncounterTests
     }
 
     [Fact]
-    public void Encounter_RejectsDuplicateEnemyUnitTypes()
+    public void Encounter_KeepsRepeatedTypesAsDistinctStacks()
     {
-        Assert.Throws<ArgumentException>(() => new CampaignEncounter("road", Point.Id, "Guards", 123,
-            [new("human.militia", 1), new("human.militia", 2)], 20, 30));
+        var encounter = new CampaignEncounter("road", Point.Id, "Guards", 123,
+            [new("human.militia", 1), new("human.militia", 2)], 20, 30);
+        Assert.Equal(new[] { 1, 2 }, encounter.EnemyArmy.Select(t => t.Count));
+        var hero = new HeroModel("hero", "Hero", 100);
+        Recruit(hero, "flora.thorn-guard", 4);
+        var campaign = new Campaign(hero, [], encounters: [encounter]);
+        var enemies = Start(campaign).Battle.Units.Where(u => u.Side == BattleSide.Enemy).ToArray();
+        Assert.Equal(new[] { 1, 2 }, enemies.Select(u => u.Count));
+        Assert.Equal(2, enemies.Select(u => u.Id).Distinct().Count());
+        Assert.Equal(2, enemies.Select(u => u.Position).Distinct().Count());
     }
 
     [Fact]

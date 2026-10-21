@@ -47,7 +47,7 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
                 inspected.AttackMode == AttackMode.HolyFire;
             _font.Draw(Shorten($"БОЙЦЫ {inspected.Count} ОЗ {inspected.RemainingHitPoints}/" +
                 inspected.MaximumHitPointsAtBattleStart, 25), 110, 643, Text, 2);
-            _font.Draw(Shorten($"УРОН {(long)inspected.DamagePerCreature * inspected.Count}", 15),
+            _font.Draw(Shorten($"УРОН {BattleRules.GetBaseAttackDamage(inspected)}", 15),
                 430, 643, Text, 2);
             _font.Draw(ranged ? $"ДАЛЬН.{range} (+2 НИЖЕ)" : "БЛИЖНИЙ БОЙ", 620, 643, Gold, 2);
         }

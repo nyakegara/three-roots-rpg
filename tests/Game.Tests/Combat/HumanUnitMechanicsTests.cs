@@ -23,6 +23,21 @@ public sealed class HumanUnitMechanicsTests
     }
 
     [Fact]
+    public void InquisitorHammerAndFireHaveDifferentDamage()
+    {
+        var inquisitor = new BattleUnit("inquisitor", BattleSide.Player, new(0, 0), 2,
+            40, 12, 7, 3, 1, false, ability: UnitAbility.RadiantModes);
+        var target = Unit("target", BattleSide.Enemy, 1, 0, 1);
+        var battle = BattleWith(inquisitor, target);
+        battle.StartRound();
+        Assert.Equal(24, BattleRules.GetAttackDamage(inquisitor, target));
+        Assert.True(battle.TrySetAttackMode(inquisitor.Id, AttackMode.HolyFire));
+        Assert.Equal(16, BattleRules.GetAttackDamage(inquisitor, target));
+        Assert.True(battle.Attack(inquisitor.Id, target.Id));
+        Assert.Equal(14, target.RemainingHitPoints);
+    }
+
+    [Fact]
     public void InquisitorMayChooseFireForDistanceOrHammerForAdjacentTarget()
     {
         var inquisitor = Unit("inquisitor", BattleSide.Player, 0, 0, 8, UnitAbility.RadiantModes);

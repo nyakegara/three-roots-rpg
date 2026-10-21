@@ -28,8 +28,6 @@ public sealed class CampaignEncounter
         var troops = enemyArmy.ToArray();
         if (troops.Length is < 1 or > Army.MaximumStacks || troops.Any(troop => troop is null))
             throw new ArgumentException("An encounter must contain between one and five enemy stacks.", nameof(enemyArmy));
-        if (troops.Select(troop => troop.UnitTypeId).Distinct(StringComparer.Ordinal).Count() != troops.Length)
-            throw new ArgumentException("An encounter cannot contain duplicate enemy unit types.", nameof(enemyArmy));
         Id = id;
         PointOfInterestId = pointOfInterestId;
         Name = name;

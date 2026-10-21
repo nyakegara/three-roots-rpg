@@ -150,9 +150,9 @@ public sealed class AdventureMapContentTests
         var encounters = loaded.Definition!.Encounters.ToDictionary(e => e.Id);
         Assert.Equal(10, encounters.Count); // Nine red markers plus the refusal fight at the peasants.
         Assert.Equal(3, encounters["burned-forest"].EnemyArmy.Count);
-        Assert.Equal(2, encounters["mountain-outpost"].EnemyArmy.Single(t => t.UnitTypeId == "human.banner-knight").Count);
+        Assert.Equal(3, encounters["mountain-outpost"].EnemyArmy.Single(t => t.UnitTypeId == "human.banner-knight").Count);
         Assert.Equal(2, encounters["mountain-outpost"].EnemyArmy.Single(t => t.UnitTypeId == "human.order-hunter").Count);
-        Assert.Single(encounters["optional-patrol"].EnemyArmy);
+        Assert.Equal(2, encounters["optional-patrol"].EnemyArmy.Count);
         Assert.All(encounters["optional-patrol"].EnemyArmy, t => Assert.Equal("human.militia", t.UnitTypeId));
         Assert.All(encounters["plants-pasture-battle"].EnemyArmy, t => Assert.StartsWith("flora.", t.UnitTypeId));
         Assert.All(encounters["mad-forest-plants"].EnemyArmy, t => Assert.StartsWith("flora.", t.UnitTypeId));

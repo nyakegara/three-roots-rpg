@@ -179,11 +179,19 @@
       "enemyArmy": [
         {
           "unitId": "human.militia",
-          "count": 4
+          "count": 5
         },
         {
-          "unitId": "human.longbow",
-          "count": 1
+          "unitId": "human.militia",
+          "count": 5
+        },
+        {
+          "unitId": "human.militia",
+          "count": 5
+        },
+        {
+          "unitId": "human.militia",
+          "count": 5
         }
       ],
       "goldReward": 25,
@@ -197,15 +205,15 @@
       "enemyArmy": [
         {
           "unitId": "human.banner-knight",
-          "count": 2
-        },
-        {
-          "unitId": "human.militia",
           "count": 3
         },
         {
+          "unitId": "human.militia",
+          "count": 5
+        },
+        {
           "unitId": "human.longbow",
-          "count": 2
+          "count": 3
         }
       ],
       "goldReward": 55,
@@ -220,6 +228,10 @@
       "enemyArmy": [
         {
           "unitId": "human.banner-knight",
+          "count": 3
+        },
+        {
+          "unitId": "human.order-hunter",
           "count": 2
         },
         {
@@ -227,8 +239,8 @@
           "count": 4
         },
         {
-          "unitId": "human.order-hunter",
-          "count": 2
+          "unitId": "human.longbow",
+          "count": 4
         }
       ],
       "goldReward": 70,
@@ -284,7 +296,7 @@
         },
         {
           "unitId": "human.inquisitor",
-          "count": 1
+          "count": 2
         }
       ],
       "goldReward": 0,
@@ -298,7 +310,11 @@
       "enemyArmy": [
         {
           "unitId": "human.militia",
-          "count": 3
+          "count": 5
+        },
+        {
+          "unitId": "human.militia",
+          "count": 5
         }
       ],
       "goldReward": 45,
@@ -357,11 +373,11 @@
       "enemyArmy": [
         {
           "unitId": "flora.thorn-guard",
-          "count": 3
+          "count": 6
         },
         {
           "unitId": "flora.sprout",
-          "count": 2
+          "count": 3
         }
       ],
       "goldReward": 40,
