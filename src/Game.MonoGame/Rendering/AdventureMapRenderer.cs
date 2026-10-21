@@ -357,12 +357,9 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             var assetKey = RecruitmentPointArt.GetAssetKey(point.RecruitmentSiteId);
             if (assetKey is not null)
             {
-                var compact = _compactMap;
-                var spriteWidth = compact ? 54 : 96;
-                var spriteHeight = compact ? 58 : 96;
-                var bounds = new Rectangle((int)p.X - spriteWidth / 2,
-                    (int)p.Y - spriteHeight + 8, spriteWidth, spriteHeight);
-                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 10, compact ? 42 : 72, compact ? 8 : 14, Ink * 0.78f);
+                var bounds = RecruitmentPointArt.Bounds(new Point((int)p.X, (int)p.Y), _compactMap);
+                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 10,
+                    _compactMap ? 60 : 80, _compactMap ? 10 : 14, Ink * 0.78f);
                 if (!assets.TryDraw(canvas, assetKey, bounds))
                     DrawRecruitmentFallback(p);
             }

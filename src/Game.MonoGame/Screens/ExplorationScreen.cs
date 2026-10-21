@@ -641,9 +641,14 @@ internal sealed class ExplorationScreen : IGameScreen
                 var actorHit = hitSprites && actors.ContainsKey(point.Id) && AdventureMapRenderer.IsIdleActorHit(
                     _projection.FromArt(position), _projection.FromArt(anchor), _map.Id == "flora-01",
                     activeQuests?.Contains(point.Id) == true);
+                var buildingHit = hitSprites && point.Type == "recruitment" &&
+                    RecruitmentPointArt.GetAssetKey(point.RecruitmentSiteId) is not null &&
+                    RecruitmentPointArt.Bounds(new Point((int)_projection.FromArt(anchor).X,
+                        (int)_projection.FromArt(anchor).Y), _map.Id == "flora-01")
+                    .Contains((int)_projection.FromArt(position).X, (int)_projection.FromArt(position).Y);
                 if (hitSprites) anchor = new(anchor.X, anchor.Y - 15);
                 var distance = MapPosition.Distance(position, anchor);
-                return (Point: point, Anchor: anchor, Distance: distance, Hit: actorHit || distance <= radius);
+                return (Point: point, Anchor: anchor, Distance: distance, Hit: actorHit || buildingHit || distance <= radius);
             })
             .Where(item => item.Hit && (hitSprites || _travel!.CanInteractWith(item.Anchor, radius)))
             .OrderBy(item => item.Distance)
