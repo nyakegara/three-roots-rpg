@@ -115,7 +115,6 @@ public sealed class AdventureMapContentTests
     [InlineData("mountain-outpost", .468f, .532f)]
     [InlineData("optional-patrol", .577f, .467f)]
     [InlineData("plants-pasture-battle", .711f, .648f)]
-    [InlineData("mad-forest-plants", .717f, .337f)]
     [InlineData("mushroom-outpost", .425f, .662f)]
     [InlineData("artifact-ash-guard", .290f, .630f)]
     [InlineData("artifact-spore-guard", .339f, .444f)]
@@ -130,6 +129,15 @@ public sealed class AdventureMapContentTests
         // The southern plants stand just above the tree obstacle under the marker.
         Assert.InRange(MapPosition.Distance(nav.Points[id], expected), 0,
             id == "plants-pasture-battle" ? 16 : .02f);
+    }
+
+    [Fact]
+    public void AggressivePlantsStandFurtherDownTheStartingTrail()
+    {
+        var nav = Load();
+        var enemy = nav.Points["mad-forest-plants"];
+        Assert.True(MapPosition.Distance(enemy, nav.Points["guide-dialogue"]) >= 130);
+        Assert.True(new AdventurePathfinder(new(nav)).FindPath(nav.Start, enemy).IsReachable);
     }
 
     [Fact]
