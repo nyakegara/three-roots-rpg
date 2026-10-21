@@ -390,7 +390,7 @@ internal sealed class ExplorationScreen : IGameScreen
             _campaign.TryGetRecruitmentSiteAt(point, _movement.Position, out var site) && site is not null)
         {
             _recruitmentScreen = new RecruitmentScreen(_canvas, _hero, site, _units, _assets, point.Name,
-                () => _recruitmentScreen = null, SaveProgress);
+                () => _recruitmentScreen = null, SaveProgress, _currentMouse, _currentKeyboard);
             return;
         }
 

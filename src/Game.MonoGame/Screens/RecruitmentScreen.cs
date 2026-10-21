@@ -37,7 +37,8 @@ internal sealed class RecruitmentScreen : IGameScreen
     private string _message = "ВЫБЕРИТЕ ОТРЯД И КОЛИЧЕСТВО";
 
     public RecruitmentScreen(PixelCanvas canvas, Hero hero, RecruitmentSite site,
-        UnitCatalog units, AssetCatalog assets, string siteName, Action close, Action? onChange = null)
+        UnitCatalog units, AssetCatalog assets, string siteName, Action close, Action? onChange = null,
+        MouseState initialMouse = default, KeyboardState initialKeyboard = default)
     {
         ArgumentNullException.ThrowIfNull(canvas);
         ArgumentNullException.ThrowIfNull(hero);
@@ -55,6 +56,8 @@ internal sealed class RecruitmentScreen : IGameScreen
         _siteName = siteName;
         _close = close;
         _onChange = onChange ?? (() => { });
+        _previousMouse = initialMouse;
+        _previousKeyboard = initialKeyboard;
         _selectedOffer = site.Offers.Count == 0 ? -1 : 0;
     }
 
