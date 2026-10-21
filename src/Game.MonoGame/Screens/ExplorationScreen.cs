@@ -5,6 +5,7 @@ using Game.Core.Content;
 using Game.Core.Geometry;
 using Game.Core.Persistence;
 using Game.Core.World;
+using Game.Core.Navigation;
 using Game.MonoGame.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -34,7 +35,13 @@ internal sealed class ExplorationScreen : IGameScreen
     private readonly UnitCatalog? _units;
     private MovementSelection _movement;
     private readonly Action _exit;
-    private readonly Action<Campaign, HexCoord>? _saveProgress;
+    private readonly Action<Campaign, HexCoord, MapPosition?>? _saveProgress;
+    private AdventureTravel? _travel;
+    private AdventureSurface? _surface;
+    private MapPosition? _hoverPosition;
+    private WorldPointOfInterest? _hoverPoint;
+    private WorldPointOfInterest? _travelPoint;
+    private float _travelSaveSeconds;
     private readonly string? _campaignId;
     private readonly bool _previewNorthTrail;
     private MouseState _currentMouse;
@@ -50,6 +57,7 @@ internal sealed class ExplorationScreen : IGameScreen
     private readonly ExplorationPanels _panels;
     private ExplorationPanelKind _openPanel;
     private float _idleSeconds;
+    public bool ShowNavigation { get; set; }
 
     public bool HasOpenRecruitmentScreen => _recruitmentScreen is not null;
     public bool IsCampaignDefeated => _campaign?.IsDefeated == true;
@@ -70,7 +78,7 @@ internal sealed class ExplorationScreen : IGameScreen
         bool previewNorthTrail = false,
         bool previewIdleMap = false,
         bool previewMapPanel = false, bool previewJournalPanel = false,
-        CampaignSave? restoreSave = null, Action<Campaign, HexCoord>? saveProgress = null,
+        CampaignSave? restoreSave = null, Action<Campaign, HexCoord, MapPosition?>? saveProgress = null,
         string? startupMessage = null)
         : this(canvas, assets, definition.Map, definition.CreateGameState(), units,
             previewQuestHover, previewRecruitmentSiteId, exit, capture, previewNorthTrail, previewIdleMap,
@@ -85,7 +93,7 @@ internal sealed class ExplorationScreen : IGameScreen
         bool previewIdleMap = false,
         bool previewMapPanel = false, bool previewJournalPanel = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
-        Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
+        Action<Campaign, HexCoord, MapPosition?>? saveProgress = null, string? startupMessage = null)
         : this(canvas, assets, map, campaign.Hero, campaign, units, previewQuestHover, previewRecruitmentSiteId,
             exit, capture, previewNorthTrail, previewIdleMap, previewMapPanel, previewJournalPanel,
             restoreSave, campaignId, playerFactionId,
@@ -100,7 +108,7 @@ internal sealed class ExplorationScreen : IGameScreen
         bool previewIdleMap = false,
         bool previewMapPanel = false, bool previewJournalPanel = false,
         CampaignSave? restoreSave = null, string? campaignId = null, string? playerFactionId = null,
-        Action<Campaign, HexCoord>? saveProgress = null, string? startupMessage = null)
+        Action<Campaign, HexCoord, MapPosition?>? saveProgress = null, string? startupMessage = null)
     {
         ArgumentNullException.ThrowIfNull(map);
         _canvas = canvas;
@@ -196,6 +204,20 @@ internal sealed class ExplorationScreen : IGameScreen
             _movement = new MovementSelection(CreateMovementMap(start), start);
             VisitPoint(guide);
         }
+        if (map.Navigation is { } navigation)
+        {
+            _surface = new(navigation, campaign is not null ? campaign.IsUnlocked : null);
+            var initial = restoreWarning is null && restoreSave?.AdventurePosition is { } saved
+                ? saved : _projection.ToArt(_projection.Project(_movement.Position, map.GetTile(_movement.Position)!.Height));
+            initial = new AdventurePathfinder(_surface).FindNearestWalkable(initial);
+            _travel = new(_surface, initial);
+            if (!previewNorthTrail)
+            {
+                var world = _projection.FromArt(initial);
+                _camera = new(new NumericsVector2(1280, MapViewportHeight), _projection.WorldSize,
+                    new NumericsVector2(world.X - 640, world.Y - 300));
+            }
+        }
         if (restoreWarning is not null) _interactionMessage = restoreWarning;
         if (startupMessage is not null) _interactionMessage = startupMessage;
         if ((restoreSave is null || _campaign?.IsVictory == true) && campaign is not null &&
@@ -226,6 +248,7 @@ internal sealed class ExplorationScreen : IGameScreen
 
         var clicked = mouse.LeftButton == ButtonState.Pressed &&
                       _previousMouse.LeftButton == ButtonState.Released;
+        if (IsPressed(keyboard, _previousKeyboard, Keys.F3)) ShowNavigation = !ShowNavigation;
         if (_openPanel != ExplorationPanelKind.None)
         {
             if (IsPressed(keyboard, _previousKeyboard, Keys.Escape) ||
@@ -263,6 +286,13 @@ internal sealed class ExplorationScreen : IGameScreen
 
         var pointer = new NumericsVector2(mouse.X, mouse.Y);
         _camera.Update(pointer, elapsedSeconds);
+        if (_travel is not null)
+        {
+            UpdateFreeTravel(pointer, clicked, keyboard, elapsedSeconds);
+            _previousMouse = mouse;
+            _previousKeyboard = keyboard;
+            return;
+        }
         if (mouse.Y < MapViewportHeight && mouse.X >= 0 && mouse.X < 1280)
         {
             _hover = _projection.TryPick(_camera.ToWorld(pointer), out var coordinate) ? coordinate : null;
@@ -299,6 +329,8 @@ internal sealed class ExplorationScreen : IGameScreen
 
     private void VisitPoint(WorldPointOfInterest point)
     {
+        if (_travel is not null)
+            _movement = new MovementSelection(CreateMovementMap(point.Coordinate), point.Coordinate);
         if (_campaign is not null && _units is not null)
         {
             if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase))
@@ -404,6 +436,12 @@ internal sealed class ExplorationScreen : IGameScreen
         if (!result.Success) return result;
         _battleScreen = null;
         _movement = new MovementSelection(CreateMovementMap(_movement.Position), _movement.Position);
+        if (_travel is not null && _map.Navigation is { } navigation)
+        {
+            _surface = new(navigation, _campaign.IsUnlocked);
+            _travel = new(_surface, _travel.Position);
+            _travelPoint = null;
+        }
         _interactionMessage = result.Victory
             ? $"ПОБЕДА: +{result.GoldAwarded} ЗОЛОТА, +{result.ExperienceAwarded} ОПЫТА. ПОТЕРИ СОХРАНЕНЫ."
             : _campaign.IsDefeated
@@ -415,7 +453,7 @@ internal sealed class ExplorationScreen : IGameScreen
 
     private void SaveProgress()
     {
-        if (_campaign is not null) _saveProgress?.Invoke(_campaign, _movement.Position);
+        if (_campaign is not null) _saveProgress?.Invoke(_campaign, _movement.Position, _travel?.Position);
     }
 
     public void Draw()
@@ -434,16 +472,18 @@ internal sealed class ExplorationScreen : IGameScreen
         _renderer.Draw(_map, _projection, _camera, _movement.Position,
             _movement.Path.IsReachable ? _movement.Path.Coordinates : Array.Empty<HexCoord>(), _hover,
             VisibleIdleActors(), _idleSeconds,
-            drawHero: !_previewNorthTrail);
+            drawHero: !_previewNorthTrail, travel: _travel, hoverPosition: _hoverPosition, showNavigation: ShowNavigation,
+            activeQuestPoints: _campaign?.Quests.Where(q => !_campaign.CompletedQuestIds.Contains(q.Id))
+                .Select(q => q.PointOfInterestId).OfType<string>().ToHashSet());
         DrawMapPlaque();
-        var hoveredPoint = _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var points)
+        var hoveredPoint = _travel is not null ? _hoverPoint : _hover is { } coordinate && _pointsByCoordinate.TryGetValue(coordinate, out var points)
             ? points.FirstOrDefault() : null;
         _hud.Draw(_hero, _hero.Army.Stacks, hoveredPoint, CurrentActionText(hoveredPoint));
         if (_campaign?.IsDefeated == true || _campaign?.IsVictory == true) DrawCampaignEndingPanel();
         _encounterScreen?.Draw();
         _questScreen?.Draw();
         if (_openPanel == ExplorationPanelKind.Map)
-            _panels.DrawMap(_map, _projection, _campaign, _movement.Position);
+            _panels.DrawMap(_map, _projection, _campaign, _movement.Position, _travel?.Position, ShowNavigation);
         else if (_openPanel == ExplorationPanelKind.Journal)
             _panels.DrawJournal(_campaign);
     }
@@ -454,6 +494,10 @@ internal sealed class ExplorationScreen : IGameScreen
         if (_map.Id != "flora-01") return actors;
         actors["guide-dialogue"] = "unit.flora.thorn-guard.idle";
         if (_campaign is null) return actors;
+        if (!_campaign.CompletedQuestIds.Contains("pasture-choice"))
+            actors["pasture-request"] = "unit.human.militia.idle";
+        if (_campaign.CanAccessRecruitmentSite("peasant-recruitment"))
+            actors["peasant-recruitment"] = "unit.human.militia.idle";
 
         foreach (var encounter in _campaign.Encounters.Where(encounter => _campaign.CanAccessEncounter(encounter.Id)))
         {
@@ -499,10 +543,83 @@ internal sealed class ExplorationScreen : IGameScreen
     private string CurrentActionText(WorldPointOfInterest? hoveredPoint)
     {
         if (_interactionMessage is not null) return _interactionMessage;
+        if (_travel is not null)
+        {
+            if (_travel.IsMoving) return "В ПУТИ. ЛКМ — ВЫБРАТЬ НОВЫЙ МАРШРУТ.";
+            if (_travel.Destination is not null)
+                return _travel.Preview.IsReachable ? "ЛКМ ЕЩЁ РАЗ — ИДТИ ПО МАРШРУТУ" : "ПУТЬ ПЕРЕКРЫТ";
+            return hoveredPoint is not null ? "ЛКМ — ПОДОЙТИ К МЕСТУ" : "ЛКМ — ВЫБРАТЬ ЛЮБУЮ ТОЧКУ ТРОПЫ";
+        }
         if (hoveredPoint is not null && hoveredPoint.Coordinate != _movement.Position)
             return "ЛКМ — ПУТЬ  /  ЕЩЁ РАЗ — ИДТИ";
         if (_movement.Destination is not null)
             return _movement.Path.IsReachable ? $"МАРШРУТ: {_movement.Path.Cost} ШАГОВ" : "ПУТЬ ПЕРЕКРЫТ";
         return _pointsByCoordinate.ContainsKey(_movement.Position) ? "E — ОСМОТРЕТЬ МЕСТО" : "ЛКМ — ВЫБРАТЬ ЦЕЛЬ";
+    }
+
+    private void UpdateFreeTravel(NumericsVector2 pointer, bool clicked, KeyboardState keyboard, float elapsedSeconds)
+    {
+        var travel = _travel!;
+        if (travel.Advance(Math.Clamp(elapsedSeconds, 0, 0.1f)))
+        {
+            var target = _travelPoint;
+            _travelPoint = null;
+            if (target is not null) VisitPointAt(target.Coordinate);
+            SaveProgress();
+            if (HasOpenModal) return;
+        }
+        if (travel.IsMoving)
+        {
+            _travelSaveSeconds += elapsedSeconds;
+            if (_travelSaveSeconds >= 2) { _travelSaveSeconds = 0; SaveProgress(); }
+        }
+        _hover = null;
+        _hoverPosition = pointer.X >= 0 && pointer.X < 1280 && pointer.Y >= 0 && pointer.Y < MapViewportHeight
+            ? _projection.ToArt(_camera.ToWorld(pointer)) : null;
+        _hoverPoint = _hoverPosition is { } hover ? NearestVisiblePoint(hover, 16, hitSprites: true) : null;
+        if (IsPressed(keyboard, _previousKeyboard, Keys.E) && NearestVisiblePoint(travel.Position, 17) is { } current)
+            VisitPoint(current);
+        if (!clicked || _hoverPosition is not { } position || HasOpenModal) return;
+        _interactionMessage = null;
+        var targetPosition = _hoverPoint is not null ? _map.Navigation!.Points[_hoverPoint.Id] : position;
+        if (_hoverPoint is not null && MapPosition.Distance(travel.Position, targetPosition) <= 6)
+        {
+            VisitPointAt(_hoverPoint.Coordinate);
+            SaveProgress();
+            return;
+        }
+        SaveProgress();
+        _travelPoint = _hoverPoint;
+        travel.Select(targetPosition);
+    }
+
+    private WorldPointOfInterest? NearestVisiblePoint(MapPosition position, float radius, bool hitSprites = false)
+    {
+        return _map.PointsOfInterest.Where(point => point.Type != "gate" &&
+                (point.Type != "recruitment" || _campaign?.CanAccessRecruitmentSite(point.RecruitmentSiteId ?? "") == true) &&
+                (point.Type != "encounter" || _campaign?.Encounters.Any(encounter =>
+                    encounter.PointOfInterestId == point.Id && _campaign.CanAccessEncounter(encounter.Id)) == true))
+            .Select(point =>
+            {
+                var anchor = _map.Navigation!.Points[point.Id];
+                if (hitSprites)
+                    anchor = new(anchor.X + (point.Id == "guide-dialogue" ? -28 : 0), anchor.Y - 15);
+                return (Point: point, Distance: MapPosition.Distance(position, anchor));
+            })
+            .Where(item => item.Distance <= radius)
+            .OrderBy(item => item.Distance)
+            .ThenBy(item => item.Point.Type == "quest" ? 0 : 1)
+            .Select(item => item.Point).FirstOrDefault();
+    }
+
+    internal void PrepareTravelPreview()
+    {
+        if (_map.Navigation is not { } navigation) return;
+        _surface = new(navigation);
+        _travel = new(_surface, new(1290, 545));
+        _travel.Select(new(1485, 545));
+        var world = _projection.FromArt(_travel.Position);
+        _camera.CenterOn(world);
+        _questScreen = null;
     }
 }

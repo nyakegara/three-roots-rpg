@@ -9,9 +9,9 @@ public static class RecruitmentPointArt
 
     public static string? GetAssetKey(string? recruitmentSiteId) => recruitmentSiteId?.ToLowerInvariant() switch
     {
-        "root-greenhouse" => RootGreenhouse,
-        "sunny-clearing" => SunnyClearing,
-        "spore-circle" => SporeCircle,
+        "root-greenhouse" or "starting-clearing" => RootGreenhouse,
+        "sunny-clearing" or "flora-tier-two" => SunnyClearing,
+        "spore-circle" or "flora-tier-three" => SporeCircle,
         _ => null
     };
 }

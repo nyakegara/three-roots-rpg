@@ -253,6 +253,19 @@ public sealed class CampaignSerializerTests
         Assert.Empty(Directory.GetFiles(directory.Path, "*.tmp"));
     }
 
+    [Fact]
+    public void Save_RoundTripsExactAdventurePositionAndSupportsLegacyMissingPosition()
+    {
+        using var directory = new TemporaryDirectory();
+        var path = Path.Combine(directory.Path, "position.json");
+        var position = new Game.Core.Navigation.MapPosition(1321.25f, 540.75f);
+        Assert.True(CampaignSerializer.Save(path, SampleSave() with { AdventurePosition = position }).Success);
+        Assert.Equal(position, CampaignSerializer.Load(path).Save!.AdventurePosition);
+        File.WriteAllText(path, SaveJson(1));
+        Assert.True(CampaignSerializer.Load(path).Success);
+        Assert.Null(CampaignSerializer.Load(path).Save!.AdventurePosition);
+    }
+
     private static CampaignSave SampleSave() => new("flora-01", "flora.hero", "Liora", "flora-01",
         new HexCoord(0, 0), 10, 0, 0, 1, 0, [], [], [], [], [])
     {

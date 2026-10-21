@@ -159,7 +159,14 @@ public sealed class MapLoader
             return new MapLoadResult(false, null, errors.AsReadOnly());
         }
 
-        var map = new WorldMap(document.Id!, document.Name!, width, height, start, tiles, points);
+        if (document.Navigation is { } navigation)
+        {
+            var navigationError = navigation.Validate();
+            if (navigationError is not null) return Failed(new ContentError(path, navigationError));
+            var missing = points.FirstOrDefault(point => !navigation.Points.ContainsKey(point.Id));
+            if (missing is not null) return Failed(new ContentError(path, $"Navigation is missing landmark '{missing.Id}'."));
+        }
+        var map = new WorldMap(document.Id!, document.Name!, width, height, start, tiles, points, document.Navigation);
         return new MapLoadResult(true, map, Array.Empty<ContentError>());
     }
 
@@ -195,6 +202,7 @@ public sealed class MapLoader
         public CoordinateDocument? Start { get; init; }
         public List<TileDocument?>? Tiles { get; init; }
         public List<PointDocument?>? PointsOfInterest { get; init; }
+        public Game.Core.Navigation.AdventureNavigation? Navigation { get; init; }
     }
 
     private sealed class CoordinateDocument

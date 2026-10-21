@@ -338,8 +338,17 @@ public sealed class Campaign
         if (save.IsDefeated && _progression.VictoryEncounterId is { } victoryEncounterId &&
             completedEncounters.Contains(victoryEncounterId))
             return Fail(out error, "A defeated save cannot also contain the campaign's victory encounter.");
+        bool WasRecruitmentAvailable(RecruitmentSite site)
+        {
+            var requirement = _progression.RecruitmentRequirements.GetValueOrDefault(site.Id);
+            return requirement is null || requirement.RequiredEncounterIds.All(completedEncounters.Contains) &&
+                (requirement.RequiredUnlockIds?.All(IsUnlockedInSave) ?? true) &&
+                (requirement.QuestId is null || selectedChoices.TryGetValue(requirement.QuestId, out var choice) &&
+                    (requirement.ChoiceId is null || choice == requirement.ChoiceId));
+        }
         if (save.Army.Any(stack => stack is null || units.Get(stack.UnitId) is not { } unit ||
-                                   unit.FactionId != playerFactionId))
+                unit.FactionId != playerFactionId && !_recruitmentSites.Values.Any(site =>
+                    site.GetOffer(stack.UnitId) is not null && WasRecruitmentAvailable(site))))
             return Fail(out error, "Saved army contains unknown units or units from another faction.");
         if (save.SkillIds.Count != 0 || save.ArtifactIds.Count != 0)
             return Fail(out error, "This campaign build cannot restore skills or artifacts yet.");
@@ -360,6 +369,11 @@ public sealed class Campaign
             return Fail(out error, "Defeated save cannot contain a surviving army.");
         if (positionTile.RequiredUnlock is { } requiredUnlock && !IsUnlockedInSave(requiredUnlock))
             return Fail(out error, "Saved hero position is behind a locked route.");
+        if (save.AdventurePosition is { } adventurePosition &&
+            (map.Navigation is not { } navigation ||
+             !new Game.Core.Navigation.AdventurePathfinder(new(navigation, IsUnlockedInSave))
+                 .FindPath(navigation.Start, adventurePosition).IsReachable))
+            return Fail(out error, "Saved adventure position is outside walkable areas or behind a locked route.");
         if (!Hero.TryRestoreCampaignState(save.Gold, save.Reputation, save.Experience, save.Level,
                 save.SkillPoints, save.Army))
             return Fail(out error, "Saved hero resources or army are invalid.");

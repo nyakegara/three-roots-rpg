@@ -39,6 +39,7 @@ public sealed class AdventureMapCamera
     }
 
     public Vector2 ToScreen(Vector2 worldPosition) => worldPosition - Position;
+    public void CenterOn(Vector2 point) => Position = Clamp(point - _viewportSize / 2);
     public Vector2 ToWorld(Vector2 screenPosition) => screenPosition + Position;
 
     private Vector2 Clamp(Vector2 position) => new(

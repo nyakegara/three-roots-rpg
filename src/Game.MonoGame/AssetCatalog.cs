@@ -32,6 +32,7 @@ internal sealed class AssetCatalog : IDisposable
     private readonly Dictionary<string, Texture2D> _idleTextures = new();
     private readonly Dictionary<string, Texture2D> _actionTextures = new();
     private readonly Dictionary<string, Rectangle[]> _actionFrameBounds = new();
+    private Texture2D? _heroWalkTexture;
 
     public AssetCatalog(GraphicsDevice device)
     {
@@ -115,6 +116,21 @@ internal sealed class AssetCatalog : IDisposable
                 System.Diagnostics.Trace.TraceWarning("Cannot load action art '{0}': {1}", path, exception.Message);
             }
         }
+        var heroPath = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", "hero.flora.walk.png");
+        if (File.Exists(heroPath))
+        {
+            try
+            {
+                using var stream = File.OpenRead(heroPath);
+                var texture = LoadPremultiplied(device, stream, out _);
+                if (texture.Width == 256 && texture.Height == 720) _heroWalkTexture = texture;
+                else texture.Dispose();
+            }
+            catch (Exception exception) when (exception is IOException or InvalidOperationException)
+            {
+                System.Diagnostics.Trace.TraceWarning("Cannot load hero animation: {0}", exception.Message);
+            }
+        }
     }
 
     private static Texture2D LoadPremultiplied(GraphicsDevice device, Stream stream, out Rectangle contentBounds)
@@ -139,6 +155,18 @@ internal sealed class AssetCatalog : IDisposable
     }
 
     public bool HasAsset(string key) => _textures.ContainsKey(key);
+
+    public bool TryDrawHeroWalk(PixelCanvas canvas, Rectangle destination,
+        bool moving, System.Numerics.Vector2 direction, float seconds)
+    {
+        if (_heroWalkTexture is null) return false;
+        var octant = ((int)MathF.Round(MathF.Atan2(direction.Y, direction.X) / (MathF.PI / 4)) + 8) % 8;
+        var row = moving ? (octant + 2) % 8 : 8;
+        var cardinal = row is 0 or 4;
+        var frame = moving ? (int)(seconds / (cardinal ? 0.44f : 0.22f)) % (cardinal ? 2 : 4) : 0;
+        canvas.Texture(_heroWalkTexture, new Rectangle(frame * 64, row * 80, 64, 80), destination);
+        return true;
+    }
 
     public bool TryDrawIdle(PixelCanvas canvas, string key, Rectangle destination, int frame)
     {
@@ -215,6 +243,7 @@ internal sealed class AssetCatalog : IDisposable
 
     public void Dispose()
     {
+        _heroWalkTexture?.Dispose();
         foreach (var asset in _textures.Values)
             asset.Texture.Dispose();
         _textures.Clear();

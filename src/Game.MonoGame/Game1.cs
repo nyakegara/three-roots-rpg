@@ -90,7 +90,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                 _options.PreviewNorthTrail, _options.PreviewIdleMap,
                 _options.PreviewMapPanel, _options.PreviewJournalPanel, restoreSave,
                 _progressWriter is not null ? SaveCampaignProgress : null,
-                saveWarning);
+                saveWarning) { ShowNavigation = _options.PreviewNavigation };
+            if (_options.PreviewFreeTravel) ((ExplorationScreen)_screen).PrepareTravelPreview();
         }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,
             SurfaceFormat.Color, DepthFormat.None);
@@ -145,9 +146,10 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         }
     }
 
-    private void SaveCampaignProgress(Game.Core.Campaigns.Campaign campaign, HexCoord position)
+    private void SaveCampaignProgress(Game.Core.Campaigns.Campaign campaign, HexCoord position,
+        Game.Core.Navigation.MapPosition? adventurePosition)
     {
-        var result = _progressWriter!.Save(campaign, position);
+        var result = _progressWriter!.Save(campaign, position, adventurePosition);
         if (!result.SaveSucceeded || campaign.IsVictory && !result.VictoryRecordSucceeded)
             System.Diagnostics.Trace.TraceWarning("Campaign progress write: {0}", result.Message);
     }

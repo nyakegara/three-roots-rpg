@@ -44,18 +44,18 @@ public sealed class AdventureMapProjectionTests
     }
 
     [Theory]
-    [InlineData("guide-dialogue", 1530, 230)]
-    [InlineData("north-gate", 1117, 408)]
-    [InlineData("mountain-outpost", 824, 492)]
-    [InlineData("mushroom-outpost", 671, 706)]
-    [InlineData("final-landing", 235, 455)]
+    [InlineData("guide-dialogue", 1475, 214)]
+    [InlineData("north-gate", 1114, 389)]
+    [InlineData("mountain-outpost", 839, 501)]
+    [InlineData("mushroom-outpost", 690, 725)]
+    [InlineData("final-landing", 233, 461)]
     public void FloraLandmark_ProjectsNearPaintedLocation(string pointId, int expectedX, int expectedY)
     {
         var map = LoadFloraMap();
         var projection = new AdventureMapProjection(map, 88, 40, 5, 2);
         var point = map.PointsOfInterest.Single(candidate => candidate.Id == pointId);
         var tile = map.GetTile(point.Coordinate)!;
-        var world = projection.Project(point.Coordinate, tile.Height);
+        var world = projection.ProjectPoint(point);
         var artX = world.X / projection.WorldSize.X * 1862;
         var artY = world.Y / projection.WorldSize.Y * 845;
 

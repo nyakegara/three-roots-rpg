@@ -17,6 +17,7 @@ public sealed class WorldMap
     public int Height { get; }
     public HexCoord? StartPosition { get; }
     public IReadOnlyList<WorldPointOfInterest> PointsOfInterest { get; }
+    public Game.Core.Navigation.AdventureNavigation? Navigation { get; }
 
     public WorldMap(IEnumerable<WorldTile> tiles)
     {
@@ -31,7 +32,8 @@ public sealed class WorldMap
     }
 
     public WorldMap(string id, string name, int width, int height, HexCoord? startPosition,
-        IEnumerable<WorldTile> tiles, IEnumerable<WorldPointOfInterest>? pointsOfInterest = null)
+        IEnumerable<WorldTile> tiles, IEnumerable<WorldPointOfInterest>? pointsOfInterest = null,
+        Game.Core.Navigation.AdventureNavigation? navigation = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -44,6 +46,7 @@ public sealed class WorldMap
         Width = width;
         Height = height;
         StartPosition = startPosition;
+        Navigation = navigation;
         PointsOfInterest = Array.AsReadOnly((pointsOfInterest ?? Array.Empty<WorldPointOfInterest>()).ToArray());
 
         AddTiles(tiles);

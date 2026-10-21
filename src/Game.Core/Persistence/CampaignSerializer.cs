@@ -97,6 +97,8 @@ public static class CampaignSerializer
 
     private static string? Validate(CampaignSave save)
     {
+        if (save.AdventurePosition is { } position && !position.IsFinite)
+            return "Adventure position must contain finite coordinates.";
         if (save.SchemaVersion != CampaignSave.CurrentSchemaVersion)
             return $"Unsupported schema version {save.SchemaVersion}.";
         if (string.IsNullOrWhiteSpace(save.CampaignId) || string.IsNullOrWhiteSpace(save.HeroId) ||

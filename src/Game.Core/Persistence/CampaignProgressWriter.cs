@@ -26,10 +26,12 @@ public sealed class CampaignProgressWriter
         _runId = string.IsNullOrWhiteSpace(runId) ? Guid.NewGuid().ToString("N") : runId;
     }
 
-    public CampaignProgressWriteResult Save(Campaign campaign, HexCoord position)
+    public CampaignProgressWriteResult Save(Campaign campaign, HexCoord position,
+        Game.Core.Navigation.MapPosition? adventurePosition = null)
     {
         ArgumentNullException.ThrowIfNull(campaign);
-        var save = campaign.CreateSave(_campaignId, _mapId, position) with { RunId = _runId };
+        var save = campaign.CreateSave(_campaignId, _mapId, position) with
+            { RunId = _runId, AdventurePosition = adventurePosition };
         var result = CampaignSerializer.Save(_savePath, save);
         if (!result.Success)
             return new CampaignProgressWriteResult(false, false, result.Message);

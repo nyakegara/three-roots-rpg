@@ -1,6 +1,7 @@
 using System.Numerics;
 using Game.Core.Geometry;
 using Game.Core.World;
+using Game.Core.Navigation;
 using Microsoft.Xna.Framework;
 using WorldVector2 = System.Numerics.Vector2;
 using XnaVector2 = Microsoft.Xna.Framework.Vector2;
@@ -16,12 +17,16 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private static readonly Color Water = new(54, 91, 105);
     private static readonly Color Ink = new(39, 40, 23);
     private bool _compactMap;
+    private IReadOnlySet<string>? _activeQuestPoints;
 
     public void Draw(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
         HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile,
-        IReadOnlyDictionary<string, string> idleActors, float idleSeconds, bool drawHero = true)
+        IReadOnlyDictionary<string, string> idleActors, float idleSeconds, bool drawHero = true,
+        AdventureTravel? travel = null, MapPosition? hoverPosition = null, bool showNavigation = false,
+        IReadOnlySet<string>? activeQuestPoints = null)
     {
         _compactMap = map.Id == "flora-01";
+        _activeQuestPoints = activeQuestPoints;
         var viewport = new Rectangle(0, 0, 1280, 600);
         using var clip = canvas.PushClip(viewport);
         var hasScenicGround = DrawGround(map, projection, camera);
@@ -29,7 +34,18 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         // Flora's authored landscape already contains its main trails.
         // The graph stays invisible so it cannot draw straight lines across the art.
         if (map.Id != "flora-01") DrawRoadNetwork(map, projection, camera);
-        DrawRoute(map, projection, camera, route);
+        if (travel is null) DrawRoute(map, projection, camera, route);
+        else DrawFreeRoute(projection, camera, travel, hoverPosition);
+        if (showNavigation && map.Navigation is { } navigation)
+        {
+            foreach (var region in navigation.WalkableAreas)
+                _canvasOutline(region.Points, new Color(235, 199, 105));
+            foreach (var hole in navigation.BlockedAreas)
+                _canvasOutline(hole.Points, new Color(231, 104, 80));
+            void _canvasOutline(IReadOnlyList<MapPosition> points, Color color) => canvas.Outline(points
+                .Select(p => camera.ToScreen(projection.FromArt(p)))
+                .Select(p => new XnaVector2(p.X, p.Y)).ToArray(), color, 2);
+        }
 
         var objects = new List<(float Depth, Action Draw)>();
         foreach (var tile in map.Tiles)
@@ -37,7 +53,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             var screen = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
             if (screen.X < -120 || screen.X > viewport.Width + 120 || screen.Y < -160 || screen.Y > viewport.Height + 100)
                 continue;
-            if (tile.TerrainId == "rock") objects.Add((screen.Y, () => DrawRock(screen)));
+            if (map.Navigation is null && tile.TerrainId == "rock") objects.Add((screen.Y, () => DrawRock(screen)));
         }
 
         foreach (var point in map.PointsOfInterest)
@@ -45,23 +61,75 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             if (map.GetTile(point.Coordinate) is not { } tile) continue;
             if (_compactMap && point.Type.Equals("encounter", StringComparison.OrdinalIgnoreCase) &&
                 !idleActors.ContainsKey(point.Id)) continue;
-            var screen = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
+            var screen = camera.ToScreen(projection.ProjectPoint(point));
             if (idleActors.TryGetValue(point.Id, out var idleKey))
                 objects.Add((screen.Y, () => DrawIdleActor(point, idleKey, screen, idleSeconds)));
             else objects.Add((screen.Y, () => DrawPoint(point, tile, screen)));
         }
-        if (drawHero && map.GetTile(heroPosition) is { } heroTile)
+        if (drawHero && travel is not null)
+        {
+            var screen = camera.ToScreen(projection.FromArt(travel.Position));
+            objects.Add((screen.Y, () => DrawWalkingHero(screen, travel)));
+        }
+        else if (drawHero && map.GetTile(heroPosition) is { } heroTile)
         {
             var screen = camera.ToScreen(projection.Project(heroPosition, heroTile.Height));
             objects.Add((screen.Y, () => DrawHero(screen)));
         }
 
         foreach (var item in objects.OrderBy(item => item.Depth)) item.Draw();
-        if (hoveredTile is { } hovered && map.GetTile(hovered) is { } hoveredWorldTile)
+        if (travel is null && hoveredTile is { } hovered && map.GetTile(hovered) is { } hoveredWorldTile)
         {
             var marker = camera.ToScreen(projection.Project(hovered, hoveredWorldTile.Height));
             canvas.Frame((int)marker.X - 23, (int)marker.Y - 17, 46, 34, new Color(236, 211, 139) * 0.85f, 2);
         }
+    }
+
+    private void DrawFreeRoute(AdventureMapProjection projection, AdventureMapCamera camera,
+        AdventureTravel travel, MapPosition? hover)
+    {
+        var path = travel.DisplayPath;
+        for (var index = 1; index < path.Count; index++)
+        {
+            var from = camera.ToScreen(projection.FromArt(path[index - 1]));
+            var to = camera.ToScreen(projection.FromArt(path[index]));
+            var distance = WorldVector2.Distance(from, to);
+            for (float step = 0; step < distance; step += 17)
+            {
+                var p = WorldVector2.Lerp(from, to, step / Math.Max(distance, 1));
+                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 1, 6, 4, Ink);
+                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y, 4, 2, new Color(239, 207, 139));
+            }
+        }
+        var target = travel.Destination ?? hover;
+        if (target is not { } position) return;
+        var center = camera.ToScreen(projection.FromArt(position));
+        var reachable = travel.Surface.IsWalkable(position) &&
+            (travel.Destination is null || travel.Preview.IsReachable);
+        var color = reachable ? new Color(242, 210, 140) : new Color(220, 98, 80);
+        for (var i = 0; i < 16; i++)
+        {
+            var a = i * MathF.Tau / 16;
+            var b = (i + 1) * MathF.Tau / 16;
+            canvas.Line(new(center.X + MathF.Cos(a) * 10, center.Y + MathF.Sin(a) * 5),
+                new(center.X + MathF.Cos(b) * 10, center.Y + MathF.Sin(b) * 5), color, 2);
+        }
+        if (!reachable) canvas.Line(new(center.X - 6, center.Y + 5), new(center.X + 6, center.Y - 5), color, 2);
+    }
+
+    private void DrawWalkingHero(WorldVector2 p, AdventureTravel travel)
+    {
+        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 2, 34, 10, Ink * 0.72f);
+        for (var i = 0; i < 24; i++)
+        {
+            var a = i * MathF.Tau / 24;
+            var b = (i + 1) * MathF.Tau / 24;
+            canvas.Line(new(p.X + MathF.Cos(a) * 18, p.Y + MathF.Sin(a) * 6),
+                new(p.X + MathF.Cos(b) * 18, p.Y + MathF.Sin(b) * 6), new Color(230, 192, 107), 1);
+        }
+        if (!assets.TryDrawHeroWalk(canvas, new((int)p.X - 32, (int)p.Y - 72, 64, 80),
+                travel.IsMoving, travel.Direction, travel.AnimationSeconds))
+            assets.TryDraw(canvas, AssetCatalog.FloraHero, new((int)p.X - 22, (int)p.Y - 56, 44, 56));
     }
 
     private bool DrawGround(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera)
@@ -206,13 +274,18 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         if (point.Id == "guide-dialogue") p += new WorldVector2(-56, 5);
         var phase = point.Id.Sum(character => (int)character) & 3;
         var frame = ((int)(seconds * 1000f / 260f) + phase) % 4;
-        var size = _compactMap ? new Rectangle((int)p.X - 32, (int)p.Y - 66, 64, 80)
+        var size = _compactMap ? new Rectangle((int)p.X - 32, (int)p.Y - 72, 64, 80)
             : new Rectangle((int)p.X - 40, (int)p.Y - 82, 80, 100);
-        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 8, _compactMap ? 34 : 42, 9, Ink * 0.65f);
+        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 2, _compactMap ? 34 : 42, 9, Ink * 0.65f);
         if (!assets.TryDrawIdle(canvas, idleKey, size, frame))
         {
             var staticKey = idleKey[..^".idle".Length];
             assets.TryDrawCropped(canvas, staticKey, size);
+        }
+        if (_activeQuestPoints?.Contains(point.Id) == true)
+        {
+            canvas.Rect((int)p.X - 2, (int)p.Y - 87, 4, 10, new Color(245, 210, 124));
+            canvas.Rect((int)p.X - 2, (int)p.Y - 74, 4, 3, new Color(245, 210, 124));
         }
     }
 
@@ -273,8 +346,17 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         else DrawRecruitmentFallback(p);
     }
 
-    private void DrawRecruitmentFallback(WorldVector2 p) =>
-        canvas.Rect((int)p.X - 6, (int)p.Y - 40, 12, 16, new Color(226, 195, 117));
+    private void DrawRecruitmentFallback(WorldVector2 p)
+    {
+        var x = (int)p.X;
+        var y = (int)p.Y;
+        FantasyArt.Oval(canvas, x, y + 3, 42, 9, Ink * 0.7f);
+        canvas.Polygon([new(x - 22, y), new(x - 2, y - 29), new(x + 23, y)], new Color(61, 49, 29));
+        canvas.Polygon([new(x - 18, y - 2), new(x - 2, y - 25), new(x + 17, y - 2)], new Color(165, 139, 81));
+        canvas.Polygon([new(x - 2, y - 25), new(x + 17, y - 2), new(x + 6, y - 2)], new Color(122, 99, 57));
+        canvas.Polygon([new(x - 8, y - 1), new(x - 2, y - 17), new(x + 5, y - 1)], Ink);
+        canvas.Line(new(x - 2, y - 30), new(x - 2, y - 24), new Color(92, 64, 34), 2);
+    }
 
     private void DrawHero(WorldVector2 p)
     {

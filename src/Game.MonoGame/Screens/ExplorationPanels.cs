@@ -1,6 +1,7 @@
 using Game.Core.Campaigns;
 using Game.Core.Geometry;
 using Game.Core.World;
+using Game.Core.Navigation;
 using Microsoft.Xna.Framework;
 
 namespace Game.MonoGame.Screens;
@@ -20,7 +21,7 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
     private readonly PixelFont _font = new(canvas);
 
     public void DrawMap(WorldMap map, AdventureMapProjection projection, Campaign? campaign,
-        HexCoord heroPosition)
+        HexCoord heroPosition, MapPosition? adventurePosition = null, bool showNavigation = false)
     {
         Frame("КАРТА ОСТРОВА");
         canvas.Rect(MapArea.X - 5, MapArea.Y - 5, MapArea.Width + 10, MapArea.Height + 10, Wood);
@@ -39,6 +40,18 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
         }
         else canvas.Rect(MapArea.X, MapArea.Y, MapArea.Width, MapArea.Height, new Color(92, 110, 63));
 
+        if (showNavigation && map.Navigation is { } navigation)
+        {
+            foreach (var region in navigation.WalkableAreas) Outline(region.Points, new Color(255, 217, 112));
+            foreach (var hole in navigation.BlockedAreas) Outline(hole.Points, new Color(241, 89, 69));
+            foreach (var gate in navigation.Gates.Where(gate => campaign?.IsUnlocked(gate.UnlockId) != true))
+                Outline(gate.Points, new Color(164, 160, 231));
+            void Outline(IReadOnlyList<MapPosition> points, Color color) => canvas.Outline(points.Select(p =>
+            {
+                var pixel = MapPixel(projection, projection.FromArt(p));
+                return new Vector2(pixel.X, pixel.Y);
+            }).ToArray(), color, 2);
+        }
         foreach (var point in map.PointsOfInterest)
         {
             var encounter = campaign?.Encounters.FirstOrDefault(item => item.PointOfInterestId == point.Id);
@@ -55,7 +68,8 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
             canvas.Frame(p.X - 3, p.Y - 3, 7, 7, color, 2);
         }
 
-        var hero = MapPoint(projection, heroPosition, map.GetTile(heroPosition)!.Height);
+        var hero = adventurePosition is { } position ? MapPixel(projection, projection.FromArt(position))
+            : MapPoint(projection, heroPosition, map.GetTile(heroPosition)!.Height);
         canvas.Rect(hero.X - 7, hero.Y - 7, 15, 15, Wood);
         canvas.Frame(hero.X - 5, hero.Y - 5, 11, 11, Gold, 3);
         _font.Draw("ЛИАРА", hero.X + 11, hero.Y - 8, Gold, 1);
@@ -124,6 +138,11 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
     private Point MapPoint(AdventureMapProjection projection, HexCoord coordinate, int height)
     {
         var projected = projection.Project(coordinate, height);
+        return MapPixel(projection, projected);
+    }
+
+    private Point MapPixel(AdventureMapProjection projection, System.Numerics.Vector2 projected)
+    {
         return new Point(MapArea.X + Math.Clamp((int)(projected.X / projection.WorldSize.X * MapArea.Width), 0, MapArea.Width),
             MapArea.Y + Math.Clamp((int)(projected.Y / projection.WorldSize.Y * MapArea.Height), 0, MapArea.Height));
     }

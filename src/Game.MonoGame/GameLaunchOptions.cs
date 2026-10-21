@@ -19,6 +19,8 @@ public sealed record GameLaunchOptions
     public bool PreviewIdleMap { get; init; }
     public bool PreviewMapPanel { get; init; }
     public bool PreviewJournalPanel { get; init; }
+    public bool PreviewNavigation { get; init; }
+    public bool PreviewFreeTravel { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
     public bool Night { get; init; }
@@ -55,6 +57,8 @@ public sealed record GameLaunchOptions
                 case "--screenshot-north-trail":
                 case "--screenshot-idle-map":
                 case "--screenshot-map":
+                case "--screenshot-navigation":
+                case "--screenshot-travel":
                 case "--screenshot-journal":
                 case "--screenshot-encounter-empty":
                 case "--screenshot-encounter":
@@ -132,7 +136,9 @@ public sealed record GameLaunchOptions
             PreviewQuestHover = mode == "--screenshot-quest-hover",
             PreviewNorthTrail = mode == "--screenshot-north-trail",
             PreviewIdleMap = mode == "--screenshot-idle-map",
-            PreviewMapPanel = mode == "--screenshot-map",
+            PreviewMapPanel = mode is "--screenshot-map" or "--screenshot-navigation",
+            PreviewNavigation = mode == "--screenshot-navigation",
+            PreviewFreeTravel = mode == "--screenshot-travel",
             PreviewJournalPanel = mode == "--screenshot-journal",
             PreviewRecruitmentSiteId = mode switch
             {

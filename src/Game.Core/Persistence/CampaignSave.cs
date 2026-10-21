@@ -27,6 +27,7 @@ public sealed record CampaignSave(
     public IReadOnlyList<string> CompletedEncounterIds { get; init; } = [];
     public bool IsDefeated { get; init; }
     public string RunId { get; init; } = string.Empty;
+    public Game.Core.Navigation.MapPosition? AdventurePosition { get; init; }
 }
 
 public sealed record SavedTroopStack(string UnitId, int Count);
