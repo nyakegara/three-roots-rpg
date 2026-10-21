@@ -17,3 +17,6 @@ saves/
 .superpowers/
 .worktrees/
 worktrees/
+
+# Local screenshots and art review output
+artifacts/

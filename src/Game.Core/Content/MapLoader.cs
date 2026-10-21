@@ -69,6 +69,8 @@ public sealed class MapLoader
 
         var width = document.Width!.Value;
         var height = document.Height!.Value;
+        var originQ = document.Origin?.Q ?? 0;
+        var originR = document.Origin?.R ?? 0;
         var tiles = new List<WorldTile>();
         var coordinates = new HashSet<HexCoord>();
         for (var index = 0; index < document.Tiles!.Count; index++)
@@ -81,7 +83,7 @@ public sealed class MapLoader
             }
 
             var coordinate = new HexCoord(tile.Q.Value, tile.R.Value);
-            if (!IsInside(coordinate, width, height))
+            if (!IsInside(coordinate, width, height, originQ, originR))
             {
                 errors.Add(new ContentError(path, $"Tile {index} coordinate ({coordinate.Q}, {coordinate.R}) is outside map dimensions."));
                 continue;
@@ -100,11 +102,18 @@ public sealed class MapLoader
             }
 
             var terrainId = string.IsNullOrWhiteSpace(tile.Terrain) ? "grass" : tile.Terrain;
-            tiles.Add(new WorldTile(coordinate, tile.Height ?? 0, tile.Passable ?? true, terrainId));
+            var passable = tile.Passable ?? true;
+            if (tile.Road == true && !passable)
+            {
+                errors.Add(new ContentError(path, $"Road tile at ({coordinate.Q}, {coordinate.R}) must be passable."));
+                continue;
+            }
+            tiles.Add(new WorldTile(coordinate, tile.Height ?? 0, passable, terrainId,
+                tile.RequiredUnlock, tile.Road ?? false));
         }
 
         var start = new HexCoord(document.Start!.Q ?? int.MinValue, document.Start.R ?? int.MinValue);
-        if (document.Start.Q is null || document.Start.R is null || !IsInside(start, width, height))
+        if (document.Start.Q is null || document.Start.R is null || !IsInside(start, width, height, originQ, originR))
         {
             errors.Add(new ContentError(path, "Required 'start' must contain q/r coordinates inside the map."));
         }
@@ -129,7 +138,7 @@ public sealed class MapLoader
             }
 
             var coordinate = new HexCoord(point.Q.Value, point.R.Value);
-            if (!IsInside(coordinate, width, height) || !coordinates.Contains(coordinate))
+            if (!IsInside(coordinate, width, height, originQ, originR) || !coordinates.Contains(coordinate))
             {
                 errors.Add(new ContentError(path, $"Point of interest '{point.Id}' must refer to an existing map tile."));
                 continue;
@@ -142,7 +151,7 @@ public sealed class MapLoader
             }
 
             var pointName = string.IsNullOrWhiteSpace(point.Name) ? point.Id : point.Name;
-            points.Add(new WorldPointOfInterest(point.Id, point.Type, pointName, coordinate));
+            points.Add(new WorldPointOfInterest(point.Id, point.Type, pointName, coordinate, point.RecruitmentSiteId));
         }
 
         if (errors.Count > 0)
@@ -150,12 +159,20 @@ public sealed class MapLoader
             return new MapLoadResult(false, null, errors.AsReadOnly());
         }
 
-        var map = new WorldMap(document.Id!, document.Name!, width, height, start, tiles, points);
+        if (document.Navigation is { } navigation)
+        {
+            var navigationError = navigation.Validate();
+            if (navigationError is not null) return Failed(new ContentError(path, navigationError));
+            var missing = points.FirstOrDefault(point => !navigation.Points.ContainsKey(point.Id));
+            if (missing is not null) return Failed(new ContentError(path, $"Navigation is missing landmark '{missing.Id}'."));
+        }
+        var map = new WorldMap(document.Id!, document.Name!, width, height, start, tiles, points, document.Navigation);
         return new MapLoadResult(true, map, Array.Empty<ContentError>());
     }
 
-    private static bool IsInside(HexCoord coordinate, int width, int height) =>
-        coordinate.Q >= 0 && coordinate.Q < width && coordinate.R >= 0 && coordinate.R < height;
+    private static bool IsInside(HexCoord coordinate, int width, int height, int originQ, int originR) =>
+        coordinate.Q >= originQ && (long)coordinate.Q < (long)originQ + width &&
+        coordinate.R >= originR && (long)coordinate.R < (long)originR + height;
 
     private static void ValidateText(string? value, string field, string path, ICollection<ContentError> errors)
     {
@@ -181,9 +198,11 @@ public sealed class MapLoader
         public string? Name { get; init; }
         public int? Width { get; init; }
         public int? Height { get; init; }
+        public CoordinateDocument? Origin { get; init; }
         public CoordinateDocument? Start { get; init; }
         public List<TileDocument?>? Tiles { get; init; }
         public List<PointDocument?>? PointsOfInterest { get; init; }
+        public Game.Core.Navigation.AdventureNavigation? Navigation { get; init; }
     }
 
     private sealed class CoordinateDocument
@@ -199,6 +218,8 @@ public sealed class MapLoader
         public string? Terrain { get; init; }
         public int? Height { get; init; }
         public bool? Passable { get; init; }
+        public bool? Road { get; init; }
+        public string? RequiredUnlock { get; init; }
     }
 
     private sealed class PointDocument
@@ -208,5 +229,6 @@ public sealed class MapLoader
         public string? Name { get; init; }
         public int? Q { get; init; }
         public int? R { get; init; }
+        public string? RecruitmentSiteId { get; init; }
     }
 }

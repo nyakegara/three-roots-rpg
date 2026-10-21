@@ -10,7 +10,7 @@ internal static class FantasyArt
     private static readonly Color Leaf = new(78, 111, 43);
     private static readonly Color LightLeaf = new(129, 151, 66);
 
-    public static void DrawLandscape(PixelCanvas canvas)
+    public static void DrawLandscape(PixelCanvas canvas, Color? skyColor = null)
     {
         canvas.Rect(0, 0, 1280, 610, new Color(90, 112, 48));
         for (var y = 0; y < 610; y += 4)
@@ -43,6 +43,16 @@ internal static class FantasyArt
             {
                 canvas.Rect(x + 2, y - 3, 1, 4, new Color(126, 145, 61));
                 canvas.Rect(x, y - 1, 1, 2, new Color(106, 130, 49));
+            }
+        }
+
+        if (skyColor is { } sky)
+        {
+            var horizon = Color.Lerp(sky, new Color(95, 112, 92), 0.42f);
+            for (var y = 0; y < 88; y += 4)
+            {
+                var color = Color.Lerp(sky, horizon, y / 88f);
+                canvas.Rect(0, y, 1280, 4, color);
             }
         }
 

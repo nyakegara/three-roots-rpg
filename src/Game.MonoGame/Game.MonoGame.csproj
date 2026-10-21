@@ -5,17 +5,36 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <MonoGamePlatform>DesktopGL</MonoGamePlatform>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6" />
     <ProjectReference Include="..\Game.Core\Game.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\..\content\art\animations\hero.flora.walk.png"
+             Link="Content\art\animations\hero.flora.walk.png"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\content\art\*.png"
              Link="Content\art\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\art\animations\*.idle.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\art\animations\*.idle.v2.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\art\animations\unit.*.actions.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\content\maps\*.json"
              Link="Content\maps\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\campaigns\*.json"
+             Link="Content\campaigns\%(Filename)%(Extension)"
+             CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\content\units\*.json"
+             Link="Content\units\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

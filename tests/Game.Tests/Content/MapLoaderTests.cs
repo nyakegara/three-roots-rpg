@@ -20,7 +20,7 @@ public sealed class MapLoaderTests : IDisposable
           "start": { "q": 0, "r": 0 },
           "tiles": [
             { "q": 0, "r": 0, "terrain": "meadow", "height": 0, "passable": true },
-            { "q": 1, "r": 0, "terrain": "hill", "height": 2, "passable": true },
+            { "q": 1, "r": 0, "terrain": "hill", "height": 2, "passable": true, "road": true },
             { "q": 2, "r": 0, "terrain": "ruins", "height": 0, "passable": false }
           ],
           "pointsOfInterest": [
@@ -41,8 +41,67 @@ public sealed class MapLoaderTests : IDisposable
         Assert.Equal<HexCoord?>(new HexCoord(0, 0), result.Map.StartPosition);
         Assert.Equal("hill", result.Map.GetTile(new HexCoord(1, 0))!.TerrainId);
         Assert.Equal(2, result.Map.GetTile(new HexCoord(1, 0))!.Height);
+        Assert.True(result.Map.GetTile(new HexCoord(1, 0))!.IsRoad);
         Assert.Single(result.Map.PointsOfInterest);
         Assert.Equal("old-tree", result.Map.PointsOfInterest.Single().Id);
+    }
+
+    [Fact]
+    public void Load_RoadCannotBeMarkedOnImpassableTile()
+    {
+        var path = WriteMap("""
+        { "id":"blocked-road", "name":"blocked-road", "width":1, "height":1,
+          "start":{"q":0,"r":0}, "tiles":[{"q":0,"r":0,"passable":false,"road":true}] }
+        """);
+
+        var result = new MapLoader().Load(path);
+
+        Assert.False(result.Success);
+        Assert.Contains(result.Errors, error => error.Message.Contains("Road tile", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void FloraCampaignMap_StoresItsMainRouteAsRoadTiles()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "content", "maps", "flora-01.json");
+
+        var result = new MapLoader().Load(path);
+
+        Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
+        var roads = result.Map!.Tiles.Where(tile => tile.IsRoad).ToArray();
+        Assert.NotEmpty(roads);
+        Assert.All(roads, tile => Assert.True(tile.IsPassable));
+        Assert.True(roads.Length >= 30);
+    }
+
+    [Fact]
+    public void Load_TileWithProgressionGate_RetainsUnlockToken()
+    {
+        var path = WriteMap("""
+        { "id":"gated", "name":"gated", "width":1, "height":1,
+          "start":{"q":0,"r":0}, "tiles":[{"q":0,"r":0,"requiredUnlock":"peasant-key"}] }
+        """);
+
+        var result = new MapLoader().Load(path);
+
+        Assert.True(result.Success);
+        Assert.Equal("peasant-key", result.Map!.GetTile(new HexCoord(0, 0))!.RequiredUnlock);
+    }
+
+    [Fact]
+    public void Load_MapWithNegativeAxialOrigin_AcceptsTilesAndPoi()
+    {
+        var path = WriteMap("""
+        { "id":"island", "name":"island", "width":2, "height":2,
+          "origin":{"q":-1,"r":-2}, "start":{"q":-1,"r":-2},
+          "tiles":[{"q":-1,"r":-2},{"q":0,"r":-1}],
+          "pointsOfInterest":[{"id":"shore","type":"encounter","name":"Shore","q":0,"r":-1}] }
+        """);
+
+        var result = new MapLoader().Load(path);
+
+        Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
+        Assert.Equal(new HexCoord(0, -1), Assert.Single(result.Map!.PointsOfInterest).Coordinate);
     }
 
     [Fact]

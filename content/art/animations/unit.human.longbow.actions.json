@@ -1,0 +1,569 @@
+{
+  "schemaVersion": 2,
+  "id": "unit.human.longbow.actions",
+  "image": "unit.human.longbow.actions.png",
+  "kind": "unit",
+  "width": 256,
+  "height": 160,
+  "columns": 4,
+  "rows": 2,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "contentBox": {
+    "x": 8,
+    "y": 8,
+    "width": 48,
+    "height": 64
+  },
+  "alphaCutoff": 128,
+  "alignBottom": 72,
+  "anchorMode": "body",
+  "frameOrder": "row-major",
+  "heroTwoFrame": false,
+  "heroCompactWalk": false,
+  "usedFrameCount": 8,
+  "unusedSlots": [],
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "frameMs": 100,
+      "loop": false,
+      "impactFrame": 4
+    }
+  ],
+  "frameDiagnostics": [
+    {
+      "frame": 0,
+      "empty": false,
+      "visibleBounds": {
+        "left": 24,
+        "top": 35,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 1,
+      "empty": false,
+      "visibleBounds": {
+        "left": 21,
+        "top": 35,
+        "right": 43,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 2,
+      "empty": false,
+      "visibleBounds": {
+        "left": 23,
+        "top": 35,
+        "right": 49,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 3,
+      "empty": false,
+      "visibleBounds": {
+        "left": 21,
+        "top": 32,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 4,
+      "empty": false,
+      "visibleBounds": {
+        "left": 21,
+        "top": 30,
+        "right": 55,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 5,
+      "empty": false,
+      "visibleBounds": {
+        "left": 20,
+        "top": 31,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 6,
+      "empty": false,
+      "visibleBounds": {
+        "left": 24,
+        "top": 35,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 7,
+      "empty": false,
+      "visibleBounds": {
+        "left": 24,
+        "top": 35,
+        "right": 45,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    }
+  ],
+  "registration": [
+    {
+      "frame": 0,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 1,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 2,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 3,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 4,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 5,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 6,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 7,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    }
+  ],
+  "sourceBorderDiagnostics": [],
+  "unpacking": {
+    "enabled": true,
+    "connectivity": 8,
+    "majorMinAreaFraction": 0.1,
+    "majorMinHeightFraction": 0.35,
+    "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
+    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sampling": "sourceX=floor(pivotX\u002B(x\u002B0.5-anchorX)/scale); sourceY=floor(pivotY\u002B(y-translationY\u002B0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
+    "sources": [
+      {
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "Width": 1536,
+        "Height": 1024,
+        "Columns": 4,
+        "Rows": 2,
+        "expected": 8,
+        "primaryComponents": 8,
+        "totalComponents": 9,
+        "detachedComponents": 1,
+        "Scale": 0.08482548922789053,
+        "FitScale": 0.08482548922789053,
+        "RowGrounds": [
+          484,
+          992
+        ],
+        "Attachments": [
+          {
+            "component": 9,
+            "Area": 1019,
+            "bounds": {
+              "Left": 328,
+              "Top": 638,
+              "Right": 443,
+              "Bottom": 654
+            },
+            "frame": 4,
+            "bboxDistance": 4,
+            "ambiguous": false,
+            "far": false,
+            "assigned": true
+          }
+        ],
+        "sha256": "15584f82be2704009b99941c4369ab94cc640b3b3338008968075e12d16d5694"
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 0,
+        "sourceColumn": 0,
+        "sourceRow": 0,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 69,
+          "top": 49,
+          "right": 341,
+          "bottom": 484
+        },
+        "primaryBounds": {
+          "left": 69,
+          "top": 49,
+          "right": 341,
+          "bottom": 484
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 168.41772735657628,
+        "pivotY": 484,
+        "primaryBottom": 484,
+        "transform": {
+          "offsetX": 17.713883882328936,
+          "offsetY": 30.944463213700985
+        },
+        "nativeBounds": {
+          "left": 24,
+          "top": 35,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 1,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 1,
+        "sourceColumn": 1,
+        "sourceRow": 0,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 442,
+          "top": 53,
+          "right": 707,
+          "bottom": 484
+        },
+        "primaryBounds": {
+          "left": 442,
+          "top": 53,
+          "right": 707,
+          "bottom": 484
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 568.8952299829642,
+        "pivotY": 484,
+        "primaryBottom": 484,
+        "transform": {
+          "offsetX": -16.256816202718234,
+          "offsetY": 30.944463213700985
+        },
+        "nativeBounds": {
+          "left": 21,
+          "top": 35,
+          "rightExclusive": 44,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 2,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 2,
+        "sourceColumn": 2,
+        "sourceRow": 0,
+        "primaryComponent": 2,
+        "componentIds": [
+          2
+        ],
+        "sourceCropBounds": {
+          "left": 830,
+          "top": 46,
+          "right": 1156,
+          "bottom": 484
+        },
+        "primaryBounds": {
+          "left": 830,
+          "top": 46,
+          "right": 1156,
+          "bottom": 484
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 936.6697059918124,
+        "pivotY": 484,
+        "primaryBottom": 484,
+        "transform": {
+          "offsetX": -47.45346605569988,
+          "offsetY": 30.944463213700985
+        },
+        "nativeBounds": {
+          "left": 23,
+          "top": 35,
+          "rightExclusive": 50,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 3,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 3,
+        "sourceColumn": 3,
+        "sourceRow": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 1212,
+          "top": 4,
+          "right": 1535,
+          "bottom": 484
+        },
+        "primaryBounds": {
+          "left": 1212,
+          "top": 4,
+          "right": 1535,
+          "bottom": 484
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 1338.1082368958475,
+        "pivotY": 484,
+        "primaryBottom": 484,
+        "transform": {
+          "offsetX": -81.50568583456031,
+          "offsetY": 30.944463213700985
+        },
+        "nativeBounds": {
+          "left": 21,
+          "top": 32,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 4,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 4,
+        "sourceColumn": 0,
+        "sourceRow": 1,
+        "primaryComponent": 5,
+        "componentIds": [
+          5,
+          9
+        ],
+        "sourceCropBounds": {
+          "left": 30,
+          "top": 500,
+          "right": 443,
+          "bottom": 990
+        },
+        "primaryBounds": {
+          "left": 30,
+          "top": 500,
+          "right": 324,
+          "bottom": 990
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 160.06617647058823,
+        "pivotY": 990,
+        "primaryBottom": 990,
+        "transform": {
+          "offsetX": 18.422308272044493,
+          "offsetY": -11.977234335611627
+        },
+        "nativeBounds": {
+          "left": 21,
+          "top": 30,
+          "rightExclusive": 56,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 5,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 5,
+        "sourceColumn": 1,
+        "sourceRow": 1,
+        "primaryComponent": 6,
+        "componentIds": [
+          6
+        ],
+        "sourceCropBounds": {
+          "left": 456,
+          "top": 500,
+          "right": 785,
+          "bottom": 990
+        },
+        "primaryBounds": {
+          "left": 456,
+          "top": 500,
+          "right": 785,
+          "bottom": 990
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 593.4230381448496,
+        "pivotY": 990,
+        "primaryBottom": 990,
+        "transform": {
+          "offsetX": -18.337399529738008,
+          "offsetY": -11.977234335611627
+        },
+        "nativeBounds": {
+          "left": 20,
+          "top": 31,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 6,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 6,
+        "sourceColumn": 2,
+        "sourceRow": 1,
+        "primaryComponent": 8,
+        "componentIds": [
+          8
+        ],
+        "sourceCropBounds": {
+          "left": 854,
+          "top": 560,
+          "right": 1121,
+          "bottom": 992
+        },
+        "primaryBounds": {
+          "left": 854,
+          "top": 560,
+          "right": 1121,
+          "bottom": 992
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 950.2841384556866,
+        "pivotY": 992,
+        "primaryBottom": 992,
+        "transform": {
+          "offsetX": -48.608316950008074,
+          "offsetY": -12.146885314067404
+        },
+        "nativeBounds": {
+          "left": 24,
+          "top": 35,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 7,
+        "source": "../../../docs/art/animations/sources/human-longbow.source.png",
+        "sourceFrame": 7,
+        "sourceColumn": 3,
+        "sourceRow": 1,
+        "primaryComponent": 7,
+        "componentIds": [
+          7
+        ],
+        "sourceCropBounds": {
+          "left": 1226,
+          "top": 556,
+          "right": 1487,
+          "bottom": 992
+        },
+        "primaryBounds": {
+          "left": 1226,
+          "top": 556,
+          "right": 1487,
+          "bottom": 992
+        },
+        "scale": 0.08482548922789053,
+        "pivotX": 1322.6868705706827,
+        "pivotY": 992,
+        "primaryBottom": 992,
+        "transform": {
+          "offsetX": -80.19756089146568,
+          "offsetY": -12.146885314067404
+        },
+        "nativeBounds": {
+          "left": 24,
+          "top": 35,
+          "rightExclusive": 46,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      }
+    ]
+  },
+  "source": {
+    "image": "../../../docs/art/animations/sources/human-longbow.source.png",
+    "width": 1536,
+    "height": 1024,
+    "transparentPixels": 941575,
+    "partialAlphaPixels": 631289,
+    "opaquePixels": 0
+  }
+}

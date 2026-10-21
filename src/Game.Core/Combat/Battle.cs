@@ -6,7 +6,9 @@ namespace Game.Core.Combat;
 /// <summary>Owns the state and validates all commands in a tactical battle.</summary>
 public sealed class Battle
 {
+    private readonly Guid _battleId = Guid.NewGuid();
     private readonly Dictionary<string, BattleUnit> _units;
+    private readonly Random _random;
     private readonly AStarPathfinder _pathfinder = new();
     private readonly Dictionary<string, bool> _hasMoved = new(StringComparer.Ordinal);
     private readonly Dictionary<string, bool> _hasAttacked = new(StringComparer.Ordinal);
@@ -17,17 +19,53 @@ public sealed class Battle
     public BattleMap Map { get; }
     public IReadOnlyCollection<BattleUnit> Units => _units.Values;
     public int Round { get; private set; }
-    public BattleUnit? ActiveUnit => _activationIndex >= 0 && _activationIndex < _initiative.Count
-        ? _initiative[_activationIndex]
-        : null;
+    /// <summary>Living stacks still to act this round, beginning with the active stack.</summary>
+    public IReadOnlyList<BattleUnit> RemainingInitiative => IsFinished || _activationIndex < 0
+        ? [] : _initiative.Skip(_activationIndex).Where(unit => unit.IsAlive).ToArray();
+    public BattleUnit? ActiveUnit
+    {
+        get
+        {
+            if (IsFinished)
+            {
+                return null;
+            }
+
+            while (_activationIndex >= 0 && _activationIndex < _initiative.Count &&
+                   !_initiative[_activationIndex].IsAlive)
+            {
+                _activationIndex++;
+            }
+
+            return _activationIndex >= 0 && _activationIndex < _initiative.Count
+                ? _initiative[_activationIndex]
+                : null;
+        }
+    }
     public bool IsFinished => _units.Values.Where(unit => unit.IsAlive).Select(unit => unit.Side).Distinct().Count() <= 1;
     public BattleSide? Winner => IsFinished ? _units.Values.FirstOrDefault(unit => unit.IsAlive)?.Side : null;
 
-    public Battle(BattleMap map, IEnumerable<BattleUnit> units)
+    public BattleOutcome GetOutcome()
+    {
+        if (!IsFinished)
+        {
+            throw new InvalidOperationException("A battle outcome is available only after the battle ends.");
+        }
+
+        var survivors = _units.Values
+            .Where(unit => unit.IsAlive && unit.OriginalSide == BattleSide.Player)
+            .GroupBy(unit => unit.UnitTypeId, StringComparer.Ordinal)
+            .OrderBy(group => group.Key, StringComparer.Ordinal)
+            .Select(group => new BattleStackSurvivor(group.Key, checked((int)group.Sum(unit => (long)unit.Count))));
+        return new BattleOutcome(_battleId, survivors);
+    }
+
+    public Battle(BattleMap map, IEnumerable<BattleUnit> units, Random? random = null)
     {
         ArgumentNullException.ThrowIfNull(map);
         ArgumentNullException.ThrowIfNull(units);
         Map = map;
+        _random = random ?? Random.Shared;
         var list = units.ToList();
         if (list.Any(unit => unit is null))
         {
@@ -126,8 +164,45 @@ public sealed class Battle
             return false;
         }
 
-        target.ApplyDamage(attacker.TotalDamage);
+        target.ApplyDamage(BattleRules.GetAttackDamage(attacker, target));
+        if (attacker.Ability == UnitAbility.ConvertOnHit && target.IsAlive && _random.Next(8) == 0)
+        {
+            target.ConvertTo(attacker.Side);
+        }
+
         _hasAttacked[unitId] = true;
+        return true;
+    }
+
+    public bool TrySetAttackMode(string unitId, AttackMode mode)
+    {
+        if (IsFinished || !Enum.IsDefined(mode)) return false;
+        var unit = GetActiveUnit(unitId);
+        if (unit is null || unit.Ability != UnitAbility.RadiantModes ||
+            _hasAttacked.GetValueOrDefault(unitId) || unit.AttackMode == mode) return false;
+        unit.SetAttackMode(mode);
+        return true;
+    }
+
+    public bool TryHeal(string healerId, string targetId)
+    {
+        if (IsFinished)
+        {
+            return false;
+        }
+
+        var healer = GetActiveUnit(healerId);
+        if (healer is null || healer.Ability != UnitAbility.HealAlly ||
+            _hasAttacked.GetValueOrDefault(healerId) ||
+            !_units.TryGetValue(targetId, out var target) ||
+            ReferenceEquals(healer, target) || target.Side != healer.Side ||
+            !target.IsAlive || target.RemainingHitPoints == target.MaximumHitPointsAtBattleStart)
+        {
+            return false;
+        }
+
+        target.Heal(10);
+        _hasAttacked[healerId] = true;
         return true;
     }
 
@@ -145,10 +220,16 @@ public sealed class Battle
 
     public void EndActivation()
     {
-        if (ActiveUnit is not null)
+        if (ActiveUnit is null)
+        {
+            return;
+        }
+
+        do
         {
             _activationIndex++;
         }
+        while (_activationIndex < _initiative.Count && !_initiative[_activationIndex].IsAlive);
     }
 
     public IReadOnlyList<BattleUnit> GetEnemies(BattleSide side) => _units.Values

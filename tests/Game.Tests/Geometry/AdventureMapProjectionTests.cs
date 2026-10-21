@@ -1,4 +1,5 @@
 using System.Numerics;
+using Game.Core.Content;
 using Game.Core.Geometry;
 using Game.Core.World;
 using Xunit;
@@ -40,6 +41,47 @@ public sealed class AdventureMapProjectionTests
 
         Assert.True(projection.TryPick(camera.ToWorld(screenPosition), out var selected));
         Assert.Equal(target, selected);
+    }
+
+    [Theory]
+    [InlineData("guide-dialogue", 1475, 214)]
+    [InlineData("north-gate", 1114, 389)]
+    [InlineData("mountain-outpost", 859, 476)]
+    [InlineData("mushroom-outpost", 762, 647)]
+    [InlineData("final-landing", 229, 435)]
+    public void FloraLandmark_ProjectsNearPaintedLocation(string pointId, int expectedX, int expectedY)
+    {
+        var map = LoadFloraMap();
+        var projection = new AdventureMapProjection(map, 88, 40, 5, 2);
+        var point = map.PointsOfInterest.Single(candidate => candidate.Id == pointId);
+        var tile = map.GetTile(point.Coordinate)!;
+        var world = projection.ProjectPoint(point);
+        var artX = world.X / projection.WorldSize.X * 1862;
+        var artY = world.Y / projection.WorldSize.Y * 845;
+
+        Assert.InRange(artX, expectedX - 25, expectedX + 25);
+        Assert.InRange(artY, expectedY - 25, expectedY + 25);
+    }
+
+    [Fact]
+    public void FloraWalkableTile_CanBePickedAtItsPaintedCenter()
+    {
+        var map = LoadFloraMap();
+        var projection = new AdventureMapProjection(map, 88, 40, 5, 2);
+
+        foreach (var tile in map.Tiles.Where(candidate => candidate.IsPassable))
+        {
+            Assert.True(projection.TryPick(projection.Project(tile.Coordinate, tile.Height), out var picked));
+            Assert.Equal(tile.Coordinate, picked);
+        }
+    }
+
+    private static WorldMap LoadFloraMap()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "content", "maps", "flora-01.json");
+        var result = new MapLoader().Load(path);
+        Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
+        return result.Map!;
     }
 
     private static WorldMap CreateMap(int width, int height, params HexCoord[] missing)

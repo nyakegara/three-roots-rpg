@@ -7,6 +7,20 @@ public sealed class EconomyRules
 {
     private const int ReputationPriceChangePercent = 10;
 
+    public int? GetAdjustedUnitCost(Hero hero, RecruitmentSite site, RecruitmentOffer offer)
+    {
+        ArgumentNullException.ThrowIfNull(hero);
+        ArgumentNullException.ThrowIfNull(site);
+        ArgumentNullException.ThrowIfNull(offer);
+        if (hero.FactionId is null || site.FactionId is null ||
+            !hero.FactionId.Equals(site.FactionId, StringComparison.Ordinal))
+            return offer.BaseUnitCost;
+
+        var pricePercent = 100 - hero.Reputation * ReputationPriceChangePercent;
+        var calculatedUnitCost = Math.Max(1L, ((long)offer.BaseUnitCost * pricePercent + 99) / 100);
+        return calculatedUnitCost > int.MaxValue ? null : (int)calculatedUnitCost;
+    }
+
     public RecruitmentResult TryRecruit(Hero hero, RecruitmentSite site, string unitTypeId, int count)
     {
         ArgumentNullException.ThrowIfNull(hero);
@@ -22,18 +36,22 @@ public sealed class EconomyRules
             return new RecruitmentResult(false, $"Unit type '{unitTypeId}' is not available at '{site.Id}'.");
         }
 
-        var pricePercent = 100 - hero.Reputation * ReputationPriceChangePercent;
-        var calculatedUnitCost = Math.Max(1L, ((long)offer.BaseUnitCost * pricePercent + 99) / 100);
-        if (calculatedUnitCost > int.MaxValue)
+        var unitCostValue = GetAdjustedUnitCost(hero, site, offer);
+        if (unitCostValue is null)
         {
             return new RecruitmentResult(false, "The adjusted unit price is too large.");
         }
 
-        var unitCost = (int)calculatedUnitCost;
+        var unitCost = unitCostValue.Value;
         var totalCost = (long)unitCost * count;
         if (totalCost > int.MaxValue || !hero.Army.CanAdd(unitTypeId, count))
         {
             return new RecruitmentResult(false, "The army cannot accept this recruitment.", unitCost);
+        }
+
+        if (offer.RemainingStock < count)
+        {
+            return new RecruitmentResult(false, "The recruitment site does not have enough stock.", unitCost, (int)totalCost);
         }
 
         if (hero.Gold < totalCost)
@@ -52,6 +70,7 @@ public sealed class EconomyRules
             return new RecruitmentResult(false, "Recruitment could not be completed.", unitCost, (int)totalCost);
         }
 
+        offer.ConsumeStock(count);
         return new RecruitmentResult(true, "Recruitment completed.", unitCost, (int)totalCost);
     }
 }

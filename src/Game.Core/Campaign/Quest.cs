@@ -9,15 +9,20 @@ public sealed class Quest
 
     public string Id { get; }
     public string Title { get; }
+    public string? PointOfInterestId { get; }
+    public string Narrative { get; }
     public IReadOnlyList<QuestChoice> Choices => _choiceView;
 
-    public Quest(string id, string title, IEnumerable<QuestChoice> choices)
+    public Quest(string id, string title, IEnumerable<QuestChoice> choices, string? pointOfInterestId = null,
+        string? narrative = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentNullException.ThrowIfNull(choices);
         Id = id;
         Title = title;
+        PointOfInterestId = string.IsNullOrWhiteSpace(pointOfInterestId) ? null : pointOfInterestId;
+        Narrative = narrative?.Trim() ?? string.Empty;
         _choices = new Dictionary<string, QuestChoice>(StringComparer.Ordinal);
         foreach (var choice in choices)
         {

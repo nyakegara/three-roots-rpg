@@ -1,0 +1,30 @@
+{
+  "id": "human-01",
+  "name": "Граница рассвета",
+  "description": "Капитан Эдрик ведёт людей через затопленную границу, где чужие голоса зовут живых по именам.",
+  "playerFactionId": "human",
+  "enemyFactionId": "undead",
+  "mapFile": "../maps/human-01.json",
+  "hero": { "id": "edric", "name": "Эдрик", "startingGold": 280 },
+  "recruitment": [
+    { "unitId": "human.militia", "startingStock": 20 },
+    { "unitId": "human.spearman", "startingStock": 12 },
+    { "unitId": "human.longbow", "startingStock": 9 },
+    { "unitId": "human.field-medic", "startingStock": 5 },
+    { "unitId": "human.banner-knight", "startingStock": 3 }
+  ],
+  "quests": [
+    { "id": "silent-ford", "title": "Безмолвный брод", "pointOfInterestId": "silent-ford", "choices": [
+      { "id": "evacuate", "description": "Вывести семьи к холмам: -20 золота, +2 репутация.", "goldChange": -20, "reputationChange": 2 },
+      { "id": "hold", "description": "Удерживать переправу: +40 золота, -1 репутация.", "goldChange": 40, "reputationChange": -1 }
+    ] },
+    { "id": "bell-house", "title": "Дом без колокола", "pointOfInterestId": "bell-house", "choices": [
+      { "id": "melt", "description": "Переплавить металл: +55 золота.", "goldChange": 55, "reputationChange": 0 },
+      { "id": "bury", "description": "Похоронить обломки: +10 золота, +1 репутация.", "goldChange": 10, "reputationChange": 1 }
+    ] },
+    { "id": "last-watch", "title": "Последняя стража", "pointOfInterestId": "last-watch", "choices": [
+      { "id": "march", "description": "Отправить отряд в поход: +30 золота, +1 репутация.", "goldChange": 30, "reputationChange": 1 },
+      { "id": "fortify", "description": "Остаться за стенами: +65 золота, -1 репутация.", "goldChange": 65, "reputationChange": -1 }
+    ] }
+  ]
+}

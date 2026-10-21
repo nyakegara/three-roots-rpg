@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 2,
+  "id": "unit.human.banner-knight.idle.v2",
+  "image": "unit.human.banner-knight.idle.v2.png",
+  "kind": "idle",
+  "width": 256,
+  "height": 80,
+  "columns": 4,
+  "rows": 1,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "contentBox": {
+    "x": 1,
+    "y": 4,
+    "width": 62,
+    "height": 68
+  },
+  "alphaCutoff": 128,
+  "alignBottom": 72,
+  "anchorMode": "body",
+  "frameOrder": "row-major",
+  "heroTwoFrame": false,
+  "heroCompactWalk": false,
+  "usedFrameCount": 4,
+  "unusedSlots": [],
+  "clips": [
+    {
+      "name": "idle",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "frameMs": 320,
+      "loop": true,
+      "impactFrame": null
+    }
+  ],
+  "frameDiagnostics": [
+    {
+      "frame": 0,
+      "empty": false,
+      "visibleBounds": {
+        "left": 1,
+        "top": 14,
+        "right": 46,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 1,
+      "empty": false,
+      "visibleBounds": {
+        "left": 1,
+        "top": 14,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 2,
+      "empty": false,
+      "visibleBounds": {
+        "left": 1,
+        "top": 14,
+        "right": 46,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    },
+    {
+      "frame": 3,
+      "empty": false,
+      "visibleBounds": {
+        "left": 1,
+        "top": 14,
+        "right": 47,
+        "bottom": 71
+      },
+      "edgePixels": 0
+    }
+  ],
+  "registration": [
+    {
+      "frame": 0,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 1,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 2,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    },
+    {
+      "frame": 3,
+      "translationY": 0,
+      "originalBottomExclusive": 72,
+      "registeredBottomExclusive": 72,
+      "clippedOpaquePixels": 0
+    }
+  ],
+  "sourceBorderDiagnostics": [],
+  "unpacking": {
+    "enabled": true,
+    "connectivity": 8,
+    "majorMinAreaFraction": 0.1,
+    "majorMinHeightFraction": 0.35,
+    "attachment": "nearest main bounding-box distance; actual boundary pixel distance breaks ties; far threshold0.3cellmax; ambiguous/far attachments reported",
+    "pivot": "mean pixel-center X of bottom15% primary body; primary exclusive bottom to baseline",
+    "scale": "one constant scale per source path, fitting maximum anchored group extents into content box",
+    "sampling": "sourceX=floor(pivotX\u002B(x\u002B0.5-anchorX)/scale); sourceY=floor(pivotY\u002B(y-translationY\u002B0.5-anchorY)/scale); use this pivot form to reproduce floating-point sampling",
+    "sources": [
+      {
+        "source": "../../../docs/art/animations/sources/human-banner-knight.idle.v2.source.png",
+        "Width": 2103,
+        "Height": 748,
+        "Columns": 4,
+        "Rows": 1,
+        "expected": 4,
+        "primaryComponents": 4,
+        "totalComponents": 4,
+        "detachedComponents": 0,
+        "Scale": 0.09147785878460876,
+        "FitScale": 0.09147785878460876,
+        "RowGrounds": [
+          698
+        ],
+        "Attachments": [],
+        "sha256": "80ee6a189bd497e1ad8cc04d872c18fd273448353742a8816cea8e65b41a4188"
+      }
+    ],
+    "frames": [
+      {
+        "frame": 0,
+        "source": "../../../docs/art/animations/sources/human-banner-knight.idle.v2.source.png",
+        "sourceFrame": 0,
+        "sourceColumn": 0,
+        "sourceRow": 0,
+        "primaryComponent": 3,
+        "componentIds": [
+          3
+        ],
+        "sourceCropBounds": {
+          "left": 9,
+          "top": 65,
+          "right": 514,
+          "bottom": 698
+        },
+        "primaryBounds": {
+          "left": 9,
+          "top": 65,
+          "right": 514,
+          "bottom": 698
+        },
+        "scale": 0.09147785878460876,
+        "pivotX": 347.87981651376145,
+        "pivotY": 698,
+        "primaryBottom": 698,
+        "transform": {
+          "offsetX": 0.17669927093852067,
+          "offsetY": 8.148454568343084
+        },
+        "nativeBounds": {
+          "left": 1,
+          "top": 14,
+          "rightExclusive": 47,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 1,
+        "source": "../../../docs/art/animations/sources/human-banner-knight.idle.v2.source.png",
+        "sourceFrame": 1,
+        "sourceColumn": 1,
+        "sourceRow": 0,
+        "primaryComponent": 1,
+        "componentIds": [
+          1
+        ],
+        "sourceCropBounds": {
+          "left": 535,
+          "top": 62,
+          "right": 1050,
+          "bottom": 698
+        },
+        "primaryBounds": {
+          "left": 535,
+          "top": 62,
+          "right": 1050,
+          "bottom": 698
+        },
+        "scale": 0.09147785878460876,
+        "pivotX": 869.859640881094,
+        "pivotY": 698,
+        "primaryBottom": 698,
+        "transform": {
+          "offsetX": -47.57289739095121,
+          "offsetY": 8.148454568343084
+        },
+        "nativeBounds": {
+          "left": 1,
+          "top": 14,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 2,
+        "source": "../../../docs/art/animations/sources/human-banner-knight.idle.v2.source.png",
+        "sourceFrame": 2,
+        "sourceColumn": 2,
+        "sourceRow": 0,
+        "primaryComponent": 4,
+        "componentIds": [
+          4
+        ],
+        "sourceCropBounds": {
+          "left": 1060,
+          "top": 65,
+          "right": 1566,
+          "bottom": 698
+        },
+        "primaryBounds": {
+          "left": 1060,
+          "top": 65,
+          "right": 1566,
+          "bottom": 698
+        },
+        "scale": 0.09147785878460876,
+        "pivotX": 1397.2009722796856,
+        "pivotY": 698,
+        "primaryBottom": 698,
+        "transform": {
+          "offsetX": -95.81295323591914,
+          "offsetY": 8.148454568343084
+        },
+        "nativeBounds": {
+          "left": 1,
+          "top": 14,
+          "rightExclusive": 47,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      },
+      {
+        "frame": 3,
+        "source": "../../../docs/art/animations/sources/human-banner-knight.idle.v2.source.png",
+        "sourceFrame": 3,
+        "sourceColumn": 3,
+        "sourceRow": 0,
+        "primaryComponent": 2,
+        "componentIds": [
+          2
+        ],
+        "sourceCropBounds": {
+          "left": 1586,
+          "top": 64,
+          "right": 2092,
+          "bottom": 698
+        },
+        "primaryBounds": {
+          "left": 1586,
+          "top": 64,
+          "right": 2092,
+          "bottom": 698
+        },
+        "scale": 0.09147785878460876,
+        "pivotX": 1921.966843772351,
+        "pivotY": 698,
+        "primaryBottom": 698,
+        "transform": {
+          "offsetX": -143.81741152330733,
+          "offsetY": 8.148454568343084
+        },
+        "nativeBounds": {
+          "left": 1,
+          "top": 14,
+          "rightExclusive": 48,
+          "bottomExclusive": 72
+        },
+        "translatedClipping": 0,
+        "sourcePixelsProjectedOutsideFrame": 0
+      }
+    ]
+  },
+  "source": {
+    "image": "../../../docs/art/animations/sources/human-banner-knight.idle.v2.source.png",
+    "width": 2103,
+    "height": 748,
+    "transparentPixels": 865617,
+    "partialAlphaPixels": 705368,
+    "opaquePixels": 2059
+  }
+}

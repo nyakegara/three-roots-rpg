@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Flora · Animation review</title>
+<style>
+:root{font:15px system-ui;color:#e6eddc;background:#17221c;color-scheme:dark}body{margin:0;padding:24px}h1{font-size:25px;margin:0 0 8px}p{color:#b6c6b7}header{position:sticky;top:0;background:#17221cf2;padding:12px 0;z-index:2}button,select,input{font:inherit;padding:7px 10px;margin:3px;border:1px solid #70816a;border-radius:5px;background:#28372d;color:inherit}button{cursor:pointer}a{color:#c5d7a0}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px}.card{border:1px solid #56654f;padding:13px;border-radius:8px;background:#223127}.card h3{font-size:16px;margin:0 0 10px}.stage{width:128px;height:160px;margin:auto;position:relative;background-color:#bcc1b8;background-image:conic-gradient(#858e82 25%,transparent 0 50%,#858e82 0 75%,transparent 0);background-size:16px 16px}.stage canvas{width:128px;height:160px;image-rendering:pixelated}.stage:after{content:'';position:absolute;left:60px;top:140px;width:6px;height:6px;border:1px solid #f25b62;border-radius:50%;pointer-events:none}body[data-bg=dark] .stage{background:#17221c}body[data-bg=light] .stage{background:#e9eadf}body[data-bg=forest] .stage{background:#526440}.info{font-size:12px;color:#b6c6b7;line-height:1.6;margin-top:8px}section{margin:28px 0}.error{color:#ffb7ab;white-space:pre-wrap}.sheet{display:block;max-width:100%;height:auto;image-rendering:pixelated;border:1px solid #70816a}summary{cursor:pointer;padding:10px}.empty{padding:25px;border:1px dashed #70816a}code{font-size:13px}
+</style>
+<h1>Flora · просмотр анимаций</h1>
+<p>Нативная клетка 64×80 · масштаб 2× · красная точка — фиксированная опора (32,72). Все клипы повторяются для проверки стыка, включая разовые атаки.</p>
+<header>
+<button id="play">Пауза</button><button id="previous">← кадр</button><button id="next">Кадр →</button><button id="restart">С начала</button>
+<label>Фон <select id="background"><option value="checker">Шахматный</option><option value="dark">Тёмный</option><option value="light">Светлый</option><option value="forest">Зелёный</option></select></label>
+<label>Скорость <select id="speed"><option value="0.5" selected>0.5×</option><option value="1">1×</option><option value="2">2×</option></select></label>
+<span id="status"></span>
+</header>
+<main id="main"></main>
+<script>
+const main=document.querySelector('#main'), players=[];
+let playing=true, speed=0.5, previousTime=0;
+function element(tag,text,parent){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(parent)parent.append(e);return e;}
+function paint(p){const index=p.clip.frames[p.frame],w=p.meta.cell.width,h=p.meta.cell.height;p.ctx.clearRect(0,0,w,h);p.ctx.drawImage(p.image,(index%p.meta.columns)*w,Math.floor(index/p.meta.columns)*h,w,h,0,0,w,h);p.counter.textContent=`Кадр ${p.frame+1}/${p.clip.frames.length} · ячейка ${index}`+(p.clip.impactFrame===p.frame?' · IMPACT':'')+` · dy=${p.meta.registration?.[index]?.translationY??0}`+(p.meta.sourceBorderDiagnostics?.[index]?.total?' · SOURCE BORDER!':'');}
+function allFrames(delta){playing=false;document.querySelector('#play').textContent='Играть';for(const p of players){p.frame=(p.frame+delta+p.clip.frames.length)%p.clip.frames.length;p.elapsed=0;paint(p);}}
+document.querySelector('#play').onclick=()=>{playing=!playing;document.querySelector('#play').textContent=playing?'Пауза':'Играть';};
+document.querySelector('#previous').onclick=()=>allFrames(-1);document.querySelector('#next').onclick=()=>allFrames(1);
+document.querySelector('#restart').onclick=()=>{for(const p of players){p.frame=0;p.elapsed=0;paint(p);}};
+document.querySelector('#background').onchange=e=>document.body.dataset.bg=e.target.value;
+document.querySelector('#speed').onchange=e=>speed=Number(e.target.value);
+function tick(now){const delta=Math.min(250,now-(previousTime||now));previousTime=now;if(playing)for(const p of players){p.elapsed+=delta*speed;while(p.elapsed>=p.clip.frameMs){p.elapsed-=p.clip.frameMs;p.frame=(p.frame+1)%p.clip.frames.length;}paint(p);}requestAnimationFrame(tick);}
+async function addSheet(path){
+ const metadataUrl=new URL(path,location.href),embedded=window.animationBundle?.[path];
+ let meta;if(embedded){meta=embedded.meta;}else{const response=await fetch(metadataUrl);if(!response.ok)throw Error(`${path}: HTTP ${response.status}`);meta=await response.json();}
+ const image=new Image();image.src=embedded?.image??new URL(meta.image,metadataUrl).href;await image.decode();
+ if(image.width!==meta.width||image.height!==meta.height)throw Error(`${meta.id}: PNG dimensions disagree with JSON`);
+ const section=element('section',undefined,main);element('h2',meta.id,section);
+ if(meta.id.startsWith('unit.human.')&&meta.id.endsWith('.actions'))element('p','Архивный атлас: другой дизайн персонажа. В текущем бою используются утверждённые отдельные позы, а на карте — idle v2.',section);
+ const description=element('p',`${meta.width}×${meta.height} · ${meta.columns}×${meta.rows} · ${meta.clips.length} клипов · alpha 0: ${meta.source.transparentPixels.toLocaleString()} px`,section);
+ const sourceLink=element('a',' Исходник',description);sourceLink.href=new URL(meta.source.image,metadataUrl).href;sourceLink.target='_blank';
+ const contactLink=element('a',' · Контактный лист',description);contactLink.href=new URL(`previews/${meta.id}.contact.png`,location.href).href;contactLink.target='_blank';
+ if(meta.unpacking?.enabled){const sources=meta.unpacking.sources;const count=sources.reduce((n,s)=>n+s.primaryComponents,0),expected=sources.reduce((n,s)=>n+s.expected,0);element('p',`Atlas unpacking · основные фигуры ${count}/${expected} · фиксированный масштаб на источник · ${meta.anchorMode==='cell'?'фиксированная сетка кадров':'опора по телу'}`,section);const clipping=meta.unpacking.frames.filter(f=>f.translatedClipping||f.sourcePixelsProjectedOutsideFrame);if(clipping.length){const warning=element('p',`CLIPPING: ${clipping.map(f=>f.frame).join(', ')}`,section);warning.className='error';}const attachments=sources.flatMap(s=>s.Attachments||[]).filter(a=>a.far||a.ambiguous);if(attachments.length){const warning=element('p',`Проверить отдельные эффекты: ${attachments.map(a=>`component ${a.component}, frame ${a.frame}`).join('; ')}`,section);warning.className='error';}}
+ else{const flagged=(meta.sourceBorderDiagnostics||[]).filter(f=>f.total>0).map(f=>f.frame);if(flagged.length){const warning=element('p',`SOURCE BORDER: ${flagged.join(', ')}. Эффекты могут пересекать исходные клетки; проверьте исходник.`,section);warning.className='error';}}
+ const jsonLink=element('a',' · JSON',description);jsonLink.href=metadataUrl.href;jsonLink.target='_blank';
+ const grid=element('div',undefined,section);grid.className='grid';
+ for(const clip of meta.clips){const card=element('article',undefined,grid);card.className='card';element('h3',clip.name,card);const stage=element('div',undefined,card);stage.className='stage';const canvas=element('canvas',undefined,stage);canvas.width=meta.cell.width;canvas.height=meta.cell.height;const info=element('div',undefined,card);info.className='info';const counter=element('div',undefined,info);element('div',`${clip.frameMs} мс/кадр · ${clip.loop?'цикл':'разовый'}${clip.impactFrame===null?'':` · impact ${clip.impactFrame+1}`}`,info);const ctx=canvas.getContext('2d');ctx.imageSmoothingEnabled=false;const p={meta,image,clip,frame:0,elapsed:0,ctx,counter};players.push(p);paint(p);}
+ const details=element('details',undefined,section);element('summary','Весь спрайт-лист (1×)',details);const sheet=element('img',undefined,details);sheet.src=image.src;sheet.alt=meta.id;sheet.className='sheet';
+}
+async function start(){try{let manifest;if(window.animationBundle){manifest={sheets:Object.keys(window.animationBundle)};}else{const response=await fetch('manifest.json');if(!response.ok)throw Error(`manifest.json: HTTP ${response.status}`);manifest=await response.json();}if(!manifest.sheets.length){const empty=element('p','Листы ещё не экспортированы. Добавьте пути к JSON в manifest.json.',main);empty.className='empty';}for(const path of manifest.sheets){try{await addSheet(path);}catch(error){const p=element('p',String(error),main);p.className='error';}}document.querySelector('#status').textContent=`${players.length} клипов`;requestAnimationFrame(tick);}catch(error){const p=element('p',`${error}\nОткройте preview.html двойным щелчком или index.html через локальный HTTP-сервер.`,main);p.className='error';}}
+start();
+</script>
+</html>

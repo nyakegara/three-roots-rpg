@@ -1,0 +1,46 @@
+name: Сообщить об ошибке
+description: Опиши сбой или неправильное поведение игры.
+title: "[Ошибка]: "
+body:
+  - type: textarea
+    id: actual
+    attributes:
+      label: Что произошло?
+      description: Опиши наблюдаемое поведение и, если есть, текст ошибки.
+      placeholder: При втором клике по гексу герой...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Что должно было произойти?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Как повторить ошибку?
+      description: Перечисли шаги в порядке выполнения.
+      placeholder: |
+        1. Запустить игру.
+        2. Открыть карту...
+        3. Нажать...
+    validations:
+      required: true
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Скриншот или лог
+      description: Перетащи сюда изображение или вставь полезный фрагмент лога, если он есть.
+    validations:
+      required: false
+  - type: dropdown
+    id: build
+    attributes:
+      label: Конфигурация запуска
+      options:
+        - dotnet run (Debug)
+        - dotnet run --configuration Release
+        - Не знаю
+    validations:
+      required: true

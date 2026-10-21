@@ -1,0 +1,74 @@
+[
+  {
+    "source": "sources/hero.walk.north.source.png",
+    "sourceRow": 0,
+    "targetRow": 0,
+    "sourceColumns": 6,
+    "sourceRows": 3,
+    "sourceScale": 0.175
+  },
+  {
+    "source": "sources/hero.walk.north.source.png",
+    "sourceRow": 1,
+    "targetRow": 1,
+    "sourceColumns": 6,
+    "sourceRows": 3,
+    "sourceScale": 0.175
+  },
+  {
+    "source": "sources/hero.walk.north.source.png",
+    "sourceRow": 2,
+    "targetRow": 2,
+    "sourceColumns": 6,
+    "sourceRows": 3,
+    "sourceScale": 0.175
+  },
+  {
+    "source": "sources/hero.walk.se.source.png",
+    "sourceRow": 0,
+    "targetRow": 3,
+    "sourceColumns": 6,
+    "sourceRows": 1,
+    "sourceScale": 0.08296296296296296
+  },
+  {
+    "source": "sources/hero.walk.south.source.png",
+    "sourceRow": 0,
+    "targetRow": 4,
+    "sourceColumns": 6,
+    "sourceRows": 4,
+    "sourceScale": 0.22810590631364563
+  },
+  {
+    "source": "sources/hero.walk.south.source.png",
+    "sourceRow": 1,
+    "targetRow": 5,
+    "sourceColumns": 6,
+    "sourceRows": 4,
+    "sourceScale": 0.22810590631364563
+  },
+  {
+    "source": "sources/hero.walk.south.source.png",
+    "sourceRow": 2,
+    "targetRow": 6,
+    "sourceColumns": 6,
+    "sourceRows": 4,
+    "sourceScale": 0.22810590631364563
+  },
+  {
+    "source": "sources/hero.walk.south.source.png",
+    "sourceRow": 3,
+    "targetRow": 7,
+    "sourceColumns": 6,
+    "sourceRows": 4,
+    "sourceScale": 0.22810590631364563
+  },
+  {
+    "source": "sources/hero.idle.source.png",
+    "sourceRow": 0,
+    "targetRow": 8,
+    "sourceColumns": 1,
+    "sourceRows": 1,
+    "sourceScale": 0.041206769683590876
+  }
+]

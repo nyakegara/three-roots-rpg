@@ -2,13 +2,92 @@ using Game.Core.Geometry;
 
 namespace Game.Core.Combat;
 
+public enum AttackFailureReason { None, UnavailableUnit, FriendlyTarget, ImpassableTarget, NotAdjacent, OutOfRange, BlockedLineOfSight }
+
 public static class BattleRules
 {
+    public const int HolyFireRange = 6;
+    private const int RangedUnitEyeHeight = 1;
+
+    /// <summary>Whether a tile lies in this unit's current attack area, before checking its occupant.</summary>
+    public static bool CanAttackTile(BattleUnit attacker, BattleTile target, BattleMap map)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(map);
+        return GetTileAttackFailureReason(attacker, target, map) == AttackFailureReason.None;
+    }
+
+    public static bool IsWithinAttackRange(BattleUnit attacker, BattleTile target)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        if (!attacker.IsAlive) return false;
+        var distance = attacker.Position.DistanceTo(target.Coordinate);
+        if (distance == 0) return false;
+        var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
+            attacker.AttackMode == AttackMode.HolyFire;
+        return ranged ? distance <= GetEffectiveRange(attacker, target) : distance == 1;
+    }
+
+    public static bool IsRangedShotBlocked(BattleUnit attacker, BattleTile target, BattleMap map)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(map);
+        return target.IsPassable && IsWithinAttackRange(attacker, target) &&
+               !CanAttackTile(attacker, target, map);
+    }
+
+    public static AttackFailureReason GetAttackFailureReason(BattleUnit attacker, BattleUnit target, BattleMap map)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(map);
+        if (!attacker.IsAlive) return AttackFailureReason.UnavailableUnit;
+        if (!target.IsAlive) return AttackFailureReason.UnavailableUnit;
+        if (attacker.Side == target.Side) return AttackFailureReason.FriendlyTarget;
+        var targetTile = map.GetTile(target.Position);
+        if (map.GetTile(attacker.Position)?.IsPassable != true || targetTile?.IsPassable != true)
+            return AttackFailureReason.ImpassableTarget;
+        return GetTileAttackFailureReason(attacker, targetTile, map);
+    }
+
+    private static AttackFailureReason GetTileAttackFailureReason(BattleUnit attacker, BattleTile target, BattleMap map)
+    {
+        if (!attacker.IsAlive) return AttackFailureReason.UnavailableUnit;
+        if (!target.IsPassable || map.GetTile(attacker.Position)?.IsPassable != true)
+            return AttackFailureReason.ImpassableTarget;
+        var distance = attacker.Position.DistanceTo(target.Coordinate);
+        if (distance == 0) return AttackFailureReason.UnavailableUnit;
+        var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
+            attacker.AttackMode == AttackMode.HolyFire;
+        if (!ranged && distance != 1) return AttackFailureReason.NotAdjacent;
+        if (ranged && distance > GetEffectiveRange(attacker, target)) return AttackFailureReason.OutOfRange;
+        if (ranged && !HasLineOfSight(attacker.Position, attacker.Height, target.Coordinate, target.Height, map))
+            return AttackFailureReason.BlockedLineOfSight;
+        return AttackFailureReason.None;
+    }
+
     public static int GetEffectiveRange(BattleUnit attacker, BattleTile target)
     {
         ArgumentNullException.ThrowIfNull(attacker);
         ArgumentNullException.ThrowIfNull(target);
-        return attacker.Range + (attacker.Height > target.Height ? 2 : 0);
+        var baseRange = attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire
+            ? HolyFireRange : attacker.Range;
+        return baseRange + (attacker.Height > target.Height && (attacker.IsRanged ||
+            attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire) ? 2 : 0);
+    }
+
+    /// <summary>Damage before applying target health, shared by the command and its preview.</summary>
+    public static long GetAttackDamage(BattleUnit attacker, BattleUnit target)
+    {
+        ArgumentNullException.ThrowIfNull(attacker);
+        ArgumentNullException.ThrowIfNull(target);
+        var rangedTarget = target.IsRanged || target.Ability == UnitAbility.RadiantModes &&
+            target.AttackMode == AttackMode.HolyFire;
+        return attacker.Ability == UnitAbility.Hunter && rangedTarget
+            ? checked(attacker.TotalDamage * 3 / 2) : attacker.TotalDamage;
     }
 
     public static bool CanAttack(BattleUnit attacker, BattleUnit target, BattleMap map)
@@ -16,22 +95,7 @@ public static class BattleRules
         ArgumentNullException.ThrowIfNull(attacker);
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNull(map);
-        var attackerTile = map.GetTile(attacker.Position);
-        var targetTile = map.GetTile(target.Position);
-        if (!attacker.IsAlive || !target.IsAlive || attacker.Side == target.Side ||
-            attackerTile?.IsPassable != true || targetTile?.IsPassable != true)
-        {
-            return false;
-        }
-
-        var distance = attacker.Position.DistanceTo(target.Position);
-        if (!attacker.IsRanged)
-        {
-            return distance == 1;
-        }
-
-        return distance <= GetEffectiveRange(attacker, targetTile) &&
-               HasLineOfSight(attacker.Position, attacker.Height, target.Position, targetTile.Height, map);
+        return GetAttackFailureReason(attacker, target, map) == AttackFailureReason.None;
     }
 
     public static bool HasLineOfSight(HexCoord start, int startHeight, HexCoord end, int endHeight, BattleMap map)
@@ -46,8 +110,12 @@ public static class BattleRules
         for (var step = 1; step < distance; step++)
         {
             var tile = map.GetTile(Interpolate(start, end, (double)step / distance));
-            if (tile is null || tile.BlocksLineOfSight || !tile.IsPassable ||
-                tile.Height > startHeight + ((double)endHeight - startHeight) * step / distance)
+            // Trace from a unit's body height above terrain, not from the ground.
+            // Without this offset, a same-level plateau between a high shooter and
+            // a lower target incorrectly blocks every descending shot.
+            if (tile is null || tile.BlocksLineOfSight ||
+                tile.Height > startHeight + RangedUnitEyeHeight +
+                ((double)endHeight - startHeight) * step / distance)
             {
                 return false;
             }

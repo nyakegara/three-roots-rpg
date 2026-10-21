@@ -1,0 +1,19 @@
+{
+  "sheets": [
+    "../../../content/art/animations/hero.flora.walk.json",
+    "../../../content/art/animations/unit.flora.thorn-guard.actions.json",
+    "../../../content/art/animations/unit.flora.sprout.actions.json",
+    "../../../content/art/animations/unit.flora.ember-bloom.actions.json",
+    "../../../content/art/animations/unit.flora.pod-slinger.actions.json",
+    "../../../content/art/animations/unit.flora.root-warden.actions.json",
+    "../../../content/art/animations/unit.human.militia.actions.json",
+    "../../../content/art/animations/unit.human.longbow.actions.json",
+    "../../../content/art/animations/unit.human.banner-knight.actions.json",
+    "../../../content/art/animations/unit.human.order-hunter.actions.json",
+    "../../../content/art/animations/unit.human.inquisitor.actions.json",
+    "../../../content/art/animations/unit.flora.thorn-guard.idle.json",
+    "../../../content/art/animations/unit.human.militia.idle.v2.json",
+    "../../../content/art/animations/unit.human.banner-knight.idle.v2.json",
+    "../../../content/art/animations/unit.human.inquisitor.idle.v2.json"
+  ]
+}

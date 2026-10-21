@@ -11,12 +11,13 @@ public sealed class BattleTile
     public bool BlocksLineOfSight { get; }
 
     public BattleTile(HexCoord coordinate, int height = 0, bool isPassable = true,
-        bool blocksLineOfSight = false)
+        bool? blocksLineOfSight = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(height);
         Coordinate = coordinate;
         Height = height;
         IsPassable = isPassable;
-        BlocksLineOfSight = blocksLineOfSight;
+        // Ordinary walls block both; a low obstacle may explicitly allow shots over it.
+        BlocksLineOfSight = blocksLineOfSight ?? !isPassable;
     }
 }

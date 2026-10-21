@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Game.Core.Persistence;
 
 namespace Game.Core.Characters;
 
@@ -16,6 +17,7 @@ public sealed class Hero
 
     public string Id { get; }
     public string Name { get; }
+    public string? FactionId { get; }
     public int Gold { get; private set; }
     public int Reputation { get; private set; }
     public int Level { get; private set; } = 1;
@@ -30,7 +32,7 @@ public sealed class Hero
     public IReadOnlyList<Artifact> Artifacts => _artifactView;
 
     public Hero(string id, string name, int startingGold = 0, int initialReputation = 0,
-        int baseAttack = 1, int baseDefense = 1, int baseMaxHitPoints = 10)
+        int baseAttack = 1, int baseDefense = 1, int baseMaxHitPoints = 10, string? factionId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
@@ -40,6 +42,7 @@ public sealed class Hero
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(baseMaxHitPoints);
         Id = id;
         Name = name;
+        FactionId = string.IsNullOrWhiteSpace(factionId) ? null : factionId;
         Gold = startingGold;
         Reputation = Math.Clamp(initialReputation, -3, 3);
         _baseAttack = baseAttack;
@@ -59,6 +62,43 @@ public sealed class Hero
             Level = checked(Level + 1);
             SkillPoints = checked(SkillPoints + 1);
         }
+    }
+
+    internal bool CanGainExperience(int amount)
+    {
+        if (amount < 0 || (long)_experience + amount > int.MaxValue)
+            return false;
+        var experience = (long)_experience + amount;
+        var level = (long)Level;
+        var skillPoints = (long)SkillPoints;
+        while (experience >= level * 100)
+        {
+            if (level * 100 > int.MaxValue || level >= int.MaxValue || skillPoints >= int.MaxValue)
+                return false;
+            experience -= level * 100;
+            level++;
+            skillPoints++;
+        }
+        return level * 100 <= int.MaxValue;
+    }
+
+    internal bool TryRestoreCampaignState(int gold, int reputation, int experience, int level, int skillPoints,
+        IReadOnlyList<SavedTroopStack> army)
+    {
+        if (gold < 0 || reputation is < -3 or > 3 || experience < 0 || level < 1 || skillPoints < 0 ||
+            (long)experience >= (long)level * 100 || army is null || army.Count > Army.MaximumStacks ||
+            army.Any(stack => stack is null || string.IsNullOrWhiteSpace(stack.UnitId) || stack.Count <= 0) ||
+            army.Select(stack => stack.UnitId).Distinct(StringComparer.Ordinal).Count() != army.Count)
+            return false;
+
+        if (!Army.TryReplace(army.Select(stack => new TroopStack(stack.UnitId, stack.Count))))
+            return false;
+        Gold = gold;
+        Reputation = reputation;
+        _experience = experience;
+        Level = level;
+        SkillPoints = skillPoints;
+        return true;
     }
 
     public bool LearnSkill(Skill skill)
