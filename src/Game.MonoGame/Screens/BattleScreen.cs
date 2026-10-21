@@ -45,6 +45,7 @@ internal sealed class BattleScreen : IGameScreen
     private BattleAttackEffect? _attackEffect;
     private string _message = "ЛКМ: ПОКАЗАТЬ ПУТЬ. ПОВТОРНАЯ ЛКМ: ПЕРЕМЕСТИТЬ ОТРЯД.";
     private Battle Battle => _interaction.Battle;
+    private bool CanIssueCommands => BattleHud.CanIssueCommands(Battle, _actionSeconds > 0f);
     private static readonly Color Gold = new(218, 190, 113);
     private static readonly Color Green = new(149, 190, 107);
     private static readonly Color Red = new(210, 118, 89);
@@ -123,10 +124,23 @@ internal sealed class BattleScreen : IGameScreen
             _message = "ЗЕЛЁНЫЙ: ХОД. СВЕТЛОЕ ЗОЛОТО С ТЁМНОЙ ОБВОДКОЙ: ДАЛЬНОСТЬ. КРАСНЫЙ: ЦЕЛЬ.";
             return;
         }
-        if (capture is BattleCaptureStage.Target or BattleCaptureStage.AfterAttack)
+        if (capture is BattleCaptureStage.Target or BattleCaptureStage.AfterAttack or BattleCaptureStage.ActionLock)
         {
-            _hover = BattleCaptureSetup.Advance(Battle, capture);
+            _hover = BattleCaptureSetup.Advance(Battle,
+                capture == BattleCaptureStage.ActionLock ? BattleCaptureStage.Target : capture);
             RefreshReachable();
+            if (capture == BattleCaptureStage.ActionLock)
+            {
+                var actor = Battle.ActiveUnit!;
+                var target = Battle.Units.Single(unit => unit.IsAlive && unit.Position == _hover);
+                if (!Battle.Attack(actor.Id, target.Id))
+                    throw new InvalidOperationException("Cannot execute the action-lock capture attack.");
+                BeginAttackAnimation(actor, target);
+                for (var frame = 0; frame < 4; frame++) _attackEffect!.Advance(0.1f);
+                _actionSeconds = 0.4f;
+                RefreshReachable();
+                return;
+            }
             _message = "КРАСНЫЙ КОНТУР: ЦЕЛЬ МОЖНО АТАКОВАТЬ СЕЙЧАС.";
             if (capture == BattleCaptureStage.AfterAttack)
             {
@@ -402,14 +416,17 @@ internal sealed class BattleScreen : IGameScreen
             DrawUnit(unit);
         _attackEffect?.Draw(_canvas);
         DrawActionCursor();
-        var hovered = _hover is { } cell ? Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == cell) : null;
-        _hud.Draw(Battle, Battle.IsFinished ? "БОЙ ЗАВЕРШЁН." : DescribeHover(hovered), hovered, _healMode, _showGrid);
+        var hovered = _actionSeconds <= 0f && _hover is { } cell
+            ? Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == cell) : null;
+        _hud.Draw(Battle, _actionSeconds > 0f ? "ДОЖДИТЕСЬ ЗАВЕРШЕНИЯ ДЕЙСТВИЯ."
+            : Battle.IsFinished ? "БОЙ ЗАВЕРШЁН." : DescribeHover(hovered), hovered, _healMode, _showGrid,
+            actionInProgress: _actionSeconds > 0f);
         if (Battle.IsFinished && _actionSeconds <= 0f) DrawResult();
     }
 
     private void DrawTacticalOverlay()
     {
-        if (_interaction.IsPlayerTurn && !_healMode)
+        if (CanIssueCommands && !_healMode)
         {
             // Moving and attacking are independent allowances: an attack does not consume movement.
             foreach (var coordinate in _reachable)
@@ -441,7 +458,7 @@ internal sealed class BattleScreen : IGameScreen
                 }
             }
         }
-        if (!_healMode)
+        if (CanIssueCommands && !_healMode)
         {
             var path = _interaction.SelectedPath;
             var possible = Battle.ActiveUnit is { } active && !Battle.HasMoved(active.Id) && path.Cost <= active.Movement;
@@ -452,7 +469,7 @@ internal sealed class BattleScreen : IGameScreen
         if (Battle.ActiveUnit is { } actor)
         {
             _canvas.Outline(_field.Layout.Corners(Battle.Map.GetTile(actor.Position)!, 6), Gold, 2);
-            if (_interaction.IsPlayerTurn && !Battle.HasAttacked(actor.Id))
+            if (CanIssueCommands && !Battle.HasAttacked(actor.Id))
             foreach (var unit in Battle.Units.Where(unit => unit.IsAlive && unit.Id != actor.Id))
             {
                 var healable = _healMode && unit.Side == actor.Side && unit.RemainingHitPoints < unit.MaximumHitPointsAtBattleStart;
@@ -464,7 +481,7 @@ internal sealed class BattleScreen : IGameScreen
                 }
             }
         }
-        if (_hover is { } hover)
+        if (_actionSeconds <= 0f && _hover is { } hover)
             _canvas.Outline(_field.Layout.Corners(Battle.Map.GetTile(hover)!, 2),
                 CursorColor(GetCursorKind(hover)), 3);
     }
@@ -482,7 +499,7 @@ internal sealed class BattleScreen : IGameScreen
 
     private void DrawActionCursor()
     {
-        if (_hover is not { } coordinate || !_interaction.IsPlayerTurn) return;
+        if (_hover is not { } coordinate || !CanIssueCommands) return;
         var kind = GetCursorKind(coordinate);
         var previewPoint = _field.Layout.Center(Battle.Map.GetTile(coordinate)!);
         var screenshotCursor = _currentMouse.X == 0 && _currentMouse.Y == 0;

@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative, HunterAttack, HunterRest }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative, HunterAttack, HunterRest, ActionLock }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned, AfterChoice }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -79,6 +79,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-combat-after-attack":
                 case "--screenshot-combat-sprite-target":
                 case "--screenshot-combat-initiative":
+                case "--screenshot-combat-action":
                 case "--screenshot-combat-hunter":
                 case "--screenshot-combat-hunter-rest":
                 case "--screenshot-combat-arrow-impact":
@@ -109,6 +110,7 @@ public sealed record GameLaunchOptions
             or "--screenshot-combat-blocked" or "--screenshot-combat-after-attack"
             or "--screenshot-combat-sprite-target"
             or "--screenshot-combat-initiative"
+            or "--screenshot-combat-action"
             or "--screenshot-combat-hunter" or "--screenshot-combat-hunter-rest"
             or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
             or "--screenshot-combat-melee"
@@ -144,6 +146,7 @@ public sealed record GameLaunchOptions
                 "--screenshot-combat-after-attack" => BattleCaptureStage.AfterAttack,
                 "--screenshot-combat-sprite-target" => BattleCaptureStage.SpriteTarget,
                 "--screenshot-combat-initiative" => BattleCaptureStage.Initiative,
+                "--screenshot-combat-action" => BattleCaptureStage.ActionLock,
                 "--screenshot-combat-hunter" => BattleCaptureStage.HunterAttack,
                 "--screenshot-combat-hunter-rest" => BattleCaptureStage.HunterRest,
                 "--screenshot-combat-arrow-impact" => BattleCaptureStage.ArrowImpact,

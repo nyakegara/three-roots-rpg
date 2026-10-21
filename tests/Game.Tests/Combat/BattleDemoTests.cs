@@ -8,6 +8,18 @@ namespace Game.Tests.Combat;
 
 public sealed class BattleDemoTests
 {
+    [Fact]
+    public void AfterAttackCapture_ActuallyRetainsUnusedMovementForItsVisiblePromise()
+    {
+        var battle = BattleDemo.Create(Catalog(), 1729).Battle;
+        BattleCaptureSetup.Advance(battle, BattleCaptureStage.AfterAttack);
+        var actor = battle.ActiveUnit!;
+        Assert.True(battle.HasAttacked(actor.Id));
+        Assert.False(battle.HasMoved(actor.Id));
+        var interaction = new BattleInteraction(battle);
+        Assert.Contains(battle.Map.Tiles, tile => interaction.GetCellAction(tile.Coordinate) == BattleCellAction.Move);
+    }
+
     [Theory]
     [InlineData(BattleCaptureStage.HunterRest)]
     [InlineData(BattleCaptureStage.HunterAttack)]

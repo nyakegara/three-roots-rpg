@@ -34,6 +34,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-after-attack")]
     [InlineData("--screenshot-combat-sprite-target")]
     [InlineData("--screenshot-combat-initiative")]
+    [InlineData("--screenshot-combat-action")]
     [InlineData("--screenshot-combat-hunter")]
     [InlineData("--screenshot-combat-hunter-rest")]
     [InlineData("--screenshot-combat-arrow-impact")]
@@ -64,6 +65,7 @@ public sealed class GameLaunchOptionsTests
             mode.EndsWith("-after-attack") ? BattleCaptureStage.AfterAttack :
             mode.EndsWith("-sprite-target") ? BattleCaptureStage.SpriteTarget :
             mode.EndsWith("-initiative") ? BattleCaptureStage.Initiative :
+            mode.EndsWith("-action") ? BattleCaptureStage.ActionLock :
             mode.EndsWith("-hunter") ? BattleCaptureStage.HunterAttack :
             mode.EndsWith("-hunter-rest") ? BattleCaptureStage.HunterRest : BattleCaptureStage.Opening,
             options.CombatCapture);

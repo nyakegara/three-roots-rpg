@@ -32,7 +32,7 @@ public static class BattleCaptureSetup
             {
                 var target = battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Side != active.Side &&
                     BattleRules.CanAttack(active, unit, battle.Map));
-                if (target is not null)
+                if (target is not null && (stage != BattleCaptureStage.AfterAttack || !battle.HasMoved(active.Id)))
                 {
                     if (stage == BattleCaptureStage.AfterAttack && !battle.Attack(active.Id, target.Id))
                         throw new InvalidOperationException("Cannot execute the capture attack.");

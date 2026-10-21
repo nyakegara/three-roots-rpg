@@ -7,6 +7,9 @@ namespace Game.MonoGame.Rendering;
 /// <summary>Compact wood-and-bronze battle commands, unit details, and initiative strip.</summary>
 internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCatalog units)
 {
+    internal static bool CanIssueCommands(Battle battle, bool actionInProgress) =>
+        !actionInProgress && !battle.IsFinished && battle.ActiveUnit is { IsAlive: true, Side: BattleSide.Player };
+
     public static readonly Rectangle EndTurnButton = new(1040, 635, 100, 34);
     public static readonly Rectangle HealButton = new(930, 635, 96, 34);
     public static readonly Rectangle GridButton = new(1154, 635, 108, 34);
@@ -21,12 +24,13 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
     private static readonly Color Ally = new(145, 176, 101);
     private static readonly Color Enemy = new(190, 114, 83);
 
-    public void Draw(Battle battle, string message, BattleUnit? hoveredUnit, bool healMode, bool showGrid)
+    public void Draw(Battle battle, string message, BattleUnit? hoveredUnit, bool healMode, bool showGrid,
+        bool actionInProgress = false)
     {
         DrawRail();
         var active = battle.ActiveUnit;
         var inspected = hoveredUnit ?? active;
-        var playerTurn = !battle.IsFinished && active?.Side == BattleSide.Player;
+        var playerTurn = CanIssueCommands(battle, actionInProgress);
         var canHeal = playerTurn && active is { Ability: UnitAbility.HealAlly } &&
                       !battle.HasAttacked(active.Id);
         var canChangeMode = playerTurn && active is { Ability: UnitAbility.RadiantModes } &&
@@ -66,7 +70,7 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
         DrawButton(EndTurnButton, "ENTER: ХОД", playerTurn, false);
         DrawButton(GridButton, "G: СЕТКА", true, showGrid);
         if (healMode && canHeal) _font.Draw("ЛЕЧЕНИЕ: ВЫБЕРИТЕ СОЮЗНИКА", 930, 684, Muted, 1);
-        _font.Draw("ENTER: ЗАВЕРШИТЬ ХОД", 930, 701, Muted, 1);
+        _font.Draw(actionInProgress ? "ОТРЯД ДЕЙСТВУЕТ" : "ENTER: ЗАВЕРШИТЬ ХОД", 930, 701, Muted, 1);
     }
 
     private void DrawRail()
