@@ -24,6 +24,8 @@ public sealed record GameLaunchOptions
     public string? PreviewRecruitmentSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
     public bool Night { get; init; }
+    public int MapPixelSize { get; init; }
+    public string MapDetailStyle { get; init; } = "original";
 
     public static GameLaunchOptions Parse(string[] args)
     {
@@ -33,11 +35,24 @@ public sealed record GameLaunchOptions
         var seed = 1729;
         var hasSeed = false;
         var night = false;
+        var mapPixelSize = 0;
+        var mapDetailStyle = "original";
         for (var index = 0; index < args.Length; index++)
         {
             var argument = args[index];
             switch (argument)
             {
+                case "--map-detail":
+                    if (mapDetailStyle != "original" || ++index >= args.Length ||
+                        args[index] is not ("sharpen" or "pixel"))
+                        throw new ArgumentException("--map-detail requires sharpen or pixel and must not be repeated.");
+                    mapDetailStyle = args[index];
+                    break;
+                case "--map-pixels":
+                    if (mapPixelSize != 0 || ++index >= args.Length ||
+                        !int.TryParse(args[index], out mapPixelSize) || mapPixelSize is < 1 or > 2)
+                        throw new ArgumentException("--map-pixels requires 1 or 2 and must not be repeated.");
+                    break;
                 case "--seed":
                     if (hasSeed || ++index >= args.Length ||
                         !int.TryParse(args[index], NumberStyles.Integer, CultureInfo.InvariantCulture, out seed))
@@ -103,6 +118,8 @@ public sealed record GameLaunchOptions
         }
 
         var battle = mode is "--battle" or "--screenshot-grid" or "--screenshot-grid-descent";
+        if (mapPixelSize > 0 && mapDetailStyle != "original")
+            throw new ArgumentException("Choose --map-pixels or --map-detail, not both.");
         var combat = mode is "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
             or "--screenshot-combat-heal" or "--screenshot-combat-result"
             or "--screenshot-combat-arrow" or "--screenshot-combat-magic"
@@ -123,6 +140,8 @@ public sealed record GameLaunchOptions
         return new GameLaunchOptions
         {
             ScreenshotPath = screenshot,
+            MapPixelSize = mapPixelSize,
+            MapDetailStyle = mapDetailStyle,
             BattlePreview = battle,
             PlayableCombat = combat,
             CampaignCapture = mode switch

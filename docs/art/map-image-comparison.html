@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Three Roots — текущая и новая карта</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:24px;background:#151914;color:#e6e5dc;font:16px/1.5 system-ui}h1{font-size:25px;margin-bottom:8px}p{max-width:1000px}button,a{color:inherit}button{padding:9px 14px;margin:0 6px 10px 0;background:#303a2b;border:1px solid #6e7a62;border-radius:5px;cursor:pointer}button[aria-pressed=true]{background:#596b3c;border-color:#a6b68a}.controls{margin-top:18px}.viewport{overflow:auto;border:1px solid #6e7a62}.stage{position:relative;width:1280px;line-height:0}.stage img{display:block;width:100%;height:auto;image-rendering:pixelated}.stage .replacement{position:absolute;inset:0;clip-path:inset(0 50% 0 0)}.divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:white;pointer-events:none}body.fit .stage{width:100%}.range{display:flex;align-items:center;gap:12px;max-width:700px;margin:12px 0}input{flex:1;min-width:80px}small{color:#c0c7b5}.legend{display:flex;justify-content:space-between;max-width:1280px;margin:8px 0}.note{border-left:3px solid #9aa96f;padding-left:14px}
+</style>
+<h1>Текущая карта / новая картинка</h1>
+<p><a href="map-detail-experiment.html">Новый эксперимент на старой карте: контуры и мелкий пиксель →</a></p>
+<p>Два реальных игровых кадра с одинаковой камерой, героиней и интерфейсом. Слева от разделителя — новая картинка, справа — текущая карта. Двигай ползунок или переключай варианты целиком.</p>
+<div class="controls" role="group" aria-label="Масштаб камеры">
+<button data-scene="close" aria-pressed="true">В игровом масштабе</button>
+<button data-scene="overview" aria-pressed="false">Обзор карты</button>
+<button id="fit" aria-pressed="false">Уместить по ширине</button>
+</div>
+<div role="group" aria-label="Вариант карты">
+<button data-position="0" aria-pressed="false">Текущая · 1</button>
+<button data-position="100" aria-pressed="false">Новая · 2</button>
+<button data-position="50" aria-pressed="true">Сравнить · 3</button>
+</div>
+<label class="range">Текущая <input id="position" type="range" min="0" max="100" value="50" aria-label="Доля новой карты"> Новая</label>
+<div class="viewport"><div class="stage">
+<img id="current" src="../screenshots/map-current-close.png" alt="Текущая карта, игровой масштаб" width="1280" height="720">
+<img id="replacement" class="replacement" src="../screenshots/map-replacement-close.png" alt="Новая карта, игровой масштаб" width="1280" height="720">
+<div class="divider" aria-hidden="true"></div>
+</div></div>
+<p class="note">Это примерка фона. Данные проходимости и координаты игровых объектов сохранены: по обзору можно проверить совпадение дорог и точек. Новая картинка имеет разрешение 5120 × 2304, текущий мастер — 7448 × 3380; меньшее разрешение само по себе не гарантирует более чёткий фон.</p>
+<p class="note">Независимый просмотр: планировка и ориентиры острова сохраняются. В игровом масштабе новый вариант выглядит мягче и хуже сочетается с резкими пиксельными спрайтами; в обзоре острова он выглядит спокойнее. Сейчас это только сравнение, замена игрового фона не включена.</p>
+<p><a href="map-pixel-experiment.html">Предыдущий эксперимент: исходник / мелкий пиксель / крупный пиксель</a></p>
+<small>Исходные игровые текстуры сохранены. Кадры получены отдельной сборкой; новая карта не включена по умолчанию.</small>
+<script>
+const slider=document.querySelector('#position');
+function setPosition(value){slider.value=value;document.querySelector('#replacement').style.clipPath=`inset(0 ${100-value}% 0 0)`;const line=document.querySelector('.divider');line.style.left=value+'%';line.style.display=value>0&&value<100?'block':'none';document.querySelectorAll('[data-position]').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.position)===Number(value)))}
+slider.addEventListener('input',()=>setPosition(slider.value));
+document.querySelectorAll('[data-position]').forEach(b=>b.addEventListener('click',()=>setPosition(b.dataset.position)));
+document.querySelectorAll('[data-scene]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-scene]').forEach(item=>item.setAttribute('aria-pressed',item===b));for(const variant of ['current','replacement']){const img=document.getElementById(variant);img.src=`../screenshots/map-${variant}-${b.dataset.scene}.png`;img.alt=(variant==='current'?'Текущая':'Новая')+' карта, '+b.textContent}}));
+document.querySelector('#fit').addEventListener('click',e=>{document.body.classList.toggle('fit');e.currentTarget.setAttribute('aria-pressed',document.body.classList.contains('fit'))});
+document.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement)return;const positions={'1':0,'2':100,'3':50};if(e.key in positions)setPosition(positions[e.key])});
+</script>
+</html>

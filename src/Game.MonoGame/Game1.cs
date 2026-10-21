@@ -41,7 +41,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
-        _assets = new AssetCatalog(GraphicsDevice);
+        _assets = new AssetCatalog(GraphicsDevice, _options.MapPixelSize, _options.MapDetailStyle);
         if (_options.PlayableCombat)
         {
             var units = LoadUnitCatalog();

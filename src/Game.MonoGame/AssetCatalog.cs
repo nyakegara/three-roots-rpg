@@ -36,7 +36,7 @@ internal sealed class AssetCatalog : IDisposable
     private readonly Dictionary<string, byte[]> _hitAlpha = new();
     private Texture2D? _heroWalkTexture;
 
-    public AssetCatalog(GraphicsDevice device)
+    public AssetCatalog(GraphicsDevice device, int mapPixelSize = 0, string mapDetailStyle = "original")
     {
         foreach (var key in new[] { FloraHero, HumanGuard, Rock, FloraPortrait,
                      AncientOak, ForestTree, Treasure, AdventureGround, FloraIslandGround,
@@ -60,12 +60,46 @@ internal sealed class AssetCatalog : IDisposable
             {
                 using var stream = File.OpenRead(path);
                 var texture = LoadPremultiplied(device, stream, out var contentBounds);
+                if (mapPixelSize > 0 && key is FloraIslandNorthWest or FloraIslandNorthEast or
+                    FloraIslandSouthWest or FloraIslandSouthEast)
+                {
+                    var pixels = new Color[texture.Width * texture.Height];
+                    texture.GetData(pixels);
+                    var east = key is FloraIslandNorthEast or FloraIslandSouthEast;
+                    var south = key is FloraIslandSouthWest or FloraIslandSouthEast;
+                    MapPixelFilter.Apply(pixels, texture.Width, texture.Height, mapPixelSize,
+                        east ? texture.Width : 0, south ? texture.Height : 0);
+                    texture.SetData(pixels);
+                }
                 _textures.Add(key, new TextureAsset(texture, contentBounds));
             }
             catch (Exception exception) when (exception is IOException or InvalidOperationException)
             {
                 // An unreadable override should not prevent opening the debug map.
                 System.Diagnostics.Trace.TraceWarning("Cannot load art '{0}': {1}", path, exception.Message);
+            }
+        }
+
+        if (mapDetailStyle != "original")
+        {
+            var keys = new[] { FloraIslandNorthWest, FloraIslandNorthEast,
+                FloraIslandSouthWest, FloraIslandSouthEast };
+            if (keys.All(_textures.ContainsKey))
+            {
+                var textures = keys.Select(key => _textures[key].Texture).ToArray();
+                var width = textures[0].Width;
+                var height = textures[0].Height;
+                if (textures.All(texture => texture.Width == width && texture.Height == height))
+                {
+                    var tiles = textures.Select(texture => {
+                        var data = new Color[width * height];
+                        texture.GetData(data);
+                        return data;
+                    }).ToArray();
+                    // Filter the assembled island so internal joins use their actual neighbours.
+                    MapDetailFilter.ApplyTiles(tiles, width, height, mapDetailStyle);
+                    for (var index = 0; index < textures.Length; index++) textures[index].SetData(tiles[index]);
+                }
             }
         }
 

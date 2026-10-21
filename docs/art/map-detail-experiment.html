@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Старая карта — проверка чёткости</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:24px;background:#151914;color:#e6e5dc;font:16px/1.5 system-ui}h1{font-size:25px;margin-bottom:8px}p{max-width:1000px}a{color:#c6d8a5}button{padding:9px 14px;margin:0 6px 10px 0;background:#303a2b;color:inherit;border:1px solid #6e7a62;border-radius:5px;cursor:pointer}button[aria-pressed=true]{background:#596b3c;border-color:#a6b68a}.viewport{overflow:auto;border:1px solid #6e7a62}.stage{position:relative;width:1280px;line-height:0}.stage img{display:block;width:100%;height:auto;image-rendering:pixelated}.stage .effect{position:absolute;inset:0;clip-path:inset(0 50% 0 0)}.divider{position:absolute;top:0;bottom:0;left:50%;width:2px;background:white;pointer-events:none}body.fit .stage{width:100%}.range{display:flex;align-items:center;gap:12px;max-width:700px;margin:12px 0}input{flex:1;min-width:80px}small{color:#c0c7b5}
+</style>
+<h1>Старая карта: можно ли убрать мыло фильтром?</h1>
+<p>Старая карта остаётся основой. Ниже два новых эффекта без сокращения палитры: усиление локальных контуров и усреднение до одного игрового пикселя с усилением контуров. Обрабатывается только фон; героиня и интерфейс совпадают с исходником.</p>
+<div role="group" aria-label="Эффект">
+<button data-style="sharpen" aria-pressed="true">Контуры</button>
+<button data-style="pixel" aria-pressed="false">Мелкий пиксель + контуры</button>
+</div>
+<div role="group" aria-label="Камера">
+<button data-scene="close" aria-pressed="true">Игровой масштаб</button>
+<button data-scene="overview" aria-pressed="false">Обзор острова</button>
+<button id="fit" aria-pressed="false">Уместить по ширине</button>
+</div>
+<div role="group" aria-label="Сравнение">
+<button data-position="0" aria-pressed="false">Исходник · 1</button>
+<button data-position="100" aria-pressed="false">Эффект · 2</button>
+<button data-position="50" aria-pressed="true">Ползунок · 3</button>
+</div>
+<label class="range">Исходник <input id="position" type="range" min="0" max="100" value="50" aria-label="Доля обработанной карты"> Эффект</label>
+<p>Слева от белой линии — эффект, справа — исходник. Для оценки мелких пикселей начни с исходного размера 1280 × 720.</p>
+<div class="viewport"><div class="stage">
+<img id="current" src="../screenshots/map-current-close.png" alt="Старая карта без обработки" width="1280" height="720">
+<img id="effect" class="effect" src="../screenshots/map-detail-sharpen-close.png" alt="Старая карта с усилением контуров" width="1280" height="720">
+<div class="divider" aria-hidden="true"></div>
+</div></div>
+<p id="description">Контуры: мягкое усиление локальных границ с ограничением светлых и тёмных ореолов. Мелкий шум почти не усиливается.</p>
+<p>Фильтр немного меняет локальный контраст, но не восстанавливает чёткую форму ветвей, камней и травы. Если и эти варианты не подходят, дальнейшее усиление резкости будет добавлять артефакты. Следующий шаг — доработка самих форм и светотени фона в выбранном стиле.</p>
+<p><a href="map-pixel-experiment.html">Предыдущие варианты с сокращением палитры</a> · <a href="map-image-comparison.html">Сравнение с новой картинкой</a></p>
+<small>Это эксперимент. Эффекты включаются отдельным параметром запуска и пока не выбраны по умолчанию.</small>
+<script>
+let style='sharpen',scene='close';
+const slider=document.querySelector('#position');
+function setPosition(value){slider.value=value;document.querySelector('#effect').style.clipPath=`inset(0 ${100-value}% 0 0)`;const line=document.querySelector('.divider');line.style.left=value+'%';line.style.display=value>0&&value<100?'block':'none';document.querySelectorAll('[data-position]').forEach(b=>b.setAttribute('aria-pressed',Number(b.dataset.position)===Number(value)))}
+function update(){document.querySelector('#current').src=`../screenshots/map-current-${scene}.png`;document.querySelector('#effect').src=`../screenshots/map-detail-${style}-${scene}.png`;document.querySelector('#effect').alt=style==='sharpen'?'Карта с усилением контуров':'Карта: мелкий пиксель и контуры';document.querySelector('#description').textContent=style==='sharpen'?'Контуры: мягкое усиление локальных границ с ограничением светлых и тёмных ореолов. Мелкий шум почти не усиливается.':'Мелкий пиксель: каждые 2 × 2 исходных пикселя усредняются до одного игрового пикселя, затем усиливаются контуры. Полная палитра сохранена.'}
+slider.addEventListener('input',()=>setPosition(slider.value));
+document.querySelectorAll('[data-position]').forEach(b=>b.addEventListener('click',()=>setPosition(b.dataset.position)));
+for(const key of ['style','scene'])document.querySelectorAll(`[data-${key}]`).forEach(b=>b.addEventListener('click',()=>{if(key==='style')style=b.dataset.style;else scene=b.dataset.scene;document.querySelectorAll(`[data-${key}]`).forEach(item=>item.setAttribute('aria-pressed',item===b));update()}));
+document.querySelector('#fit').addEventListener('click',e=>{document.body.classList.toggle('fit');e.currentTarget.setAttribute('aria-pressed',document.body.classList.contains('fit'))});
+document.addEventListener('keydown',e=>{if(e.target instanceof HTMLInputElement)return;const positions={'1':0,'2':100,'3':50};if(e.key in positions)setPosition(positions[e.key])});
+</script>
+</html>

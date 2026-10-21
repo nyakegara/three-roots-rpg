@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Three Roots — сравнение обработки карты</title>
+<style>
+body{margin:24px;font:16px/1.5 system-ui;background:#151914;color:#e6e5dc}h1{font-size:24px}p{max-width:900px}button{padding:10px 16px;margin:0 8px 12px 0;background:#323d2e;color:inherit;border:1px solid #7b896e;cursor:pointer}button[aria-pressed=true]{background:#5b6845}.view{overflow:auto;border:1px solid #626b57}img{display:block;width:1280px;height:720px;image-rendering:pixelated}body.fit img{width:100%;height:auto}small{color:#bec5b4}
+</style>
+<h1>Карта: исходник и два варианта обработки</h1>
+<p><a style="color:#c6d8a5" href="map-detail-experiment.html">Новые варианты без сокращения палитры: контуры и мелкий пиксель →</a></p>
+<p><a style="color:#c6d8a5" href="map-image-comparison.html">Сравнить текущую карту с новой картинкой →</a></p>
+<p>Одинаковые камера, положение героини и интерфейс. Обработка применяется только к фону при загрузке. Исходные PNG и проходимость не меняются. Для оценки пикселей начни с масштаба 100% и прокручивай изображение.</p>
+<nav aria-label="Вариант карты">
+<button data-style="original" aria-pressed="true">Исходник</button>
+<button data-style="fine" aria-pressed="false">Мелкий пиксель · 1 px</button>
+<button data-style="coarse" aria-pressed="false">Пиксель · 2 px</button>
+<button id="fit" aria-pressed="false">Уместить по ширине</button>
+</nav>
+<div class="view"><img id="frame" src="../screenshots/map-style-original.png" alt="Исходный игровой кадр" width="1280" height="720"></div>
+<p id="description">Исходная карта — текущий вариант по умолчанию.</p>
+<small>1 px меняет фон слабо. 2 px заметнее огрубляет ветви, траву и камни. Фильтр не восстанавливает детали исходника и не заменяет согласование художественного стиля. Ни один вариант не включён по умолчанию.</small>
+<script>
+const captions={original:'Исходная карта — текущий вариант по умолчанию.',fine:'1 игровой пиксель на блок, 32 уровня на цветовой канал. Мягкая светотень фона в основном сохраняется.',coarse:'2 игровых пикселя на блок, 32 уровня на канал. Сильнее видны ступени, часть мелких деталей теряется.'};
+document.querySelectorAll('[data-style]').forEach(button=>button.addEventListener('click',()=>{const mode=button.dataset.style;document.querySelectorAll('[data-style]').forEach(item=>item.setAttribute('aria-pressed',item===button));const img=document.querySelector('#frame');img.src='../screenshots/map-style-'+mode+'.png';img.alt=button.textContent;document.querySelector('#description').textContent=captions[mode]}));
+document.querySelector('#fit').addEventListener('click',event=>{document.body.classList.toggle('fit');event.currentTarget.setAttribute('aria-pressed',document.body.classList.contains('fit'))});
+</script>
+</html>
