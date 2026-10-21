@@ -6,24 +6,30 @@ internal static class Program
     private static void Main(string[] args)
     {
         string? screenshotPath = null;
-        var showGrid = true;
+        var battlePreview = false;
         var previewDescent = false;
+        var previewQuestHover = false;
         if (args.Length != 0)
         {
             if (args.Length != 2 || args[0] is not
-                ("--screenshot" or "--screenshot-grid" or "--screenshot-grid-descent") ||
+                ("--screenshot" or "--screenshot-quest-hover" or
+                    "--screenshot-grid" or "--screenshot-grid-descent") ||
                 !Path.IsPathFullyQualified(args[1]))
             {
                 throw new ArgumentException(
-                    "Usage: Game.MonoGame [--screenshot | --screenshot-grid | " +
+                    "Usage: Game.MonoGame [--screenshot | --screenshot-quest-hover | " +
+                    "--screenshot-grid | " +
                     "--screenshot-grid-descent] <absolute PNG path>");
             }
 
             screenshotPath = Path.GetFullPath(args[1]);
+            battlePreview = args[0] is "--screenshot-grid" or "--screenshot-grid-descent";
             previewDescent = args[0] == "--screenshot-grid-descent";
+            previewQuestHover = args[0] == "--screenshot-quest-hover";
         }
 
-        using var game = new Game1(screenshotPath, showGrid, previewDescent);
+        using var game = new Game1(screenshotPath, battlePreview, previewDescent,
+            previewQuestHover);
         game.Run();
     }
 }

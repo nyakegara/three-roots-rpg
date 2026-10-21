@@ -1,0 +1,168 @@
+using System.Numerics;
+using Game.Core.Geometry;
+using Game.Core.World;
+using Microsoft.Xna.Framework;
+using WorldVector2 = System.Numerics.Vector2;
+using XnaVector2 = Microsoft.Xna.Framework.Vector2;
+
+namespace Game.MonoGame.Rendering;
+
+/// <summary>Paints the campaign landscape without exposing the route graph's hex topology.</summary>
+internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog assets)
+{
+    private const int MapViewportHeight = 596;
+    private static readonly Color Grass = new(91, 117, 51);
+    private static readonly Color GrassLight = new(112, 133, 61);
+    private static readonly Color Water = new(54, 91, 105);
+    private static readonly Color Ink = new(39, 40, 23);
+
+    public void Draw(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
+        HexCoord heroPosition, IReadOnlyList<HexCoord> route, HexCoord? hoveredTile)
+    {
+        var viewport = new Rectangle(0, 0, 1280, 600);
+        using var clip = canvas.PushClip(viewport);
+        var hasScenicGround = DrawGround(map, projection, camera);
+        if (!hasScenicGround) DrawWater(map, projection, camera);
+        DrawRoute(map, projection, camera, route);
+
+        var objects = new List<(float Depth, Action Draw)>();
+        foreach (var tile in map.Tiles)
+        {
+            var screen = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
+            if (screen.X < -120 || screen.X > viewport.Width + 120 || screen.Y < -160 || screen.Y > viewport.Height + 100)
+                continue;
+            if (tile.TerrainId == "rock") objects.Add((screen.Y, () => DrawRock(screen)));
+        }
+
+        foreach (var point in map.PointsOfInterest)
+        {
+            if (map.GetTile(point.Coordinate) is not { } tile) continue;
+            var screen = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
+            objects.Add((screen.Y, () => DrawPoint(point, tile, screen)));
+        }
+        if (map.GetTile(heroPosition) is { } heroTile)
+        {
+            var screen = camera.ToScreen(projection.Project(heroPosition, heroTile.Height));
+            objects.Add((screen.Y, () => DrawHero(screen)));
+        }
+
+        foreach (var item in objects.OrderBy(item => item.Depth)) item.Draw();
+        if (hoveredTile is { } hovered && map.GetTile(hovered) is { } hoveredWorldTile)
+        {
+            var marker = camera.ToScreen(projection.Project(hovered, hoveredWorldTile.Height));
+            canvas.Frame((int)marker.X - 23, (int)marker.Y - 17, 46, 34, new Color(236, 211, 139) * 0.85f, 2);
+        }
+    }
+
+    private bool DrawGround(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera)
+    {
+        var worldRect = new Rectangle((int)-camera.Position.X, (int)-camera.Position.Y,
+            (int)projection.WorldSize.X, (int)projection.WorldSize.Y);
+        if (assets.TryDraw(canvas, AssetCatalog.AdventureGround, worldRect))
+        {
+            canvas.Rect(0, 0, 1280, MapViewportHeight, new Color(32, 36, 25) * 0.19f);
+            return true;
+        }
+
+        canvas.Rect(0, 0, 1280, MapViewportHeight, Grass);
+        for (var i = 0; i < 5200; i++)
+        {
+            var hash = unchecked((uint)(i + 173) * 747796405u + 2891336453u);
+            hash = ((hash >> ((int)(hash >> 28) + 4)) ^ hash) * 277803737u;
+            hash = (hash >> 22) ^ hash;
+            var worldX = hash % (uint)Math.Max(1, projection.WorldSize.X);
+            hash = unchecked(hash * 1664525u + 1013904223u);
+            var worldY = hash % (uint)Math.Max(1, projection.WorldSize.Y);
+            var x = worldX - camera.Position.X;
+            var y = worldY - camera.Position.Y;
+            if (x < 0 || x >= 1280 || y < 0 || y >= MapViewportHeight) continue;
+            var color = (hash & 3) == 0 ? GrassLight : new Color(76, 104, 45);
+            canvas.Rect((int)x, (int)y, 2 + (int)(hash % 3), 1, color * 0.68f);
+        }
+        return false;
+    }
+
+    private void DrawWater(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera)
+    {
+        foreach (var tile in map.Tiles.Where(tile => tile.TerrainId == "water"))
+        {
+            var p = camera.ToScreen(projection.Project(tile.Coordinate, tile.Height));
+            var seed = tile.Coordinate.Q * 7919 + tile.Coordinate.R * 1543;
+            var x = (int)p.X + seed % 25 - 12;
+            var y = (int)p.Y + seed % 13 - 6;
+            FantasyArt.Oval(canvas, x, y + 10, 75, 43, new Color(34, 67, 78));
+            FantasyArt.Oval(canvas, x - 4, y + 5, 62, 33, Water);
+            canvas.Line(new XnaVector2(x - 15, y + 3), new XnaVector2(x + 12, y + 3), new Color(120, 158, 161), 2);
+        }
+    }
+
+    private void DrawRoute(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera,
+        IReadOnlyList<HexCoord> route)
+    {
+        if (route.Count < 2) return;
+        for (var i = 1; i < route.Count; i++)
+        {
+            if (map.GetTile(route[i - 1]) is not { } a || map.GetTile(route[i]) is not { } b) continue;
+            var from = camera.ToScreen(projection.Project(a.Coordinate, a.Height));
+            var to = camera.ToScreen(projection.Project(b.Coordinate, b.Height));
+            var steps = Math.Max(1, (int)(WorldVector2.Distance(from, to) / 18));
+            for (var n = 1; n < steps; n += 2)
+            {
+                var p = WorldVector2.Lerp(from, to, n / (float)steps);
+                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 17, 5, 3, Ink * 0.6f);
+                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 15, 3, 2, new Color(231, 211, 154));
+            }
+        }
+    }
+
+    private void DrawRock(WorldVector2 p)
+    {
+        var rect = new Rectangle((int)p.X - 29, (int)p.Y - 25, 58, 49);
+        if (!assets.TryDraw(canvas, AssetCatalog.Rock, rect)) FantasyArt.DrawRock(canvas, (int)p.X, (int)p.Y);
+    }
+
+    private void DrawPoint(WorldPointOfInterest point, WorldTile tile, WorldVector2 p)
+    {
+        if (point.Type.Equals("treasure", StringComparison.OrdinalIgnoreCase))
+        {
+            var rect = new Rectangle((int)p.X - 25, (int)p.Y - 37, 50, 43);
+            if (!assets.TryDraw(canvas, AssetCatalog.Treasure, rect)) ExplorationArt.DrawTreasureChest(canvas, (int)p.X, (int)p.Y + 8);
+            FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 10, 33, 10, Ink * 0.75f);
+            canvas.Rect((int)p.X - 11, (int)p.Y + 1, 22, 10, new Color(174, 117, 50));
+            canvas.Rect((int)p.X - 7, (int)p.Y - 3, 14, 7, new Color(220, 168, 74));
+            canvas.Rect((int)p.X - 1, (int)p.Y + 1, 2, 10, new Color(100, 65, 32));
+        }
+        else if (tile.TerrainId == "old-tree")
+        {
+            var rect = new Rectangle((int)p.X - 80, (int)p.Y - 132, 160, 150);
+            if (!assets.TryDraw(canvas, AssetCatalog.AncientOak, rect)) ExplorationArt.DrawAncientOak(canvas, (int)p.X, (int)p.Y + 10);
+            DrawQuestMarker((int)p.X + 55, (int)p.Y - 151);
+        }
+        else canvas.Rect((int)p.X - 6, (int)p.Y - 40, 12, 16, new Color(226, 195, 117));
+    }
+
+    private void DrawHero(WorldVector2 p)
+    {
+        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 19, 37, 12, Ink * 0.82f);
+        for (var index = 0; index < 32; index++)
+        {
+            var first = MathF.Tau * index / 32;
+            var next = MathF.Tau * (index + 1) / 32;
+            canvas.Line(new XnaVector2(p.X + MathF.Cos(first) * 21, p.Y + 19 + MathF.Sin(first) * 8),
+                new XnaVector2(p.X + MathF.Cos(next) * 21, p.Y + 19 + MathF.Sin(next) * 8),
+                new Color(230, 192, 107) * 0.9f, 2);
+        }
+        if (!assets.TryDraw(canvas, AssetCatalog.FloraHero, new Rectangle((int)p.X - 37, (int)p.Y - 78, 74, 96)))
+            FantasyArt.DrawHero(canvas, (int)p.X, (int)p.Y);
+    }
+
+    private void DrawQuestMarker(int x, int y)
+    {
+        canvas.Rect(x - 2, y + 3, 22, 27, Ink * 0.74f);
+        canvas.Rect(x - 4, y, 22, 27, new Color(126, 84, 38));
+        canvas.Rect(x - 2, y + 2, 18, 22, new Color(237, 196, 99));
+        canvas.Frame(x - 4, y, 22, 27, new Color(73, 52, 29), 2);
+        canvas.Rect(x + 5, y + 4, 3, 12, new Color(76, 53, 29));
+        canvas.Rect(x + 5, y + 19, 3, 3, new Color(76, 53, 29));
+    }
+}

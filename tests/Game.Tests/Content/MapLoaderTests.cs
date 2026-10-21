@@ -159,9 +159,13 @@ public sealed class MapLoaderTests : IDisposable
 
         Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
         Assert.NotNull(result.Map);
-        Assert.True(result.Map.Width > 0);
-        Assert.True(result.Map.Height > 0);
-        Assert.NotNull(result.Map.GetTile(result.Map.StartPosition!.Value));
+        Assert.Equal(20, result.Map.Width);
+        Assert.Equal(14, result.Map.Height);
+        Assert.True(result.Map.GetTile(result.Map.StartPosition!.Value)!.IsPassable);
+        Assert.Equal(280, result.Map.Tiles.Count);
+        Assert.All(result.Map.PointsOfInterest,
+            point => Assert.NotNull(result.Map.GetTile(point.Coordinate)));
+        Assert.Contains(result.Map.Tiles, tile => tile.TerrainId == "water");
     }
 
     private string WriteMap(string json)

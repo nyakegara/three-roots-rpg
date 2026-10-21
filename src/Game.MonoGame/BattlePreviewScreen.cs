@@ -10,7 +10,7 @@ namespace Game.MonoGame;
 /// Visual/debug fixture only. Placements and elevations do not define campaign content
 /// or balance; eventual campaign maps will load from JSON.
 /// </summary>
-internal sealed class BattlePreviewScreen
+internal sealed class BattlePreviewScreen : Screens.IGameScreen
 {
     public static readonly Color Background = new(67, 89, 42);
     private static readonly Color Shadow = new(27, 24, 16);
@@ -54,7 +54,7 @@ internal sealed class BattlePreviewScreen
         Reset();
     }
 
-    public void Update(MouseState mouse, KeyboardState keyboard)
+    public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
         _mousePosition = mouse.Position;
         _hover = mouse.Y < 600 ? _layout.HitTest(mouse.Position, _drawOrder) : null;
