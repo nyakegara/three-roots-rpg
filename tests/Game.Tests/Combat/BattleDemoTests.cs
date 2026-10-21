@@ -9,6 +9,17 @@ namespace Game.Tests.Combat;
 public sealed class BattleDemoTests
 {
     [Fact]
+    public void InitiativeCapture_KeepsNinthActiveStackInRealTenStackBattle()
+    {
+        var demo = BattleDemo.Create(Catalog(), 1729, fullRoster: true);
+        BattleCaptureSetup.Advance(demo.Battle, BattleCaptureStage.Initiative);
+        Assert.Equal(10, demo.Battle.Units.Count);
+        Assert.Equal(2, demo.Battle.RemainingInitiative.Count);
+        Assert.Same(demo.Battle.ActiveUnit, demo.Battle.RemainingInitiative[0]);
+        Assert.Equal(1, demo.Battle.Round);
+    }
+
+    [Fact]
     public void InteractiveControllerCompletesDemoWithoutExternalRoundManagement()
     {
         var session = new BattleInteraction(BattleDemo.Create(Catalog(), 42).Battle);

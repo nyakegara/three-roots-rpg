@@ -75,6 +75,15 @@ internal sealed class BattleScreen : IGameScreen
             _message = "ПРЕДПРОСМОТР: СВЯЩЕННЫЙ ОГОНЬ ИНКВИЗИТОРА.";
             return;
         }
+        if (capture == BattleCaptureStage.Initiative)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, fullRoster: true);
+            LoadBattle(demo.Battle, demo.Field);
+            BattleCaptureSetup.Advance(Battle, capture);
+            RefreshReachable();
+            _message = "ОЧЕРЕДЬ: ТЕКУЩИЙ ОТРЯД СЛЕВА. ПОХОДИВШИЕ УБРАНЫ ДО НОВОГО РАУНДА.";
+            return;
+        }
         Restart();
         if (capture is BattleCaptureStage.Range or BattleCaptureStage.BlockedShot)
         {

@@ -88,10 +88,8 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
 
     private void DrawInitiative(Battle battle, BattleUnit? active)
     {
-        _font.Draw("ИНИЦИАТИВА", 110, 675, Muted, 1);
-        var living = battle.Units.Where(unit => unit.IsAlive)
-            .OrderByDescending(unit => unit.Speed).ThenBy(unit => unit.Id, StringComparer.Ordinal)
-            .Take(8).ToArray();
+        _font.Draw("ОЧЕРЕДЬ ХОДА", 110, 675, Muted, 1);
+        var living = battle.RemainingInitiative.Take(8).ToArray();
         for (var index = 0; index < living.Length; index++)
         {
             var unit = living[index];

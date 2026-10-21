@@ -19,6 +19,9 @@ public sealed class Battle
     public BattleMap Map { get; }
     public IReadOnlyCollection<BattleUnit> Units => _units.Values;
     public int Round { get; private set; }
+    /// <summary>Living stacks still to act this round, beginning with the active stack.</summary>
+    public IReadOnlyList<BattleUnit> RemainingInitiative => IsFinished || _activationIndex < 0
+        ? [] : _initiative.Skip(_activationIndex).Where(unit => unit.IsAlive).ToArray();
     public BattleUnit? ActiveUnit
     {
         get

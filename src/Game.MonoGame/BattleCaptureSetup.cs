@@ -12,6 +12,11 @@ public static class BattleCaptureSetup
         ArgumentNullException.ThrowIfNull(battle);
         if (stage == BattleCaptureStage.Opening) return null;
         battle.StartRound();
+        if (stage == BattleCaptureStage.Initiative)
+        {
+            for (var index = 0; index < 8; index++) battle.EndActivation();
+            return battle.ActiveUnit?.Position;
+        }
         var ai = new BattleAi();
         for (var step = 0; step < 3000 && !battle.IsFinished; step++)
         {

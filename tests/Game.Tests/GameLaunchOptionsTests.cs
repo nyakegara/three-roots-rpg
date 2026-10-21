@@ -33,6 +33,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-blocked")]
     [InlineData("--screenshot-combat-after-attack")]
     [InlineData("--screenshot-combat-sprite-target")]
+    [InlineData("--screenshot-combat-initiative")]
     [InlineData("--screenshot-combat-arrow-impact")]
     [InlineData("--screenshot-combat-magic-impact")]
     [InlineData("--screenshot-combat-melee")]
@@ -59,7 +60,8 @@ public sealed class GameLaunchOptionsTests
             mode.EndsWith("-holy-fire") ? BattleCaptureStage.HolyFire :
             mode.EndsWith("-blocked") ? BattleCaptureStage.BlockedShot :
             mode.EndsWith("-after-attack") ? BattleCaptureStage.AfterAttack :
-            mode.EndsWith("-sprite-target") ? BattleCaptureStage.SpriteTarget : BattleCaptureStage.Opening,
+            mode.EndsWith("-sprite-target") ? BattleCaptureStage.SpriteTarget :
+            mode.EndsWith("-initiative") ? BattleCaptureStage.Initiative : BattleCaptureStage.Opening,
             options.CombatCapture);
     }
 

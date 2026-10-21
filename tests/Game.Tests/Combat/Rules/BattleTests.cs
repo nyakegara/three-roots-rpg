@@ -7,6 +7,49 @@ namespace Game.Tests.Combat.Rules;
 public sealed class BattleTests
 {
     [Fact]
+    public void RemainingInitiative_StartsWithActiveStackEvenAfterFirstEightTurns()
+    {
+        var battle = CreateBattle(Enumerable.Range(0, 10).Select(index =>
+            Unit($"unit-{index}", index % 2 == 0 ? BattleSide.Player : BattleSide.Enemy,
+                new(index, 0), speed: 20 - index)).ToArray());
+        battle.StartRound();
+        for (var index = 0; index < 8; index++) battle.EndActivation();
+
+        Assert.Equal(new[] { "unit-8", "unit-9" }, battle.RemainingInitiative.Select(unit => unit.Id));
+        Assert.Same(battle.ActiveUnit, battle.RemainingInitiative[0]);
+        Assert.Equal(1, battle.Round);
+    }
+
+    [Fact]
+    public void RemainingInitiative_ExcludesDefeatedAndCompletedSlotsAndResetsNextRound()
+    {
+        var battle = CreateBattle(
+            Unit("first", BattleSide.Player, new(0, 0), speed: 10, damage: 10, count: 1),
+            Unit("doomed", BattleSide.Enemy, new(1, 0), speed: 9, count: 1),
+            Unit("last", BattleSide.Enemy, new(4, 0), speed: 8));
+        Assert.Empty(battle.RemainingInitiative);
+        battle.StartRound();
+        Assert.True(battle.Attack("first", "doomed"));
+        Assert.Equal(new[] { "first", "last" }, battle.RemainingInitiative.Select(unit => unit.Id));
+        battle.EndActivation();
+        Assert.Equal("last", Assert.Single(battle.RemainingInitiative).Id);
+        battle.EndActivation();
+        Assert.Empty(battle.RemainingInitiative);
+        battle.StartRound();
+        Assert.Equal(new[] { "first", "last" }, battle.RemainingInitiative.Select(unit => unit.Id));
+    }
+
+    [Fact]
+    public void RemainingInitiative_IsEmptyAfterVictory()
+    {
+        var battle = CreateBattle(Unit("first", BattleSide.Player, new(0, 0), speed: 10, damage: 10, count: 1),
+            Unit("enemy", BattleSide.Enemy, new(1, 0), count: 1));
+        battle.StartRound();
+        Assert.True(battle.Attack("first", "enemy"));
+        Assert.Empty(battle.RemainingInitiative);
+    }
+
+    [Fact]
     public void StartRound_OrdersBySpeedThenStableId()
     {
         var battle = CreateBattle(Unit("zeta", BattleSide.Player, new(0, 0), speed: 5),
@@ -16,6 +59,7 @@ public sealed class BattleTests
         battle.StartRound();
 
         Assert.Equal("swift", battle.ActiveUnit!.Id);
+        Assert.Equal(new[] { "swift", "beta", "zeta" }, battle.RemainingInitiative.Select(unit => unit.Id));
         battle.EndActivation();
         Assert.Equal("beta", battle.ActiveUnit!.Id);
         battle.EndActivation();
@@ -238,6 +282,8 @@ public sealed class BattleTests
         Assert.True(battle.Attack("mushroom", "target"));
 
         Assert.Equal(BattleSide.Player, target.Side);
+        Assert.Same(target, battle.RemainingInitiative[1]);
+        Assert.Equal(BattleSide.Player, battle.RemainingInitiative[1].Side);
         Assert.Equal(BattleSide.Enemy, target.OriginalSide);
         Assert.Equal(1, random.Calls);
         Assert.Equal(8, random.LastMaxValue);

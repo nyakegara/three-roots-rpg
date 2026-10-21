@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned, AfterChoice }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -78,6 +78,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-combat-blocked":
                 case "--screenshot-combat-after-attack":
                 case "--screenshot-combat-sprite-target":
+                case "--screenshot-combat-initiative":
                 case "--screenshot-combat-arrow-impact":
                 case "--screenshot-combat-magic-impact":
                 case "--screenshot-combat-melee":
@@ -105,6 +106,7 @@ public sealed record GameLaunchOptions
             or "--screenshot-combat-holy-fire"
             or "--screenshot-combat-blocked" or "--screenshot-combat-after-attack"
             or "--screenshot-combat-sprite-target"
+            or "--screenshot-combat-initiative"
             or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
             or "--screenshot-combat-melee"
             or "--screenshot-combat-range" or "--screenshot-combat-target" or "--screenshot-combat-ranged-target";
@@ -138,6 +140,7 @@ public sealed record GameLaunchOptions
                 "--screenshot-combat-blocked" => BattleCaptureStage.BlockedShot,
                 "--screenshot-combat-after-attack" => BattleCaptureStage.AfterAttack,
                 "--screenshot-combat-sprite-target" => BattleCaptureStage.SpriteTarget,
+                "--screenshot-combat-initiative" => BattleCaptureStage.Initiative,
                 "--screenshot-combat-arrow-impact" => BattleCaptureStage.ArrowImpact,
                 "--screenshot-combat-magic-impact" => BattleCaptureStage.MagicImpact,
                 "--screenshot-combat-melee" => BattleCaptureStage.Melee,
