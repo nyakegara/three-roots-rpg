@@ -5,6 +5,16 @@ namespace Game.MonoGame.Rendering;
 /// <summary>One resting sprite footprint for both drawing and mouse picking.</summary>
 internal static class BattleUnitSpriteLayout
 {
+    public static Rectangle ActionBounds(string unitTypeId, Rectangle restingBounds)
+    {
+        // The hunter crouches: filling the standing box enlarged its face and torso.
+        // This pose-specific calibration keeps its feet planted; other art keeps its own scale.
+        var scale = unitTypeId == "human.order-hunter" ? 0.88f : 1f;
+        var width = (int)MathF.Round((restingBounds.Width + 22) * scale);
+        var height = (int)MathF.Round(restingBounds.Height * scale);
+        return new Rectangle(restingBounds.Center.X - width / 2, restingBounds.Bottom - height, width, height);
+    }
+
     public static Rectangle Bounds(string unitTypeId, Point center)
     {
         var (width, height) = unitTypeId switch

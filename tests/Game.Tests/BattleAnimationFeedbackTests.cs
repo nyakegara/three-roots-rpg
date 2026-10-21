@@ -7,6 +7,29 @@ namespace Game.Tests;
 public sealed class BattleAnimationFeedbackTests
 {
     [Fact]
+    public void HunterAttack_PreservesCrouchInsteadOfStretchingItToStandingHeight()
+    {
+        var idle = BattleUnitSpriteLayout.Bounds("human.order-hunter", new Point(200, 300));
+        var action = BattleUnitSpriteLayout.ActionBounds("human.order-hunter", idle);
+        Assert.Equal(idle.Bottom, action.Bottom);
+        Assert.Equal(idle.Center.X, action.Center.X);
+        Assert.Equal(58, action.Height);
+        Assert.Equal(69, action.Width);
+    }
+
+    [Theory]
+    [InlineData("human.inquisitor")]
+    [InlineData("human.banner-knight")]
+    [InlineData("human.longbow")]
+    [InlineData("human.militia")]
+    public void OtherHumanPoses_KeepTheirExistingCalibration(string type)
+    {
+        var idle = BattleUnitSpriteLayout.Bounds(type, new Point(200, 300));
+        var action = BattleUnitSpriteLayout.ActionBounds(type, idle);
+        Assert.Equal(new Rectangle(idle.X - 11, idle.Y, idle.Width + 22, idle.Height), action);
+    }
+
+    [Fact]
     public void ActionFrameLayout_FitsVisibleCucumberArtToIdleHeightAndKeepsFeetOnGround()
     {
         var pixels = new Color[64 * 80];

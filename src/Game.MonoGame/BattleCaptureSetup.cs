@@ -21,6 +21,12 @@ public static class BattleCaptureSetup
         for (var step = 0; step < 3000 && !battle.IsFinished; step++)
         {
             var active = battle.ActiveUnit ?? throw new InvalidOperationException("Missing active unit in capture.");
+            if (stage is BattleCaptureStage.HunterAttack or BattleCaptureStage.HunterRest &&
+                active.UnitTypeId == "human.order-hunter" && !battle.HasAttacked(active.Id))
+            {
+                var target = battle.GetEnemies(active.Side).FirstOrDefault(unit => BattleRules.CanAttack(active, unit, battle.Map));
+                if (target is not null) return target.Position;
+            }
             if (stage is BattleCaptureStage.Target or BattleCaptureStage.AfterAttack && active.Side == BattleSide.Player &&
                 !battle.HasAttacked(active.Id))
             {

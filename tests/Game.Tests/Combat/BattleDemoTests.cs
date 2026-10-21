@@ -8,6 +8,20 @@ namespace Game.Tests.Combat;
 
 public sealed class BattleDemoTests
 {
+    [Theory]
+    [InlineData(BattleCaptureStage.HunterRest)]
+    [InlineData(BattleCaptureStage.HunterAttack)]
+    public void HunterCaptures_ReachALegalAttackWithoutMovingUnitsOutsideBattleRules(BattleCaptureStage stage)
+    {
+        var demo = BattleDemo.Create(Catalog(), 1729, fullRoster: true);
+        var cell = BattleCaptureSetup.Advance(demo.Battle, stage);
+        var actor = demo.Battle.ActiveUnit!;
+        var target = demo.Battle.Units.Single(unit => unit.IsAlive && unit.Position == cell);
+        Assert.Equal("human.order-hunter", actor.UnitTypeId);
+        Assert.True(BattleRules.CanAttack(actor, target, demo.Battle.Map));
+        Assert.True(demo.Battle.Attack(actor.Id, target.Id));
+    }
+
     [Fact]
     public void InitiativeCapture_KeepsNinthActiveStackInRealTenStackBattle()
     {

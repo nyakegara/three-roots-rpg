@@ -84,6 +84,26 @@ internal sealed class BattleScreen : IGameScreen
             _message = "ОЧЕРЕДЬ: ТЕКУЩИЙ ОТРЯД СЛЕВА. ПОХОДИВШИЕ УБРАНЫ ДО НОВОГО РАУНДА.";
             return;
         }
+        if (capture is BattleCaptureStage.HunterAttack or BattleCaptureStage.HunterRest)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, fullRoster: true);
+            LoadBattle(demo.Battle, demo.Field);
+            var cell = BattleCaptureSetup.Advance(Battle, capture);
+            RefreshReachable();
+            if (capture == BattleCaptureStage.HunterAttack)
+            {
+                var actor = Battle.ActiveUnit!;
+                var target = Battle.Units.Single(unit => unit.IsAlive && unit.Position == cell);
+                if (!Battle.Attack(actor.Id, target.Id))
+                    throw new InvalidOperationException("Cannot execute the hunter capture attack.");
+                BeginAttackAnimation(actor, target);
+                for (var frame = 0; frame < 4; frame++) _attackEffect!.Advance(0.08f);
+                _actionSeconds = 0.48f;
+            }
+            _message = capture == BattleCaptureStage.HunterAttack
+                ? "ЛОВЧИЙ: ПРИСЕДАЮЩАЯ АТАКА СОХРАНЯЕТ МАСШТАБ ТЕЛА." : "ЛОВЧИЙ: ПОЗА ПЕРЕД ДОСТУПНОЙ АТАКОЙ.";
+            return;
+        }
         Restart();
         if (capture is BattleCaptureStage.Range or BattleCaptureStage.BlockedShot)
         {
@@ -548,8 +568,7 @@ internal sealed class BattleScreen : IGameScreen
             if (humanAction && unit.UnitTypeId == "human.longbow" && actionFrame >= AttackAnimationTiming.ReleaseFrame &&
                 _assets.HasAsset(key + ".released"))
                 drawKey = key + ".released";
-            var drawBounds = humanAction
-                ? new Rectangle(bounds.X - 11, bounds.Y, bounds.Width + 22, bounds.Height) : bounds;
+            var drawBounds = humanAction ? BattleUnitSpriteLayout.ActionBounds(unit.UnitTypeId, bounds) : bounds;
             if (!animating && !_assets.TryDrawCropped(_canvas, drawKey, drawBounds, unit.Side == BattleSide.Enemy) &&
                 !_assets.TryDraw(_canvas, AssetCatalog.HumanGuard, new Rectangle(x - 24, y - 42, 48, 64)))
                 FantasyArt.DrawGuard(_canvas, x, y);
