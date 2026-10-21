@@ -39,7 +39,7 @@ public sealed class BattleAi
             }
         }
 
-        if (battle.HasMoved(unitId))
+        if (battle.HasMoved(unitId) || unit.Movement == 0)
         {
             return BattleAction.End();
         }
@@ -52,6 +52,23 @@ public sealed class BattleAi
 
         var occupied = battle.Units.Where(other => other.IsAlive && other.Id != unitId)
             .Select(other => other.Position).ToHashSet();
+        // Follow a real route to an enemy, even if its first step stays equally far
+        // away or goes backwards around a wall. Straight distance alone can stall.
+        var approach = battle.Map.Tiles.Where(tile => tile.IsPassable && !occupied.Contains(tile.Coordinate) &&
+                enemies.Any(enemy => tile.Coordinate.DistanceTo(enemy.Position) == 1))
+            .Select(tile => _pathfinder.FindPath(battle.Map, unit.Position, tile.Coordinate, occupied))
+            .Where(path => path.IsReachable)
+            .OrderBy(path => path.Cost)
+            .ThenBy(path => path.Coordinates[^1].Q).ThenBy(path => path.Coordinates[^1].R)
+            .FirstOrDefault();
+        if (approach is { Cost: > 0 })
+            return BattleAction.MoveTo(approach.Coordinates[Math.Min(unit.Movement, approach.Cost)]);
+        if (approach is not null || !(unit.IsRanged || unit.Ability == UnitAbility.RadiantModes &&
+                                     unit.AttackMode == AttackMode.HolyFire))
+            return BattleAction.End();
+
+        // A shooter may still approach an isolated enemy without a walking route
+        // to its neighbors. Keep the existing distance-based fallback in that case.
         var candidates = new List<(HexCoord Coordinate, int PathCost, int Distance)>
         {
             (unit.Position, 0, enemies.Min(enemy => unit.Position.DistanceTo(enemy.Position)))
