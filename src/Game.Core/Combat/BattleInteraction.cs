@@ -4,6 +4,8 @@ using Game.Core.Geometry;
 
 namespace Game.Core.Combat;
 
+public enum BattleCellAction { Move, Attack, RangedAttack, Heal, InRange, Blocked }
+
 /// <summary>Two-click movement and one-step opponent turns, independent of graphics and input devices.</summary>
 public sealed class BattleInteraction
 {
@@ -20,6 +22,36 @@ public sealed class BattleInteraction
         ArgumentNullException.ThrowIfNull(battle);
         Battle = battle;
         BeginNextRoundIfNeeded();
+    }
+
+    /// <summary>Read-only action preview. Uses the same attack and path rules as actual commands.</summary>
+    public BattleCellAction GetCellAction(HexCoord coordinate, bool healing = false)
+    {
+        if (!IsPlayerTurn || Battle.ActiveUnit is not { } active ||
+            Battle.Map.GetTile(coordinate) is not { IsPassable: true } tile)
+            return BattleCellAction.Blocked;
+        var occupant = Battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Position == coordinate);
+        if (healing)
+            return active.Ability == UnitAbility.HealAlly && !Battle.HasAttacked(active.Id) &&
+                occupant is { } ally && ally.Id != active.Id && ally.Side == active.Side &&
+                ally.RemainingHitPoints < ally.MaximumHitPointsAtBattleStart
+                ? BattleCellAction.Heal : BattleCellAction.Blocked;
+        if (occupant is not null)
+        {
+            if (Battle.HasAttacked(active.Id) || !BattleRules.CanAttack(active, occupant, Battle.Map))
+                return BattleCellAction.Blocked;
+            return active.IsRanged || active.Ability == UnitAbility.RadiantModes && active.AttackMode == AttackMode.HolyFire
+                ? BattleCellAction.RangedAttack : BattleCellAction.Attack;
+        }
+        if (!Battle.HasMoved(active.Id))
+        {
+            var occupied = Battle.Units.Where(unit => unit.IsAlive && unit.Id != active.Id)
+                .Select(unit => unit.Position).ToHashSet();
+            var path = _pathfinder.FindPath(Battle.Map, active.Position, coordinate, occupied);
+            if (path.IsReachable && path.Cost <= active.Movement) return BattleCellAction.Move;
+        }
+        return !Battle.HasAttacked(active.Id) && BattleRules.CanAttackTile(active, tile, Battle.Map)
+            ? BattleCellAction.InRange : BattleCellAction.Blocked;
     }
 
     public bool SelectDestination(HexCoord destination)

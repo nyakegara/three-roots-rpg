@@ -16,12 +16,17 @@ public static class BattleCaptureSetup
         for (var step = 0; step < 3000 && !battle.IsFinished; step++)
         {
             var active = battle.ActiveUnit ?? throw new InvalidOperationException("Missing active unit in capture.");
-            if (stage == BattleCaptureStage.Target && active.Side == BattleSide.Player &&
+            if (stage is BattleCaptureStage.Target or BattleCaptureStage.AfterAttack && active.Side == BattleSide.Player &&
                 !battle.HasAttacked(active.Id))
             {
                 var target = battle.Units.FirstOrDefault(unit => unit.IsAlive && unit.Side != active.Side &&
                     BattleRules.CanAttack(active, unit, battle.Map));
-                if (target is not null) return target.Position;
+                if (target is not null)
+                {
+                    if (stage == BattleCaptureStage.AfterAttack && !battle.Attack(active.Id, target.Id))
+                        throw new InvalidOperationException("Cannot execute the capture attack.");
+                    return target.Position;
+                }
             }
             if (stage == BattleCaptureStage.RangedTarget && active.Side == BattleSide.Player && active.IsRanged &&
                 !battle.HasAttacked(active.Id))

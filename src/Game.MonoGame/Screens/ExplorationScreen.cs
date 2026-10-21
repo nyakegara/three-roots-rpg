@@ -578,7 +578,7 @@ internal sealed class ExplorationScreen : IGameScreen
             ? _projection.ToArt(_camera.ToWorld(pointer)) : null;
         _hoverPoint = _hoverPosition is { } hover ? NearestVisiblePoint(hover, 16, hitSprites: true) : null;
         if (IsPressed(keyboard, _previousKeyboard, Keys.E) && NearestVisiblePoint(travel.Position, 17) is { } current)
-            VisitPoint(current);
+            VisitPointAt(current.Coordinate);
         if (!clicked || _hoverPosition is not { } position || HasOpenModal) return;
         _interactionMessage = null;
         var targetPosition = _hoverPoint is not null ? _map.Navigation!.Points[_hoverPoint.Id] : position;
