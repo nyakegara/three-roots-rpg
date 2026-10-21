@@ -1,11 +1,53 @@
 using Game.Core.Content;
 using Game.Core.Navigation;
+using Game.Core.Geometry;
+using Game.MonoGame.Rendering;
 using Xunit;
 
 namespace Game.Tests.Content;
 
 public sealed class AdventureMapContentTests
 {
+    [Fact]
+    public void SavedApproachPosition_RestoresBesideLandmarkWithItsLogicalQuestAnchor()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "content");
+        var units = UnitCatalog.Load(Path.Combine(root, "units", "units.json")).Catalog!;
+        var definition = new CampaignLoader(units).Load(Path.Combine(root, "campaigns", "flora-01.json")).Definition!;
+        var campaign = definition.CreateGameState();
+        var nav = definition.Map.Navigation!;
+        var point = definition.Map.PointsOfInterest.Single(point => point.Id == "pasture-request");
+        var travel = new AdventureTravel(new(nav, campaign.IsUnlocked), nav.Start);
+        travel.SelectApproach(nav.Points[point.Id]);
+        Assert.True(travel.SelectApproach(nav.Points[point.Id]));
+        travel.Advance(100);
+        travel.Stop();
+        Assert.NotEqual(nav.Points[point.Id], travel.Position);
+        var save = campaign.CreateSave(definition.Id, definition.Map.Id, point.Coordinate) with
+            { AdventurePosition = travel.Position };
+        Assert.True(definition.CreateGameState().TryRestoreSave(save, definition.Id, definition.PlayerFactionId,
+            definition.Map, units, out var error), error);
+    }
+
+    [Fact]
+    public void FloraLandmarks_HaveReachableStandingSpotsIncludingOffsetGuide()
+    {
+        var result = new MapLoader().Load(Path.Combine(AppContext.BaseDirectory, "content", "maps", "flora-01.json"));
+        var map = result.Map!;
+        var nav = map.Navigation!;
+        var surface = new AdventureSurface(nav, _ => true);
+        var travel = new AdventureTravel(surface, nav.Start);
+        var projection = new AdventureMapProjection(map, 88, 40, 5, 2);
+        foreach (var point in map.PointsOfInterest.Where(point => point.Type != "gate"))
+        {
+            var landmark = projection.ToArt(projection.ProjectPoint(point) + AdventureMapRenderer.IdleActorOffset(point.Id));
+            travel.Stop();
+            travel.SelectApproach(landmark);
+            Assert.True(travel.Preview.IsReachable, $"No standing spot beside '{point.Id}'.");
+            Assert.InRange(MapPosition.Distance(travel.Destination!.Value, landmark), 19.99f, 20.01f);
+        }
+    }
+
     private static AdventureNavigation Load()
     {
         var result = new MapLoader().Load(Path.Combine(AppContext.BaseDirectory, "content", "maps", "flora-01.json"));

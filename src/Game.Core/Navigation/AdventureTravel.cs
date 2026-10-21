@@ -5,6 +5,8 @@ namespace Game.Core.Navigation;
 /// <summary>Two-click route selection and time-based movement to an exact map position.</summary>
 public sealed class AdventureTravel
 {
+    public const float ApproachDistance = 20;
+    public const float InteractionRadius = 21;
     private readonly AdventurePathfinder _pathfinder;
     private readonly float _speed;
     private IReadOnlyList<MapPosition> _activePath = [];
@@ -29,11 +31,49 @@ public sealed class AdventureTravel
         _pathfinder = new(surface);
     }
 
-    public bool Select(MapPosition destination)
+    public bool Select(MapPosition destination) => SelectPath(destination, _pathfinder.FindPath(Position, destination));
+
+    /// <summary>Choose a reachable standing spot beside a landmark, rather than inside its model.</summary>
+    public bool SelectApproach(MapPosition landmark, float distance = ApproachDistance)
+    {
+        if (!landmark.IsFinite) throw new ArgumentException("Landmark must be finite.", nameof(landmark));
+        if (!float.IsFinite(distance) || distance <= 0) throw new ArgumentOutOfRangeException(nameof(distance));
+        // A standing spot on this side of a closed story barrier must not grant interaction across it.
+        if (_pathfinder.FindPath(Position, landmark).IsReachable)
+        {
+            var towardHero = Position.Vector - landmark.Vector;
+            var angle = towardHero.LengthSquared() > 0.001f ? MathF.Atan2(towardHero.Y, towardHero.X) : MathF.PI / 2;
+            int[] turns = [0, 1, -1, 2, -2, 3, -3, 4, -4, 5, -5, 6];
+            foreach (var turn in turns)
+            {
+                var direction = angle + turn * MathF.PI / 6;
+                var candidate = new MapPosition(landmark.X + MathF.Cos(direction) * distance,
+                    landmark.Y + MathF.Sin(direction) * distance);
+                if (!Surface.IsSegmentWalkable(candidate, landmark)) continue;
+                var path = _pathfinder.FindPath(Position, candidate);
+                if (path.IsReachable) return SelectPath(candidate, path);
+            }
+        }
+        Stop();
+        Destination = landmark;
+        return false;
+    }
+
+    public void Stop()
     {
         _activePath = [];
         _next = 0;
-        var path = _pathfinder.FindPath(Position, destination);
+        Destination = null;
+        Preview = AdventurePath.Unreachable;
+    }
+
+    public bool CanInteractWith(MapPosition landmark, float radius = InteractionRadius) =>
+        MapPosition.Distance(Position, landmark) <= radius && Surface.IsSegmentWalkable(Position, landmark);
+
+    private bool SelectPath(MapPosition destination, AdventurePath path)
+    {
+        _activePath = [];
+        _next = 0;
         if (Destination is { } selected && MapPosition.Distance(selected, destination) <= 3 &&
             Preview.IsReachable && path.IsReachable && path.Length > 0.01f)
         {

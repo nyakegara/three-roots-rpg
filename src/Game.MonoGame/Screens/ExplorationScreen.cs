@@ -219,6 +219,18 @@ internal sealed class ExplorationScreen : IGameScreen
                 ? saved : _projection.ToArt(_projection.Project(_movement.Position, map.GetTile(_movement.Position)!.Height));
             initial = new AdventurePathfinder(_surface).FindNearestWalkable(initial);
             _travel = new(_surface, initial);
+            if (capture == CampaignCaptureStage.AfterChoice)
+            {
+                _travel = new(_surface, navigation.Start);
+                var landmark = InteractionPosition(map.PointsOfInterest.Single(point => point.Id == "pasture-request"));
+                _travel.SelectApproach(landmark);
+                if (!_travel.SelectApproach(landmark))
+                    throw new InvalidOperationException("Cannot confirm the capture landmark approach.");
+                for (var step = 0; step < 10000 && _travel.IsMoving; step++) _travel.Advance(0.1f);
+                if (_travel.IsMoving || !_travel.CanInteractWith(landmark))
+                    throw new InvalidOperationException("Cannot complete the capture landmark approach.");
+                initial = _travel.Position;
+            }
             if (!previewNorthTrail)
             {
                 var world = _projection.FromArt(initial);
@@ -338,7 +350,11 @@ internal sealed class ExplorationScreen : IGameScreen
     private void VisitPoint(WorldPointOfInterest point)
     {
         if (_travel is not null)
+        {
+            _travel.Stop();
+            _travelPoint = null;
             _movement = new MovementSelection(CreateMovementMap(point.Coordinate), point.Coordinate);
+        }
         if (_campaign is not null && _units is not null)
         {
             if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase))
@@ -555,9 +571,8 @@ internal sealed class ExplorationScreen : IGameScreen
             if (_travel.IsMoving) return "В ПУТИ. ЛКМ — ВЫБРАТЬ НОВЫЙ МАРШРУТ.";
             if (_travel.Destination is not null)
                 return _travel.Preview.IsReachable ? "ЛКМ ЕЩЁ РАЗ — ИДТИ ПО МАРШРУТУ" : "ПУТЬ ПЕРЕКРЫТ";
-            if (NearestVisiblePoint(_travel.Position, 17) is { } nearby)
-                return hoveredPoint?.Id == nearby.Id &&
-                    MapPosition.Distance(_travel.Position, _map.Navigation!.Points[nearby.Id]) <= 6
+            if (NearestVisiblePoint(_travel.Position, AdventureTravel.InteractionRadius) is { } nearby)
+                return hoveredPoint?.Id == nearby.Id
                     ? "ЛКМ / E — ОСМОТРЕТЬ МЕСТО" : "E — ОСМОТРЕТЬ БЛИЖАЙШЕЕ МЕСТО";
             return hoveredPoint is not null ? "ЛКМ — ПОДОЙТИ К МЕСТУ" : "ЛКМ — ВЫБРАТЬ ЛЮБУЮ ТОЧКУ ТРОПЫ";
         }
@@ -588,12 +603,16 @@ internal sealed class ExplorationScreen : IGameScreen
         _hoverPosition = pointer.X >= 0 && pointer.X < 1280 && pointer.Y >= 0 && pointer.Y < MapViewportHeight
             ? _projection.ToArt(_camera.ToWorld(pointer)) : null;
         _hoverPoint = _hoverPosition is { } hover ? NearestVisiblePoint(hover, 16, hitSprites: true) : null;
-        if (IsPressed(keyboard, _previousKeyboard, Keys.E) && NearestVisiblePoint(travel.Position, 17) is { } current)
+        if (IsPressed(keyboard, _previousKeyboard, Keys.E) &&
+            NearestVisiblePoint(travel.Position, AdventureTravel.InteractionRadius) is { } current)
+        {
             VisitPointAt(current.Coordinate);
+            SaveProgress();
+        }
         if (!clicked || _hoverPosition is not { } position || HasOpenModal) return;
         _interactionMessage = null;
-        var targetPosition = _hoverPoint is not null ? _map.Navigation!.Points[_hoverPoint.Id] : position;
-        if (_hoverPoint is not null && MapPosition.Distance(travel.Position, targetPosition) <= 6)
+        var targetPosition = _hoverPoint is not null ? InteractionPosition(_hoverPoint) : position;
+        if (_hoverPoint is not null && travel.CanInteractWith(targetPosition))
         {
             VisitPointAt(_hoverPoint.Coordinate);
             SaveProgress();
@@ -601,7 +620,8 @@ internal sealed class ExplorationScreen : IGameScreen
         }
         SaveProgress();
         _travelPoint = _hoverPoint;
-        travel.Select(targetPosition);
+        if (_hoverPoint is not null) travel.SelectApproach(targetPosition);
+        else travel.Select(targetPosition);
     }
 
     private WorldPointOfInterest? NearestVisiblePoint(MapPosition position, float radius, bool hitSprites = false)
@@ -615,12 +635,11 @@ internal sealed class ExplorationScreen : IGameScreen
                     encounter.PointOfInterestId == point.Id && _campaign.CanAccessEncounter(encounter.Id)) == true))
             .Select(point =>
             {
-                var anchor = _map.Navigation!.Points[point.Id];
-                if (hitSprites)
-                    anchor = new(anchor.X + (point.Id == "guide-dialogue" ? -28 : 0), anchor.Y - 15);
-                return (Point: point, Distance: MapPosition.Distance(position, anchor));
+                var anchor = InteractionPosition(point);
+                if (hitSprites) anchor = new(anchor.X, anchor.Y - 15);
+                return (Point: point, Anchor: anchor, Distance: MapPosition.Distance(position, anchor));
             })
-            .Where(item => item.Distance <= radius)
+            .Where(item => item.Distance <= radius && (hitSprites || _travel!.CanInteractWith(item.Anchor, radius)))
             .OrderBy(item => item.Distance)
             .ThenBy(item => item.Point.Type == "quest" ? 0 : 1)
             .Select(item => item.Point).FirstOrDefault();
@@ -633,6 +652,9 @@ internal sealed class ExplorationScreen : IGameScreen
         return _campaign.Quests.Where(quest => !completed.Contains(quest.Id))
             .Select(quest => quest.PointOfInterestId).OfType<string>().ToHashSet(StringComparer.Ordinal);
     }
+
+    private MapPosition InteractionPosition(WorldPointOfInterest point) => _projection.ToArt(
+        _projection.ProjectPoint(point) + AdventureMapRenderer.IdleActorOffset(point.Id));
 
     internal void PrepareTravelPreview()
     {

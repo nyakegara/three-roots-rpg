@@ -19,6 +19,9 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private bool _compactMap;
     private IReadOnlySet<string>? _activeQuestPoints;
 
+    internal static WorldVector2 IdleActorOffset(string pointId) =>
+        pointId == "guide-dialogue" ? new WorldVector2(-56, 5) : WorldVector2.Zero;
+
     internal static bool IsPointVisible(WorldPointOfInterest point, bool compactMap,
         IReadOnlyDictionary<string, string> idleActors, IReadOnlySet<string>? activeQuestPoints)
     {
@@ -281,7 +284,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
 
     private void DrawIdleActor(WorldPointOfInterest point, string idleKey, WorldVector2 p, float seconds)
     {
-        if (point.Id == "guide-dialogue") p += new WorldVector2(-56, 5);
+        p += IdleActorOffset(point.Id);
         var phase = point.Id.Sum(character => (int)character) & 3;
         var frameMs = idleKey.StartsWith("unit.human.", StringComparison.Ordinal) ? 320f : 260f;
         var frame = ((int)(seconds * 1000f / frameMs) + phase) % 4;
