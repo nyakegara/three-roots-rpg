@@ -1,42 +1,42 @@
 [
   {
-    "maxHeight": 66,
+    "maxHeight": 88,
+    "maxWidth": 64,
     "canvas": 128,
     "baseline": 120,
-    "id": "utburd",
     "image": "../../../content/art/prototypes/undead/utburd.png",
-    "maxWidth": 48
+    "id": "utburd"
   },
   {
     "maxHeight": 66,
+    "maxWidth": 56,
     "canvas": 128,
     "baseline": 120,
-    "id": "silat",
     "image": "../../../content/art/prototypes/undead/silat.png",
-    "maxWidth": 56
+    "id": "silat"
   },
   {
     "maxHeight": 70,
+    "maxWidth": 84,
     "canvas": 128,
     "baseline": 120,
-    "id": "nachzehrer",
     "image": "../../../content/art/prototypes/undead/nachzehrer.png",
-    "maxWidth": 84
+    "id": "nachzehrer"
   },
   {
-    "maxHeight": 72,
+    "maxHeight": 94,
+    "maxWidth": 68,
     "canvas": 128,
     "baseline": 120,
-    "id": "vetala",
     "image": "../../../content/art/prototypes/undead/vetala.png",
-    "maxWidth": 56
+    "id": "vetala"
   },
   {
     "maxHeight": 108,
+    "maxWidth": 112,
     "canvas": 128,
     "baseline": 120,
-    "id": "asura-preta",
     "image": "../../../content/art/prototypes/undead/asura-preta.png",
-    "maxWidth": 112
+    "id": "asura-preta"
   }
 ]

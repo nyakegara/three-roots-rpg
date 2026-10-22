@@ -6,10 +6,10 @@ $root = Split-Path $root -Parent
 $art = Join-Path $root 'content/art'
 $destination = Join-Path $art 'prototypes/undead'
 $specs = @(
- @{Id='utburd'; Width=48; Height=66},
+ @{Id='utburd'; Width=64; Height=88},
  @{Id='silat'; Width=56; Height=66},
  @{Id='nachzehrer'; Width=84; Height=70},
- @{Id='vetala'; Width=56; Height=72},
+ @{Id='vetala'; Width=68; Height=94},
  @{Id='asura-preta'; Width=112; Height=108}
 )
 function Get-AlphaBounds([Drawing.Bitmap]$image) {
@@ -71,3 +71,29 @@ try {
 } finally {foreach($item in $all){$item.Image.Dispose()};$font.Dispose();$g.Dispose();$preview.Dispose()}
 Write-Output 'Five 128x128 transparent prototypes exported; common baseline 120; comparison generated.'
 
+
+
+# Compare old/new native scales. Old versions are intentionally archived, never re-exported.
+$sizePreview=[Drawing.Bitmap]::new(1280,680)
+$sizeG=[Drawing.Graphics]::FromImage($sizePreview)
+$sizeFont=[Drawing.Font]::new('Arial',13)
+$sizeG.Clear([Drawing.Color]::FromArgb(65,72,55))
+$sizeG.InterpolationMode=[Drawing.Drawing2D.InterpolationMode]::NearestNeighbor
+$sizeG.PixelOffsetMode=[Drawing.Drawing2D.PixelOffsetMode]::Half
+$sizeItems=@(
+ @{Name='Utburd old 66';Image=([Drawing.Bitmap]::new((Join-Path $destination 'utburd-small.png')))},
+ @{Name='Utburd new 88';Image=([Drawing.Bitmap]::new((Join-Path $destination 'utburd.png')))},
+ @{Name='Knight 94';Image=(Fit-Sprite (Join-Path $art 'unit.human.banner-knight.png') 83 94)},
+ @{Name='Vetala old 72';Image=([Drawing.Bitmap]::new((Join-Path $destination 'vetala-small.png')))},
+ @{Name='Vetala new 94';Image=([Drawing.Bitmap]::new((Join-Path $destination 'vetala.png')))}
+)
+try {
+ $sizeG.DrawString('1x: actual game pixels / 2x below: nearest neighbor', $sizeFont,[Drawing.Brushes]::White,12,10)
+ for($i=0;$i -lt $sizeItems.Count;$i++){
+  $sizeG.DrawImage($sizeItems[$i].Image,[Drawing.Rectangle]::new($i*256+64,45,128,128))
+  $sizeG.DrawString($sizeItems[$i].Name,$sizeFont,[Drawing.Brushes]::White,$i*256+35,190)
+  $sizeG.DrawImage($sizeItems[$i].Image,[Drawing.Rectangle]::new($i*256,245,256,256))
+ }
+ $sizeG.DrawString('Native pixels, binary alpha, shared ground baseline. Art comparison, not a battle screenshot.', $sizeFont,[Drawing.Brushes]::White,12,540)
+ $sizePreview.Save((Join-Path $PSScriptRoot 'size-comparison.png'),[Drawing.Imaging.ImageFormat]::Png)
+}finally{foreach($item in $sizeItems){$item.Image.Dispose()};$sizeFont.Dispose();$sizeG.Dispose();$sizePreview.Dispose()}

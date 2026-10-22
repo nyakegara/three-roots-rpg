@@ -33,5 +33,9 @@
     "silat": "Broader flat cloth groups, three ochre shawl stripes, clear black face veil, compact sand tail.",
     "vetala": "Remove filigree, broaden torso and arms, flat charcoal coat and three ivory cloth folds.",
     "asuraPreta": "Separate two giant fists and wrists along overhead sword; preserve four lower arms."
+  },
+  "largerNativeRevision": {
+    "utburd": "Redraw at 64x88 max native box, angular corpse-child face, deep eye sockets, enlarged readable face, remove fine twigs, preserve gaunt skeletal body; charcoal cloth with large folds.",
+    "vetala": "Redraw at 68x94 max native box, broaden torso and forearms, enlarged pale face and separated claw hands, simple charcoal coat, ivory folds, burgundy sash."
   }
 }
