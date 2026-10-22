@@ -6,6 +6,7 @@ public enum BattleActionType
 {
     Move,
     Attack,
+    Heal,
     SetAttackMode,
     EndActivation
 }
@@ -15,6 +16,7 @@ public sealed record BattleAction(BattleActionType Type, HexCoord? Destination =
 {
     public static BattleAction MoveTo(HexCoord destination) => new(BattleActionType.Move, destination);
     public static BattleAction Attack(string targetId) => new(BattleActionType.Attack, TargetId: targetId);
+    public static BattleAction Heal(string targetId) => new(BattleActionType.Heal, TargetId: targetId);
     public static BattleAction SetMode(AttackMode mode) => new(BattleActionType.SetAttackMode, Mode: mode);
     public static BattleAction End() => new(BattleActionType.EndActivation);
 }

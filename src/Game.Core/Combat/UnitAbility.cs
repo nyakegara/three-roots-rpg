@@ -7,5 +7,6 @@ public enum UnitAbility
     HealAlly,
     ConvertOnHit,
     Hunter,
-    RadiantModes
+    RadiantModes,
+    SacrificePulse
 }

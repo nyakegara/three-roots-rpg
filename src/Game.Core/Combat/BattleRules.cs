@@ -25,6 +25,7 @@ public static class BattleRules
         if (!attacker.IsAlive) return false;
         var distance = attacker.Position.DistanceTo(target.Coordinate);
         if (distance == 0) return false;
+        if (attacker.Ability == UnitAbility.SacrificePulse) return distance <= 4;
         var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
             attacker.AttackMode == AttackMode.HolyFire;
         return ranged ? distance <= GetEffectiveRange(attacker, target) : distance == 1;
@@ -60,6 +61,8 @@ public static class BattleRules
             return AttackFailureReason.ImpassableTarget;
         var distance = attacker.Position.DistanceTo(target.Coordinate);
         if (distance == 0) return AttackFailureReason.UnavailableUnit;
+        if (attacker.Ability == UnitAbility.SacrificePulse)
+            return distance <= 4 ? AttackFailureReason.None : AttackFailureReason.OutOfRange;
         var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
             attacker.AttackMode == AttackMode.HolyFire;
         if (!ranged && distance != 1) return AttackFailureReason.NotAdjacent;
@@ -74,7 +77,8 @@ public static class BattleRules
         ArgumentNullException.ThrowIfNull(attacker);
         ArgumentNullException.ThrowIfNull(target);
         var baseRange = attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire
-            ? HolyFireRange : attacker.Range;
+            ? HolyFireRange : attacker.Ability == UnitAbility.SacrificePulse ? 4 : attacker.Range;
+        if (attacker.Ability == UnitAbility.SacrificePulse) return baseRange;
         return baseRange + (attacker.Height > target.Height && (attacker.IsRanged ||
             attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire) ? 2 : 0);
     }

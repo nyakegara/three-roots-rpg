@@ -38,14 +38,12 @@ internal static class ActionFrameLayout
     }
 
     public static Rectangle FitToReference(Rectangle visibleSource, Rectangle referenceSource,
-        Rectangle targetBounds, bool flip = false)
+        Rectangle targetBounds, bool flip = false, int cellWidth = 64, int cellHeight = 80)
     {
         if (visibleSource.Width <= 0 || visibleSource.Height <= 0 || referenceSource.Width <= 0 ||
             referenceSource.Height <= 0 || targetBounds.Width <= 0 || targetBounds.Height <= 0)
             return targetBounds;
 
-        const int cellWidth = 64;
-        const int cellHeight = 80;
         var scaleX = targetBounds.Width / (float)referenceSource.Width;
         var scaleY = targetBounds.Height / (float)referenceSource.Height;
         var pivotX = referenceSource.X % cellWidth + referenceSource.Width / 2f;

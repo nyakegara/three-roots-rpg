@@ -46,6 +46,8 @@ internal sealed class AssetCatalog : IDisposable
                      "unit.flora.pod-slinger", "unit.flora.root-warden",
                      "unit.human.militia", "unit.human.longbow", "unit.human.banner-knight",
                      "unit.human.order-hunter", "unit.human.inquisitor",
+                     "unit.undead.utburd", "unit.undead.silat", "unit.undead.nachzehrer",
+                     "unit.undead.vetala", "unit.undead.asura-preta",
                      "unit.human.militia.attack", "unit.human.longbow.attack",
                      "unit.human.banner-knight.attack", "unit.human.order-hunter.attack",
                      "unit.human.inquisitor.attack", "unit.human.inquisitor.cast", "unit.human.longbow.released",
@@ -130,7 +132,9 @@ internal sealed class AssetCatalog : IDisposable
                      "unit.flora.ember-bloom.actions", "unit.flora.pod-slinger.actions",
                      "unit.flora.root-warden.actions", "unit.human.militia.actions", "unit.human.longbow.actions",
                      "unit.human.banner-knight.actions", "unit.human.order-hunter.actions",
-                     "unit.human.inquisitor.actions" })
+                     "unit.human.inquisitor.actions", "unit.undead.utburd.actions",
+                     "unit.undead.silat.actions", "unit.undead.nachzehrer.actions",
+                     "unit.undead.vetala.actions", "unit.undead.asura-preta.actions" })
         {
             var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", key + ".png");
             if (!File.Exists(path)) continue;
@@ -138,14 +142,19 @@ internal sealed class AssetCatalog : IDisposable
             {
                 using var stream = File.OpenRead(path);
                 var texture = LoadPremultiplied(device, stream, out _);
-                if (texture.Width == 256 && texture.Height is 160 or 320)
+                var cellWidth = texture.Width == 768 ? 192 : 64;
+                var cellHeight = texture.Width == 768 ? 192 : 80;
+                var supported = texture.Width == 256 && texture.Height is 160 or 320 ||
+                    texture.Width == 768 && texture.Height is 192 or 384;
+                if (supported)
                 {
-                    var frames = new Rectangle[texture.Height / 80 * 4];
+                    var frames = new Rectangle[texture.Height / cellHeight * 4];
                     var pixels = new Color[texture.Width * texture.Height];
                     texture.GetData(pixels);
                     for (var index = 0; index < frames.Length; index++)
                     {
-                        var frame = new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80);
+                        var frame = new Rectangle(index % 4 * cellWidth, index / 4 * cellHeight,
+                            cellWidth, cellHeight);
                         frames[index] = ActionFrameLayout.FindVisibleBounds(pixels, texture.Width, frame);
                     }
                     _actionTextures.Add(key, texture);
@@ -223,13 +232,19 @@ internal sealed class AssetCatalog : IDisposable
         bool secondary, bool flipHorizontally)
     {
         if (!_actionTextures.TryGetValue(key, out var texture)) return false;
-        var index = Math.Clamp(frame, 0, 7) + (secondary && texture.Height == 320 ? 8 : 0);
+        var wide = texture.Width == 768;
+        var index = wide ? new[] { 0, 1, 1, 2, 2, 3, 3, 0 }[Math.Clamp(frame, 0, 7)]
+            + (secondary && texture.Height == 384 ? 4 : 0)
+            : Math.Clamp(frame, 0, 7) + (secondary && texture.Height == 320 ? 8 : 0);
+        var cellWidth = wide ? 192 : 64;
+        var cellHeight = wide ? 192 : 80;
         var source = _actionFrameBounds[key][index];
         if (source.IsEmpty)
-            source = new Rectangle(index % 4 * 64, index / 4 * 80, 64, 80);
+            source = new Rectangle(index % 4 * cellWidth, index / 4 * cellHeight, cellWidth, cellHeight);
         var reference = _actionFrameBounds[key][0];
-        if (reference.IsEmpty) reference = new Rectangle(0, 0, 64, 80);
-        var fitted = ActionFrameLayout.FitToReference(source, reference, destination, flipHorizontally);
+        if (reference.IsEmpty) reference = new Rectangle(0, 0, cellWidth, cellHeight);
+        var fitted = ActionFrameLayout.FitToReference(source, reference, destination, flipHorizontally,
+            cellWidth, cellHeight);
         canvas.Texture(texture, source, fitted, flipHorizontally);
         return true;
     }

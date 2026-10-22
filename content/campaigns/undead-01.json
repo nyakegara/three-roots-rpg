@@ -7,11 +7,11 @@
   "mapFile": "../maps/undead-01.json",
   "hero": { "id": "morven", "name": "Морвен", "startingGold": 260 },
   "recruitment": [
-    { "unitId": "undead.refrain", "startingStock": 8 },
-    { "unitId": "undead.ash-vessel", "startingStock": 12 },
-    { "unitId": "undead.porcelain-choir", "startingStock": 7 },
-    { "unitId": "undead.grave-gardener", "startingStock": 8 },
-    { "unitId": "undead.hourless", "startingStock": 3 }
+    { "unitId": "undead.utburd", "startingStock": 12 },
+    { "unitId": "undead.silat", "startingStock": 8 },
+    { "unitId": "undead.nachzehrer", "startingStock": 7 },
+    { "unitId": "undead.vetala", "startingStock": 8 },
+    { "unitId": "undead.asura-preta", "startingStock": 3 }
   ],
   "quests": [
     { "id": "name-garden", "title": "Сад имён", "pointOfInterestId": "name-garden", "choices": [

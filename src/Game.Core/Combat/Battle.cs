@@ -164,7 +164,17 @@ public sealed class Battle
             return false;
         }
 
-        target.ApplyDamage(BattleRules.GetAttackDamage(attacker, target));
+        if (attacker.Ability == UnitAbility.SacrificePulse)
+        {
+            // One activation strikes every enemy in the pulse radius. The cost is
+            // based on current stack health before damage and can kill the caster.
+            var cost = Math.Max(1, (attacker.RemainingHitPoints + 9) / 10);
+            foreach (var enemy in GetEnemies(attacker.Side)
+                         .Where(enemy => attacker.Position.DistanceTo(enemy.Position) <= 4))
+                enemy.ApplyDamage(BattleRules.GetAttackDamage(attacker, enemy));
+            attacker.ApplyDamage(cost);
+        }
+        else target.ApplyDamage(BattleRules.GetAttackDamage(attacker, target));
         if (attacker.Ability == UnitAbility.ConvertOnHit && target.IsAlive && _random.Next(8) == 0)
         {
             target.ConvertTo(attacker.Side);

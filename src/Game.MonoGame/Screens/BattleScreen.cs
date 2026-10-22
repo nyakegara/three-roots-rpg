@@ -324,10 +324,13 @@ internal sealed class BattleScreen : IGameScreen
                 _opponentDelay = 0.7f;
                 if (actor is not null && action?.Type == BattleActionType.Attack && Find(action.TargetId) is { } enemyTarget)
                     BeginAttackAnimation(actor, enemyTarget, conversion: enemyTarget.Side == actor.Side);
+                if (actor is not null && action?.Type == BattleActionType.Heal && Find(action.TargetId) is { } healed)
+                    BeginAttackAnimation(actor, healed, healing: true);
                 if (actor is not null && action is not null)
                     _message = action.Type switch
                     {
                         BattleActionType.Attack => Name(actor) + ": АТАКА ПО " + Name(Find(action.TargetId)!),
+                        BattleActionType.Heal => Name(actor) + ": ЛЕЧЕНИЕ " + Name(Find(action.TargetId)!),
                         BattleActionType.Move => Name(actor) + ": ПЕРЕМЕЩЕНИЕ.",
                         BattleActionType.SetAttackMode => Name(actor) + (action.Mode == AttackMode.HolyFire
                             ? ": СВЯЩЕННЫЙ ОГОНЬ." : ": МОЛОТ."),
