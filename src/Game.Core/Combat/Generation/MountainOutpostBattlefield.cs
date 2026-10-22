@@ -2,7 +2,7 @@ using Game.Core.Geometry;
 
 namespace Game.Core.Combat.Generation;
 
-/// <summary>Authored pass with a narrow breach and two elevated archer positions.</summary>
+/// <summary>Authored pass with a continuous eastern plateau and a broad southern ascent.</summary>
 public static class MountainOutpostBattlefield
 {
     public static GeneratedBattlefield Create(int seed)
@@ -15,19 +15,18 @@ public static class MountainOutpostBattlefield
         for (var column = 0; column < columns; column++)
         {
             var coordinate = At(column, row);
-            var isWall = column == 6 && row is not (3 or 4);
+            var isWall = column == 6 && row < 5;
             if (isWall)
             {
                 props.Add(new BattlefieldProp(coordinate, BattlefieldPropKind.Rock));
             }
 
-            var height = column >= 8 && row is 1 or 2 or 5 or 6 ? 2 :
-                column == 7 && row is 1 or 2 or 5 or 6 ? 1 : 0;
-            tiles.Add(new BattleTile(coordinate, height, !isWall));
+            var height = column >= 7 ? 2 : column == 6 ? 1 : 0;
+            tiles.Add(new BattleTile(coordinate, height, !isWall, blocksLineOfSight: false));
         }
 
         return new GeneratedBattlefield(seed, new BattleMap(tiles), props,
-            At(2, 4), At(9, 4));
+            At(3, 3), At(9, 2), isMountainOutpost: true);
     }
 
     private static HexCoord At(int column, int row) => new(column - row / 2, row);

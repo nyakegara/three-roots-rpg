@@ -6,15 +6,17 @@ namespace Game.Core.Combat.Generation;
 public sealed class GeneratedBattlefield
 {
     public int Seed { get; }
+    public bool IsMountainOutpost { get; }
     public BattleMap Map { get; }
     public IReadOnlyList<BattlefieldProp> Props { get; }
     public HexCoord PlayerStart { get; }
     public HexCoord EnemyStart { get; }
 
     internal GeneratedBattlefield(int seed, BattleMap map, IEnumerable<BattlefieldProp> props,
-        HexCoord playerStart, HexCoord enemyStart)
+        HexCoord playerStart, HexCoord enemyStart, bool isMountainOutpost = false)
     {
         Seed = seed;
+        IsMountainOutpost = isMountainOutpost;
         Map = map;
         Props = Array.AsReadOnly(props.ToArray());
         PlayerStart = playerStart;

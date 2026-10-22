@@ -60,6 +60,12 @@ internal sealed class BattleScreen : IGameScreen
         : this(canvas, assets, catalog, exit, night)
     {
         _seed = seed;
+        if (capture == BattleCaptureStage.Outpost)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, mountain: true);
+            LoadBattle(demo.Battle, demo.Field);
+            return;
+        }
         if (capture == BattleCaptureStage.HolyFire)
         {
             var demo = BattleDemo.Create(_catalog, _seed, inquisitorPreview: true);
@@ -228,7 +234,7 @@ internal sealed class BattleScreen : IGameScreen
     private void LoadBattle(Battle battle, GeneratedBattlefield field)
     {
         _interaction = new BattleInteraction(battle);
-        _field = new BattlefieldRenderer(_canvas, _assets, field.Map, field.Props);
+        _field = new BattlefieldRenderer(_canvas, _assets, field.Map, field.Props, field.IsMountainOutpost);
         _healMode = false;
         _hover = null;
         _opponentDelay = 0.7f;

@@ -169,6 +169,10 @@ public sealed class Campaign
             (int Column, int Row)[] positions = side == BattleSide.Player
                 ? [(1, 1), (2, 2), (1, 3), (2, 5), (1, 6)]
                 : [(10, 1), (9, 2), (10, 3), (9, 5), (10, 6)];
+            if (field.IsMountainOutpost)
+                positions = side == BattleSide.Player
+                    ? [(3, 2), (3, 3), (3, 4), (2, 5), (2, 6)]
+                    : [(5, 5), (7, 6), (9, 1), (10, 3), (10, 6)];
             for (var i = 0; i < troops.Count; i++)
             {
                 var troop = troops[i];
