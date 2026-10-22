@@ -9,6 +9,16 @@ namespace Game.Tests.Combat;
 public sealed class BattleDemoTests
 {
     [Fact]
+    public void UndeadPreview_ContainsAllFiveApprovedUnitsOnThePlayerSide()
+    {
+        var demo = BattleDemo.Create(Catalog(), 1729, undeadPreview: true);
+        Assert.Equal(5, demo.Battle.Units.Count(unit => unit.Side == BattleSide.Player));
+        Assert.Equal(new[] { "undead.asura-preta", "undead.nachzehrer", "undead.silat", "undead.utburd", "undead.vetala" },
+            demo.Battle.Units.Where(unit => unit.Side == BattleSide.Player)
+                .Select(unit => unit.UnitTypeId).OrderBy(id => id).ToArray());
+    }
+
+    [Fact]
     public void AfterAttackCapture_ActuallyRetainsUnusedMovementForItsVisiblePromise()
     {
         var battle = BattleDemo.Create(Catalog(), 1729).Battle;

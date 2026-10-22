@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative, HunterAttack, HunterRest, ActionLock, Outpost }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative, HunterAttack, HunterRest, ActionLock, Outpost, Undead }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned, AfterChoice }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -66,6 +66,7 @@ public sealed record GameLaunchOptions
                     break;
                 case "--battle":
                 case "--combat":
+                case "--combat-undead":
                     SetMode(argument);
                     break;
                 case "--screenshot-site-t1":
@@ -89,6 +90,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-map-after-choice":
                 case "--screenshot-grid":
                 case "--screenshot-combat-outpost":
+                case "--screenshot-combat-undead":
                 case "--screenshot-combat":
                 case "--screenshot-combat-night":
                 case "--screenshot-combat-heal":
@@ -126,7 +128,7 @@ public sealed record GameLaunchOptions
         var battle = mode is "--battle" or "--screenshot-grid" or "--screenshot-grid-descent";
         if (mapPixelSize > 0 && mapDetailStyle != "original")
             throw new ArgumentException("Choose --map-pixels or --map-detail, not both.");
-        var combat = mode is "--screenshot-combat-outpost" or "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
+        var combat = mode is "--screenshot-combat-outpost" or "--screenshot-combat-undead" or "--combat" or "--combat-undead" or "--screenshot-combat" or "--screenshot-combat-night"
             or "--screenshot-combat-heal" or "--screenshot-combat-result"
             or "--screenshot-combat-arrow" or "--screenshot-combat-magic"
             or "--screenshot-combat-holy-fire"
@@ -163,6 +165,7 @@ public sealed record GameLaunchOptions
             CombatCapture = mode switch
             {
                 "--screenshot-combat-outpost" => BattleCaptureStage.Outpost,
+                "--screenshot-combat-undead" or "--combat-undead" => BattleCaptureStage.Undead,
                 "--screenshot-combat-heal" => BattleCaptureStage.Healing,
                 "--screenshot-combat-result" => BattleCaptureStage.Result,
                 "--screenshot-combat-arrow" => BattleCaptureStage.Arrow,

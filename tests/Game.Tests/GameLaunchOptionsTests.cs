@@ -23,6 +23,8 @@ public sealed class GameLaunchOptionsTests
 
     [Theory]
     [InlineData("--combat")]
+    [InlineData("--combat-undead")]
+    [InlineData("--screenshot-combat-undead")]
     [InlineData("--screenshot-combat")]
     [InlineData("--screenshot-combat-night")]
     [InlineData("--screenshot-combat-heal")]
@@ -44,7 +46,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-combat-ranged-target")]
     public void PlayableCombatIsDistinctFromTerrainPreview(string mode)
     {
-        var args = mode == "--combat" ? new[] { mode, "--seed", "42" }
+        var args = mode is "--combat" or "--combat-undead" ? new[] { mode, "--seed", "42" }
             : new[] { mode, Path.Combine(Path.GetTempPath(), "combat.png"), "--seed", "42" };
         var options = GameLaunchOptions.Parse(args);
         Assert.True(options.PlayableCombat);
@@ -67,7 +69,8 @@ public sealed class GameLaunchOptionsTests
             mode.EndsWith("-initiative") ? BattleCaptureStage.Initiative :
             mode.EndsWith("-action") ? BattleCaptureStage.ActionLock :
             mode.EndsWith("-hunter") ? BattleCaptureStage.HunterAttack :
-            mode.EndsWith("-hunter-rest") ? BattleCaptureStage.HunterRest : BattleCaptureStage.Opening,
+            mode.EndsWith("-hunter-rest") ? BattleCaptureStage.HunterRest :
+            mode.EndsWith("-undead") ? BattleCaptureStage.Undead : BattleCaptureStage.Opening,
             options.CombatCapture);
     }
 

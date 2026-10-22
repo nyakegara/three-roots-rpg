@@ -60,6 +60,12 @@ internal sealed class BattleScreen : IGameScreen
         : this(canvas, assets, catalog, exit, night)
     {
         _seed = seed;
+        if (capture == BattleCaptureStage.Undead)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, undeadPreview: true);
+            LoadBattle(demo.Battle, demo.Field);
+            return;
+        }
         if (capture == BattleCaptureStage.Outpost)
         {
             var demo = BattleDemo.Create(_catalog, _seed, mountain: true);

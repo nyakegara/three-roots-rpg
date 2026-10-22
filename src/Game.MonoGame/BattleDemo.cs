@@ -8,10 +8,21 @@ namespace Game.MonoGame;
 /// <summary>A repeatable sandbox encounter; never changes a campaign army.</summary>
 public sealed record BattleDemo(GeneratedBattlefield Field, Battle Battle)
 {
-    public static BattleDemo Create(UnitCatalog catalog, int seed, bool inquisitorPreview = false, bool fullRoster = false, bool mountain = false)
+    public static BattleDemo Create(UnitCatalog catalog, int seed, bool inquisitorPreview = false, bool fullRoster = false, bool mountain = false, bool undeadPreview = false)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         var field = mountain ? MountainOutpostBattlefield.Create(seed) : new BattlefieldGenerator().Generate(seed);
+        if (undeadPreview)
+            return new BattleDemo(field, new Battle(field.Map, [
+                Stack("undead.utburd", BattleSide.Player, 8, 1, 1),
+                Stack("undead.silat", BattleSide.Player, 5, 2, 2),
+                Stack("undead.nachzehrer", BattleSide.Player, 2, 1, 3),
+                Stack("undead.vetala", BattleSide.Player, 3, 2, 5),
+                Stack("undead.asura-preta", BattleSide.Player, 1, 1, 6),
+                Stack("human.militia", BattleSide.Enemy, 8, 10, 1),
+                Stack("human.longbow", BattleSide.Enemy, 5, 10, 3),
+                Stack("human.banner-knight", BattleSide.Enemy, 3, 10, 5)
+            ], new Random(seed)));
         var units = new[]
         {
             Stack("flora.thorn-guard", BattleSide.Player, 8, 1, 1),

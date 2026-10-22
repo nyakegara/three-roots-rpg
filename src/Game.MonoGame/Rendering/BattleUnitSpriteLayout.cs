@@ -26,7 +26,7 @@ internal static class BattleUnitSpriteLayout
             "undead.silat" => (56, 66),
             "undead.nachzehrer" => (84, 70),
             "undead.vetala" => (68, 94),
-            "undead.asura-preta" => (112, 108),
+            "undead.asura-preta" => (128, 126),
             _ => (56, 66)
         };
         return new Rectangle(center.X - width / 2, center.Y + 17 - height, width, height);
