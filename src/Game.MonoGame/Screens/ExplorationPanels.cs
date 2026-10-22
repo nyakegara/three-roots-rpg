@@ -21,13 +21,14 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
     private readonly PixelFont _font = new(canvas);
 
     public void DrawMap(WorldMap map, AdventureMapProjection projection, Campaign? campaign,
-        HexCoord heroPosition, MapPosition? adventurePosition = null, bool showNavigation = false)
+        HexCoord heroPosition, MapPosition? adventurePosition = null, bool showNavigation = false, float nightBlend = 0f)
     {
         Frame("КАРТА ОСТРОВА");
         canvas.Rect(MapArea.X - 5, MapArea.Y - 5, MapArea.Width + 10, MapArea.Height + 10, Wood);
         canvas.Frame(MapArea.X - 5, MapArea.Y - 5, MapArea.Width + 10, MapArea.Height + 10, Bronze, 3);
         if (map.Id == "flora-01")
         {
+            using var tint = canvas.PushTint(BattleLighting.ExplorationTint(nightBlend));
             var keys = new[] { AssetCatalog.FloraIslandNorthWest, AssetCatalog.FloraIslandNorthEast,
                 AssetCatalog.FloraIslandSouthWest, AssetCatalog.FloraIslandSouthEast };
             for (var index = 0; index < keys.Length; index++)

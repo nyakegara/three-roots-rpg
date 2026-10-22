@@ -60,6 +60,12 @@ internal sealed class BattleScreen : IGameScreen
         : this(canvas, assets, catalog, exit, night)
     {
         _seed = seed;
+        if (capture == BattleCaptureStage.Outpost)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, mountain: true);
+            LoadBattle(demo.Battle, demo.Field);
+            return;
+        }
         if (capture == BattleCaptureStage.HolyFire)
         {
             var demo = BattleDemo.Create(_catalog, _seed, inquisitorPreview: true);
@@ -198,7 +204,7 @@ internal sealed class BattleScreen : IGameScreen
 
     public BattleScreen(PixelCanvas canvas, AssetCatalog assets, UnitCatalog catalog, CampaignBattle session,
         Func<EncounterResolution> returnToMap, Action exit, MouseState initialMouse, KeyboardState initialKeyboard)
-        : this(canvas, assets, catalog, exit, false)
+        : this(canvas, assets, catalog, exit, session.IsNight)
     {
         _seed = session.Encounter.Seed;
         _campaignBattle = session;
@@ -228,7 +234,7 @@ internal sealed class BattleScreen : IGameScreen
     private void LoadBattle(Battle battle, GeneratedBattlefield field)
     {
         _interaction = new BattleInteraction(battle);
-        _field = new BattlefieldRenderer(_canvas, _assets, field.Map, field.Props);
+        _field = new BattlefieldRenderer(_canvas, _assets, field.Map, field.Props, field.IsMountainOutpost);
         _healMode = false;
         _hover = null;
         _opponentDelay = 0.7f;
@@ -558,7 +564,9 @@ internal sealed class BattleScreen : IGameScreen
         var y = (int)point.Y;
         var ring = Enumerable.Range(0, 20).Select(i => new Vector2(x + MathF.Cos(i * MathHelper.TwoPi / 20) * 25,
             y + 16 + MathF.Sin(i * MathHelper.TwoPi / 20) * 7)).ToArray();
-        _canvas.Polygon(ring, new Color(24, 26, 19) * 0.65f);
+        var shadowKey = _catalog.Get(unit.UnitTypeId)!.ArtKey;
+        ContactShadow.Draw(_canvas, _assets.GetCroppedDestination(shadowKey,
+            BattleUnitSpriteLayout.Bounds(unit.UnitTypeId, new Point(x, y))));
         _canvas.Outline(ring, unit.Side == BattleSide.Player ? Green * 0.8f : Red * 0.8f, 1);
         using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
         {

@@ -39,14 +39,23 @@ internal sealed class BattleAttackEffect
     {
         if (_elapsed < Windup || IsFinished) return;
         var travel = Math.Clamp((_elapsed - Windup) / Flight, 0f, 1f);
-        if (_kind == Kind.Melee && travel < 1f)
+        if (_kind == Kind.Melee)
         {
-            var swing = MathHelper.Lerp(-0.95f, -0.15f, travel);
-            var slash = new Vector2(MathF.Cos(swing), MathF.Sin(swing));
-            var center = GetMeleeSlashCenter(_from, _to) + new Vector2(0, -8);
-            canvas.Line(center - slash * 12, center + slash * 12, new Color(44, 33, 25), 7);
-            canvas.Line(center - slash * 9, center + slash * 9, new Color(245, 225, 174), 3);
-            canvas.Rect((int)center.X - 2, (int)center.Y - 2, 4, 4, new Color(255, 245, 207));
+            // Contact feedback stays on the victim: no weapon-shaped object in flight.
+            var contact = (_elapsed - Windup) / 0.24f;
+            if (contact >= 1f) return;
+            var center = GetMeleeSlashCenter(_from, _to);
+            var contactFade = 1f - contact;
+            var contactRadius = 5f + contact * 10f;
+            for (var index = 0; index < 4; index++)
+            {
+                var angle = MathHelper.PiOver4 + index * MathHelper.PiOver2;
+                var direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+                canvas.Line(center + direction * (contactRadius * 0.45f), center + direction * contactRadius,
+                    new Color(245, 225, 174) * contactFade, 3);
+            }
+            canvas.Rect((int)center.X - 2, (int)center.Y - 2, 5, 5,
+                new Color(255, 245, 207) * contactFade);
             return;
         }
         if (travel < 1f)
@@ -140,13 +149,7 @@ internal sealed class BattleAttackEffect
             canvas.Rect(x - radius - 6, y - radius / 2, 4, 4, color * fade);
     }
 
-    internal static Vector2 GetMeleeSlashCenter(Vector2 from, Vector2 to)
-    {
-        var direction = to - from;
-        if (direction.LengthSquared() > 0.001f) direction.Normalize();
-        else direction = Vector2.UnitX;
-        return from + direction * 14;
-    }
+    internal static Vector2 GetMeleeSlashCenter(Vector2 from, Vector2 to) => to;
 
     private enum Kind { Melee, Arrow, Vine, HealingLeaf, Ember, Spore, HolyFire }
 }

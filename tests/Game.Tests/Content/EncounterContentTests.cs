@@ -9,6 +9,19 @@ public sealed class EncounterContentTests : IDisposable
     private readonly string _folder = Path.Combine(Path.GetTempPath(), $"encounters-{Guid.NewGuid():N}");
 
     [Fact]
+    public void Load_RepeatedTypesRemainFourSeparateStacks()
+    {
+        var encounter = JsonNode.Parse(ValidEncounter)!.AsObject();
+        encounter["enemyArmy"] = JsonNode.Parse("[" + string.Join(",", Enumerable.Repeat(
+            "{\"unitId\":\"human.militia\",\"count\":5}", 4)) + "]");
+        var result = Load("[" + encounter.ToJsonString() + "]");
+        Assert.True(result.Success, string.Join(Environment.NewLine, result.Errors));
+        var army = Assert.Single(result.Definition!.Encounters).EnemyArmy;
+        Assert.Equal(4, army.Count);
+        Assert.All(army, troop => Assert.Equal(5, troop.Count));
+    }
+
+    [Fact]
     public void Load_EncounterAtExistingQuestPoint_Succeeds()
     {
         var result = Load("[" + ValidEncounter + "]");
@@ -55,7 +68,6 @@ public sealed class EncounterContentTests : IDisposable
     [InlineData("enemyArmy", "[{\"unitId\":\"human.militia\",\"count\":-1}]", "positive count")]
     [InlineData("enemyArmy", "[{\"unitId\":\"human.militia\"}]", "positive count")]
     [InlineData("enemyArmy", "[{\"unitId\":\"human.militia\",\"count\":2147483647}]", "hit points")]
-    [InlineData("enemyArmy", "[{\"unitId\":\"human.militia\",\"count\":1},{\"unitId\":\"human.militia\",\"count\":2}]", "duplicate unit")]
     public void Load_InvalidEncounter_ReturnsDiagnostic(string property, string value, string expected)
     {
         var encounter = JsonNode.Parse(ValidEncounter)!.AsObject();

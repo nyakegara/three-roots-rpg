@@ -8,10 +8,10 @@ namespace Game.MonoGame;
 /// <summary>A repeatable sandbox encounter; never changes a campaign army.</summary>
 public sealed record BattleDemo(GeneratedBattlefield Field, Battle Battle)
 {
-    public static BattleDemo Create(UnitCatalog catalog, int seed, bool inquisitorPreview = false, bool fullRoster = false)
+    public static BattleDemo Create(UnitCatalog catalog, int seed, bool inquisitorPreview = false, bool fullRoster = false, bool mountain = false)
     {
         ArgumentNullException.ThrowIfNull(catalog);
-        var field = new BattlefieldGenerator().Generate(seed);
+        var field = mountain ? MountainOutpostBattlefield.Create(seed) : new BattlefieldGenerator().Generate(seed);
         var units = new[]
         {
             Stack("flora.thorn-guard", BattleSide.Player, 8, 1, 1),
@@ -23,6 +23,16 @@ public sealed record BattleDemo(GeneratedBattlefield Field, Battle Battle)
             Stack(inquisitorPreview ? "human.inquisitor" : "human.banner-knight", BattleSide.Enemy, 3, 10, 3),
             Stack("human.longbow", BattleSide.Enemy, 5, 10, 6)
         };
+        if (mountain)
+            return new BattleDemo(field, new Battle(field.Map, [
+                Stack("flora.thorn-guard", BattleSide.Player, 12, 3, 2),
+                Stack("flora.sprout", BattleSide.Player, 8, 3, 3),
+                Stack("flora.ember-bloom", BattleSide.Player, 4, 3, 4),
+                Stack("human.banner-knight", BattleSide.Enemy, 3, 5, 5),
+                Stack("human.order-hunter", BattleSide.Enemy, 2, 7, 6),
+                Stack("human.longbow", BattleSide.Enemy, 4, 9, 1),
+                Stack("human.longbow", BattleSide.Enemy, 4, 10, 3)
+            ], new Random(seed)));
         var roster = fullRoster ? units.Concat([
             Stack("human.order-hunter", BattleSide.Enemy, 3, 10, 2),
             Stack("human.inquisitor", BattleSide.Enemy, 2, 10, 5)]) : units;
@@ -31,7 +41,7 @@ public sealed record BattleDemo(GeneratedBattlefield Field, Battle Battle)
         BattleUnit Stack(string id, BattleSide side, int count, int col, int row)
         {
             var definition = catalog.Get(id) ?? throw new InvalidOperationException("Missing demo unit: " + id);
-            return new BattleUnit(id, side, new HexCoord(col - row / 2, row), count,
+            return new BattleUnit(mountain ? $"{id}:{col}:{row}" : id, side, new HexCoord(col - row / 2, row), count,
                 definition.HitPoints, definition.Damage, definition.Speed, definition.Movement,
                 definition.Range, definition.IsRanged, ability: definition.Ability, unitTypeId: id);
         }

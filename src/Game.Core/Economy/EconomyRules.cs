@@ -71,6 +71,7 @@ public sealed class EconomyRules
         }
 
         offer.ConsumeStock(count);
+        site.RecordPurchase();
         return new RecruitmentResult(true, "Recruitment completed.", unitCost, (int)totalCost);
     }
 }

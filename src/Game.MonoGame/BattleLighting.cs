@@ -5,6 +5,9 @@ namespace Game.MonoGame;
 /// <summary>Small ambient-palette helpers for the battle preview.</summary>
 public static class BattleLighting
 {
+    public static Color ExplorationTint(float nightBlend) =>
+        Color.Lerp(Color.White, new Color(125, 145, 195), Math.Clamp(nightBlend, 0f, 1f));
+
     public static readonly Color DayTint = Color.White;
     public static readonly Color NightTint = new(145, 155, 225);
     public const float FadeDurationSeconds = 1.2f;

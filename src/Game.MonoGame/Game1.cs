@@ -41,7 +41,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
-        _assets = new AssetCatalog(GraphicsDevice);
+        _assets = new AssetCatalog(GraphicsDevice, _options.MapPixelSize, _options.MapDetailStyle);
         if (_options.PlayableCombat)
         {
             var units = LoadUnitCatalog();
@@ -91,6 +91,11 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                 _options.PreviewMapPanel, _options.PreviewJournalPanel, restoreSave,
                 _progressWriter is not null ? SaveCampaignProgress : null,
                 saveWarning) { ShowNavigation = _options.PreviewNavigation };
+            if (_options.ScreenshotPath is not null && _options.PreviewMapSiteId is { } sitePreview)
+                ((ExplorationScreen)_screen).PrepareSitePlacementPreview(sitePreview);
+            if (_options.ScreenshotPath is not null && _options.PreviewRecruitmentSiteId is not null)
+                ((ExplorationScreen)_screen).CaptureRecruitmentPurchasePreview();
+            if (_options.Night) ((ExplorationScreen)_screen).PrepareNightPreview();
             if (_options.PreviewFreeTravel) ((ExplorationScreen)_screen).PrepareTravelPreview();
         }
         _frame = new RenderTarget2D(GraphicsDevice, 1280, 720, false,

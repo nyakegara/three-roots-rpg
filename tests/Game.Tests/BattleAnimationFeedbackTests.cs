@@ -112,13 +112,10 @@ public sealed class BattleAnimationFeedbackTests
     }
 
     [Fact]
-    public void MeleeSlashCenter_StaysBesideAttackerInsteadOfTravelingToTarget()
+    public void MeleeImpact_IsAnchoredToTargetInsteadOfAttackerOrFlightPath()
     {
-        var start = new Vector2(100, 200);
-        var nearTarget = BattleAttackEffect.GetMeleeSlashCenter(start, new Vector2(130, 200));
-        var farTarget = BattleAttackEffect.GetMeleeSlashCenter(start, new Vector2(400, 200));
-
-        Assert.Equal(nearTarget, farTarget);
-        Assert.InRange(Vector2.Distance(start, farTarget), 0, 30);
+        var target = new Vector2(400, 200);
+        Assert.Equal(target, BattleAttackEffect.GetMeleeSlashCenter(new Vector2(100, 200), target));
+        Assert.Equal(target, BattleAttackEffect.GetMeleeSlashCenter(new Vector2(390, 200), target));
     }
 }

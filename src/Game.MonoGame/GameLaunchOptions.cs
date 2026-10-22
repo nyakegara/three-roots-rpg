@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace Game.MonoGame;
 
-public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative, HunterAttack, HunterRest, ActionLock }
+public enum BattleCaptureStage { Opening, Healing, Result, Arrow, Magic, ArrowImpact, MagicImpact, Melee, Range, Target, RangedTarget, HolyFire, BlockedShot, AfterAttack, SpriteTarget, Initiative, HunterAttack, HunterRest, ActionLock, Outpost }
 public enum CampaignCaptureStage { None, EmptyEncounter, ReadyEncounter, Combat, Result, Returned, AfterChoice }
 
 /// <summary>Launch settings shared by interactive previews and reproducible screenshots.</summary>
@@ -22,8 +22,11 @@ public sealed record GameLaunchOptions
     public bool PreviewNavigation { get; init; }
     public bool PreviewFreeTravel { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
+    public string? PreviewMapSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
     public bool Night { get; init; }
+    public int MapPixelSize { get; init; }
+    public string MapDetailStyle { get; init; } = "original";
 
     public static GameLaunchOptions Parse(string[] args)
     {
@@ -33,11 +36,24 @@ public sealed record GameLaunchOptions
         var seed = 1729;
         var hasSeed = false;
         var night = false;
+        var mapPixelSize = 0;
+        var mapDetailStyle = "original";
         for (var index = 0; index < args.Length; index++)
         {
             var argument = args[index];
             switch (argument)
             {
+                case "--map-detail":
+                    if (mapDetailStyle != "original" || ++index >= args.Length ||
+                        args[index] is not ("sharpen" or "pixel"))
+                        throw new ArgumentException("--map-detail requires sharpen or pixel and must not be repeated.");
+                    mapDetailStyle = args[index];
+                    break;
+                case "--map-pixels":
+                    if (mapPixelSize != 0 || ++index >= args.Length ||
+                        !int.TryParse(args[index], out mapPixelSize) || mapPixelSize is < 1 or > 2)
+                        throw new ArgumentException("--map-pixels requires 1 or 2 and must not be repeated.");
+                    break;
                 case "--seed":
                     if (hasSeed || ++index >= args.Length ||
                         !int.TryParse(args[index], NumberStyles.Integer, CultureInfo.InvariantCulture, out seed))
@@ -52,6 +68,10 @@ public sealed record GameLaunchOptions
                 case "--combat":
                     SetMode(argument);
                     break;
+                case "--screenshot-site-t1":
+                case "--screenshot-site-t2":
+                case "--screenshot-site-t3":
+                case "--screenshot-site-peasants":
                 case "--screenshot":
                 case "--screenshot-quest-hover":
                 case "--screenshot-north-trail":
@@ -68,6 +88,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-after-choice":
                 case "--screenshot-map-after-choice":
                 case "--screenshot-grid":
+                case "--screenshot-combat-outpost":
                 case "--screenshot-combat":
                 case "--screenshot-combat-night":
                 case "--screenshot-combat-heal":
@@ -103,7 +124,9 @@ public sealed record GameLaunchOptions
         }
 
         var battle = mode is "--battle" or "--screenshot-grid" or "--screenshot-grid-descent";
-        var combat = mode is "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
+        if (mapPixelSize > 0 && mapDetailStyle != "original")
+            throw new ArgumentException("Choose --map-pixels or --map-detail, not both.");
+        var combat = mode is "--screenshot-combat-outpost" or "--combat" or "--screenshot-combat" or "--screenshot-combat-night"
             or "--screenshot-combat-heal" or "--screenshot-combat-result"
             or "--screenshot-combat-arrow" or "--screenshot-combat-magic"
             or "--screenshot-combat-holy-fire"
@@ -115,7 +138,7 @@ public sealed record GameLaunchOptions
             or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
             or "--screenshot-combat-melee"
             or "--screenshot-combat-range" or "--screenshot-combat-target" or "--screenshot-combat-ranged-target";
-        if ((hasSeed || night) && !battle && !combat)
+        if ((hasSeed || night) && !battle && !combat && !(night && !hasSeed && mode == "--screenshot-idle-map"))
             throw new ArgumentException("--seed and --night require --battle, --combat or their screenshot modes.");
         if (hasSeed && mode == "--screenshot-grid-descent")
             throw new ArgumentException("The fixed descent fixture does not accept a generated seed.");
@@ -123,6 +146,8 @@ public sealed record GameLaunchOptions
         return new GameLaunchOptions
         {
             ScreenshotPath = screenshot,
+            MapPixelSize = mapPixelSize,
+            MapDetailStyle = mapDetailStyle,
             BattlePreview = battle,
             PlayableCombat = combat,
             CampaignCapture = mode switch
@@ -137,6 +162,7 @@ public sealed record GameLaunchOptions
             },
             CombatCapture = mode switch
             {
+                "--screenshot-combat-outpost" => BattleCaptureStage.Outpost,
                 "--screenshot-combat-heal" => BattleCaptureStage.Healing,
                 "--screenshot-combat-result" => BattleCaptureStage.Result,
                 "--screenshot-combat-arrow" => BattleCaptureStage.Arrow,
@@ -165,6 +191,14 @@ public sealed record GameLaunchOptions
             PreviewNavigation = mode == "--screenshot-navigation",
             PreviewFreeTravel = mode == "--screenshot-travel",
             PreviewJournalPanel = mode == "--screenshot-journal",
+            PreviewMapSiteId = mode switch
+            {
+                "--screenshot-site-t1" => "starting-clearing",
+                "--screenshot-site-t2" => "flora-tier-two",
+                "--screenshot-site-t3" => "flora-tier-three",
+                "--screenshot-site-peasants" => "peasant-recruitment",
+                _ => null
+            },
             PreviewRecruitmentSiteId = mode switch
             {
                 "--screenshot-recruitment" => "starting-clearing",

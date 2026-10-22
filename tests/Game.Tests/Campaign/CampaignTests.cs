@@ -40,7 +40,7 @@ public sealed class CampaignTests
 
         var snapshot = campaign.GetRecruitmentStockSnapshot();
 
-        Assert.Equal([new SavedRecruitmentStock("greenhouse", "flora.guard", 0)], snapshot);
+        Assert.Equal([new SavedRecruitmentStock("greenhouse", "flora.guard", 0, 3)], snapshot);
     }
 
     [Fact]

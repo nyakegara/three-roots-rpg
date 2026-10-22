@@ -286,7 +286,6 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                 }
             }
             var enemyArmy = new List<EncounterTroop>();
-            var enemyUnitIds = new HashSet<string>(StringComparer.Ordinal);
             if (encounter.EnemyArmy is null || encounter.EnemyArmy.Count == 0)
                 errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' must define a nonempty enemyArmy."));
             else if (encounter.EnemyArmy.Count > 5)
@@ -298,8 +297,6 @@ public sealed class CampaignLoader(UnitCatalog units, MapLoader? mapLoader = nul
                     errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' enemyArmy requires unitId and positive count."));
                     continue;
                 }
-                if (!enemyUnitIds.Add(troop.UnitId))
-                    errors.Add(new ContentError(path, $"Encounter '{encounter.Id}' contains duplicate unit '{troop.UnitId}'."));
                 var unit = units.Get(troop.UnitId);
                 if (unit is null)
                 {

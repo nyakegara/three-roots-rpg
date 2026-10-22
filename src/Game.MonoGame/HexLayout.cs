@@ -8,12 +8,13 @@ namespace Game.MonoGame;
 internal sealed class HexLayout
 {
     public const float Radius = 50;
+    public float ElevationStep { get; init; } = 2;
     private const float VerticalCompression = 0.68f;
     private static readonly Vector2 Origin = new(110, 145);
 
     public Vector2 Center(BattleTile tile) => new(
         Origin.X + MathF.Sqrt(3) * Radius * (tile.Coordinate.Q + tile.Coordinate.R / 2f),
-        Origin.Y + 1.5f * Radius * VerticalCompression * tile.Coordinate.R - tile.Height * 2);
+        Origin.Y + 1.5f * Radius * VerticalCompression * tile.Coordinate.R - tile.Height * ElevationStep);
 
     public Vector2[] Corners(BattleTile tile, float inset = 0)
     {

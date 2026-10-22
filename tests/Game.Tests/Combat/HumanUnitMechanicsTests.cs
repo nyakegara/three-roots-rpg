@@ -23,6 +23,21 @@ public sealed class HumanUnitMechanicsTests
     }
 
     [Fact]
+    public void InquisitorHammerAndFireHaveDifferentDamage()
+    {
+        var inquisitor = new BattleUnit("inquisitor", BattleSide.Player, new(0, 0), 2,
+            40, 12, 7, 3, 1, false, ability: UnitAbility.RadiantModes);
+        var target = Unit("target", BattleSide.Enemy, 1, 0, 1);
+        var battle = BattleWith(inquisitor, target);
+        battle.StartRound();
+        Assert.Equal(24, BattleRules.GetAttackDamage(inquisitor, target));
+        Assert.True(battle.TrySetAttackMode(inquisitor.Id, AttackMode.HolyFire));
+        Assert.Equal(16, BattleRules.GetAttackDamage(inquisitor, target));
+        Assert.True(battle.Attack(inquisitor.Id, target.Id));
+        Assert.Equal(14, target.RemainingHitPoints);
+    }
+
+    [Fact]
     public void InquisitorMayChooseFireForDistanceOrHammerForAdjacentTarget()
     {
         var inquisitor = Unit("inquisitor", BattleSide.Player, 0, 0, 8, UnitAbility.RadiantModes);
@@ -58,12 +73,34 @@ public sealed class HumanUnitMechanicsTests
     {
         var field = MountainOutpostBattlefield.Create(42);
         Assert.False(field.Map.GetTile(At(6, 2))!.IsPassable);
-        Assert.True(field.Map.GetTile(At(6, 3))!.IsPassable);
-        Assert.True(field.Map.GetTile(At(6, 4))!.IsPassable);
+        Assert.False(field.Map.GetTile(At(6, 3))!.IsPassable);
+        Assert.False(field.Map.GetTile(At(6, 4))!.IsPassable);
+        Assert.True(field.Map.GetTile(At(6, 6))!.IsPassable);
+        Assert.False(field.Map.GetTile(At(6, 2))!.BlocksLineOfSight);
+        var path = new Game.Core.Combat.Pathfinding.AStarPathfinder().FindPath(field.Map, At(3, 2), At(9, 2));
+        Assert.True(path.IsReachable);
+        Assert.InRange(path.Cost, 9, 14);
+        Assert.Contains(path.Coordinates, cell => cell.R >= 5);
         Assert.Equal(2, field.Map.GetTile(At(9, 2))!.Height);
         Assert.Equal(2, field.Map.GetTile(At(9, 5))!.Height);
         Assert.True(field.Map.GetTile(field.PlayerStart)!.IsPassable);
         Assert.True(field.Map.GetTile(field.EnemyStart)!.IsPassable);
+    }
+
+    [Fact]
+    public void OutpostCliffAllowsReturnFireAndWideAscentAroundDefenders()
+    {
+        var field = MountainOutpostBattlefield.Create(42);
+        var low = new BattleUnit("low", BattleSide.Player, At(5, 2), 1, 10, 3, 4, 4, 7, true);
+        var high = new BattleUnit("high", BattleSide.Enemy, At(9, 2), 1, 10, 3, 4, 4, 7, true);
+        _ = new Battle(field.Map, [low, high]);
+        Assert.True(BattleRules.CanAttackTile(low, field.Map.GetTile(high.Position)!, field.Map));
+        Assert.True(BattleRules.CanAttackTile(high, field.Map.GetTile(low.Position)!, field.Map));
+        var occupied = new HashSet<HexCoord> { At(5, 5), At(7, 6) };
+        var path = new Game.Core.Combat.Pathfinding.AStarPathfinder().FindPath(field.Map, At(3, 2), At(9, 1), occupied);
+        Assert.True(path.IsReachable);
+        Assert.Contains(path.Coordinates, cell => cell.R >= 5);
+        Assert.InRange(path.Cost, 9, 14);
     }
 
     private static Battle BattleWith(params BattleUnit[] units) =>

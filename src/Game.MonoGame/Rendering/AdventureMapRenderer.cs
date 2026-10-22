@@ -143,7 +143,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
 
     private void DrawWalkingHero(WorldVector2 p, AdventureTravel travel)
     {
-        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 2, 34, 10, Ink * 0.72f);
+        ContactShadow.Draw(canvas, new Rectangle((int)p.X - 16, (int)p.Y - 1, 32, 4));
         for (var i = 0; i < 24; i++)
         {
             var a = i * MathF.Tau / 24;
@@ -300,7 +300,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         var frameMs = idleKey.StartsWith("unit.human.", StringComparison.Ordinal) ? 320f : 260f;
         var frame = ((int)(seconds * 1000f / frameMs) + phase) % 4;
         var size = IdleActorBounds(p, _compactMap);
-        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 2, _compactMap ? 34 : 42, 9, Ink * 0.65f);
+        ContactShadow.Draw(canvas, new Rectangle((int)p.X - 17, (int)p.Y - 1, 34, 4));
         if (!assets.TryDrawIdle(canvas, idleKey, size, frame, out var visibleTop))
         {
             var staticKey = idleKey[..^".idle".Length];
@@ -318,7 +318,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     {
         if (point.Type.Equals("encounter", StringComparison.OrdinalIgnoreCase))
         {
-            FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 6, 22, 9, Ink * 0.72f);
+            ContactShadow.Draw(canvas, new Rectangle((int)p.X - 12, (int)p.Y + 2, 24, 4));
             canvas.Rect((int)p.X - 7, (int)p.Y - 11, 14, 14, new Color(112, 43, 32));
             canvas.Frame((int)p.X - 7, (int)p.Y - 11, 14, 14, new Color(225, 177, 105), 2);
             canvas.Line(new XnaVector2(p.X - 3, p.Y - 5), new XnaVector2(p.X + 3, p.Y - 5),
@@ -331,7 +331,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         }
         else if (point.Type.Equals("quest", StringComparison.OrdinalIgnoreCase))
         {
-            FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 6, 20, 8, Ink * 0.72f);
+            ContactShadow.Draw(canvas, new Rectangle((int)p.X - 12, (int)p.Y + 2, 24, 4));
             canvas.Rect((int)p.X - 7, (int)p.Y - 12, 14, 15, new Color(211, 168, 73));
             canvas.Frame((int)p.X - 7, (int)p.Y - 12, 14, 15, new Color(81, 56, 32), 2);
             canvas.Rect((int)p.X - 1, (int)p.Y - 8, 3, 7, new Color(79, 55, 31));
@@ -340,11 +340,9 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         else if (point.Type.Equals("treasure", StringComparison.OrdinalIgnoreCase))
         {
             var rect = new Rectangle((int)p.X - 25, (int)p.Y - 37, 50, 43);
-            if (!assets.TryDraw(canvas, AssetCatalog.Treasure, rect)) ExplorationArt.DrawTreasureChest(canvas, (int)p.X, (int)p.Y + 8);
-            FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 10, 33, 10, Ink * 0.75f);
-            canvas.Rect((int)p.X - 11, (int)p.Y + 1, 22, 10, new Color(174, 117, 50));
-            canvas.Rect((int)p.X - 7, (int)p.Y - 3, 14, 7, new Color(220, 168, 74));
-            canvas.Rect((int)p.X - 1, (int)p.Y + 1, 2, 10, new Color(100, 65, 32));
+            ContactShadow.Draw(canvas, assets.GetVisibleDestination(AssetCatalog.Treasure, rect));
+            if (!assets.TryDraw(canvas, AssetCatalog.Treasure, rect))
+                ExplorationArt.DrawTreasureChest(canvas, (int)p.X, (int)p.Y + 8);
         }
         else if (tile.TerrainId == "old-tree")
         {
@@ -357,12 +355,8 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             var assetKey = RecruitmentPointArt.GetAssetKey(point.RecruitmentSiteId);
             if (assetKey is not null)
             {
-                var compact = _compactMap;
-                var spriteWidth = compact ? 54 : 96;
-                var spriteHeight = compact ? 58 : 96;
-                var bounds = new Rectangle((int)p.X - spriteWidth / 2,
-                    (int)p.Y - spriteHeight + 8, spriteWidth, spriteHeight);
-                FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 10, compact ? 42 : 72, compact ? 8 : 14, Ink * 0.78f);
+                var bounds = RecruitmentPointArt.Bounds(new Point((int)p.X, (int)p.Y), _compactMap);
+                ContactShadow.Draw(canvas, assets.GetVisibleDestination(assetKey, bounds));
                 if (!assets.TryDraw(canvas, assetKey, bounds))
                     DrawRecruitmentFallback(p);
             }
@@ -375,7 +369,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     {
         var x = (int)p.X;
         var y = (int)p.Y;
-        FantasyArt.Oval(canvas, x, y + 3, 42, 9, Ink * 0.7f);
+        ContactShadow.Draw(canvas, new Rectangle(x - 22, y - 2, 44, 4));
         canvas.Polygon([new(x - 22, y), new(x - 2, y - 29), new(x + 23, y)], new Color(61, 49, 29));
         canvas.Polygon([new(x - 18, y - 2), new(x - 2, y - 25), new(x + 17, y - 2)], new Color(165, 139, 81));
         canvas.Polygon([new(x - 2, y - 25), new(x + 17, y - 2), new(x + 6, y - 2)], new Color(122, 99, 57));
@@ -385,7 +379,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
 
     private void DrawHero(WorldVector2 p)
     {
-        FantasyArt.Oval(canvas, (int)p.X, (int)p.Y + 19, 37, 12, Ink * 0.82f);
+        ContactShadow.Draw(canvas, new Rectangle((int)p.X - 20, (int)p.Y + 5, 40, 4));
         for (var index = 0; index < 32; index++)
         {
             var first = MathF.Tau * index / 32;
