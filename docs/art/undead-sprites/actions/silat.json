@@ -1,0 +1,64 @@
+{
+  "id": "silat",
+  "image": "silat.png",
+  "cell": 192,
+  "anchor": {
+    "x": 80,
+    "y": 168
+  },
+  "frameMs": 160,
+  "impactFrame": 2,
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "records": [
+    {
+      "frame": 0,
+      "pivot": {
+        "px": 192.5,
+        "py": 640
+      },
+      "scale": 0.12,
+      "occupied": 2004,
+      "edge": 0
+    },
+    {
+      "frame": 1,
+      "pivot": {
+        "px": 748,
+        "py": 640
+      },
+      "scale": 0.12,
+      "occupied": 2054,
+      "edge": 0
+    },
+    {
+      "frame": 2,
+      "pivot": {
+        "px": 1251.5,
+        "py": 640
+      },
+      "scale": 0.12,
+      "occupied": 2037,
+      "edge": 0
+    },
+    {
+      "frame": 3,
+      "pivot": {
+        "px": 1866,
+        "py": 640
+      },
+      "scale": 0.12,
+      "occupied": 1982,
+      "edge": 0
+    }
+  ]
+}

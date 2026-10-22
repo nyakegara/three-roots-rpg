@@ -1,0 +1,113 @@
+{
+  "id": "utburd",
+  "image": "utburd.png",
+  "cell": 192,
+  "anchor": {
+    "x": 80,
+    "y": 168
+  },
+  "frameMs": 160,
+  "impactFrame": 2,
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    {
+      "name": "heal",
+      "frames": [
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "records": [
+    {
+      "frame": 0,
+      "pivot": {
+        "px": 200,
+        "py": 458
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 3023,
+      "edge": 0
+    },
+    {
+      "frame": 1,
+      "pivot": {
+        "px": 587,
+        "py": 458
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 3142,
+      "edge": 0
+    },
+    {
+      "frame": 2,
+      "pivot": {
+        "px": 952,
+        "py": 458
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 3707,
+      "edge": 0
+    },
+    {
+      "frame": 3,
+      "pivot": {
+        "px": 1429.5,
+        "py": 458
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 2522,
+      "edge": 0
+    },
+    {
+      "frame": 4,
+      "pivot": {
+        "px": 200,
+        "py": 915
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 3019,
+      "edge": 0
+    },
+    {
+      "frame": 5,
+      "pivot": {
+        "px": 554,
+        "py": 915
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 3032,
+      "edge": 0
+    },
+    {
+      "frame": 6,
+      "pivot": {
+        "px": 943.5,
+        "py": 915
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 3542,
+      "edge": 0
+    },
+    {
+      "frame": 7,
+      "pivot": {
+        "px": 1430,
+        "py": 915
+      },
+      "scale": 0.2146341463414634,
+      "occupied": 2862,
+      "edge": 0
+    }
+  ]
+}

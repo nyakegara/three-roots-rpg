@@ -1,0 +1,64 @@
+{
+  "id": "asura-preta",
+  "image": "asura-preta.png",
+  "cell": 192,
+  "anchor": {
+    "x": 80,
+    "y": 168
+  },
+  "frameMs": 160,
+  "impactFrame": 2,
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "records": [
+    {
+      "frame": 0,
+      "pivot": {
+        "px": 347.68,
+        "py": 628.2760000000001
+      },
+      "scale": 0.18659420289855072,
+      "occupied": 5197,
+      "edge": 0
+    },
+    {
+      "frame": 1,
+      "pivot": {
+        "px": 990.5600000000001,
+        "py": 628.2760000000001
+      },
+      "scale": 0.18659420289855072,
+      "occupied": 5251,
+      "edge": 0
+    },
+    {
+      "frame": 2,
+      "pivot": {
+        "px": 334.56,
+        "py": 1153.4379999999999
+      },
+      "scale": 0.18659420289855072,
+      "occupied": 4592,
+      "edge": 0
+    },
+    {
+      "frame": 3,
+      "pivot": {
+        "px": 1016.8000000000001,
+        "py": 1191.806
+      },
+      "scale": 0.18659420289855072,
+      "occupied": 5004,
+      "edge": 0
+    }
+  ]
+}
