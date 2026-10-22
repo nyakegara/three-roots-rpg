@@ -238,6 +238,7 @@ internal sealed class ExplorationScreen : IGameScreen
                     new NumericsVector2(world.X - 640, world.Y - 300));
             }
         }
+        _nightBlend = _campaign?.IsNight == true ? 1f : 0f;
         if (restoreWarning is not null) _interactionMessage = restoreWarning;
         if (startupMessage is not null) _interactionMessage = startupMessage;
         if ((restoreSave is null || _campaign?.IsVictory == true) && campaign is not null &&
@@ -245,8 +246,16 @@ internal sealed class ExplorationScreen : IGameScreen
             SaveProgress();
     }
 
+    internal void CaptureRecruitmentPurchasePreview() => _recruitmentScreen?.CapturePurchasePreview();
+
+    private float _nightBlend;
+    private bool _previewNight;
+    internal void PrepareNightPreview() { _previewNight = true; _nightBlend = 1f; }
+
     public void Update(MouseState mouse, KeyboardState keyboard, float elapsedSeconds)
     {
+        _nightBlend = BattleLighting.AdvanceFade(_nightBlend,
+            _previewNight || _campaign?.IsNight == true ? 1f : 0f, elapsedSeconds);
         _idleSeconds = (_idleSeconds + Math.Clamp(elapsedSeconds, 0f, 0.1f)) % 60f;
         _currentMouse = mouse;
         _currentKeyboard = keyboard;
@@ -493,6 +502,7 @@ internal sealed class ExplorationScreen : IGameScreen
             return;
         }
 
+        using (_canvas.PushTint(BattleLighting.ExplorationTint(_nightBlend)))
         _renderer.Draw(_map, _projection, _camera, _movement.Position,
             _movement.Path.IsReachable ? _movement.Path.Coordinates : Array.Empty<HexCoord>(), _hover,
             VisibleIdleActors(), _idleSeconds,
@@ -506,7 +516,7 @@ internal sealed class ExplorationScreen : IGameScreen
         _encounterScreen?.Draw();
         _questScreen?.Draw();
         if (_openPanel == ExplorationPanelKind.Map)
-            _panels.DrawMap(_map, _projection, _campaign, _movement.Position, _travel?.Position, ShowNavigation);
+            _panels.DrawMap(_map, _projection, _campaign, _movement.Position, _travel?.Position, ShowNavigation, _nightBlend);
         else if (_openPanel == ExplorationPanelKind.Journal)
             _panels.DrawJournal(_campaign);
     }
@@ -560,7 +570,7 @@ internal sealed class ExplorationScreen : IGameScreen
         _canvas.Rect(18, 17, 348, 2, Bronze);
         _canvas.Rect(18, 65, 348, 2, new Color(43, 34, 24));
         _font.Draw(_map.Name, 31, 27, new Color(231, 213, 164), 2);
-        _font.Draw("ПУТЬ ПРОЛЕГАЕТ СКВОЗЬ ТРИ КОРНЯ", 31, 49, new Color(187, 174, 137), 1);
+        _font.Draw($"{(_previewNight || _campaign?.IsNight == true ? "НОЧЬ" : "ДЕНЬ")}   ЗАВЕРШЕНО БОЁВ: {_campaign?.CompletedBattleCount ?? 0}", 31, 49, new Color(187, 174, 137), 1);
     }
 
     private string CurrentActionText(WorldPointOfInterest? hoveredPoint)

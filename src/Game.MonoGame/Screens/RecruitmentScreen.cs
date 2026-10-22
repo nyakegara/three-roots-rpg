@@ -94,6 +94,12 @@ internal sealed class RecruitmentScreen : IGameScreen
         _previousKeyboard = keyboard;
     }
 
+    internal void CapturePurchasePreview()
+    {
+        if (_site.Offers.Count > 0)
+            _economy.TryRecruit(_hero, _site, _site.Offers[0].UnitTypeId, 1);
+    }
+
     public void Draw()
     {
         _canvas.Rect(0, 0, 1280, 720, new Color(48, 59, 35));
@@ -113,6 +119,8 @@ internal sealed class RecruitmentScreen : IGameScreen
         _font.Draw(_message, 82, 562, _message.StartsWith("НАБРАНО", StringComparison.Ordinal) ? Gold : Parchment, 1);
         DrawButton(772, 568, 220, 62, "НАНЯТЬ", Gold);
         DrawButton(1004, 568, 196, 62, "НАЗАД", Parchment);
+        _font.Draw(_site.BattlesUntilRestock > 0
+            ? $"ПОПОЛНЕНИЕ ЧЕРЕЗ {_site.BattlesUntilRestock} {(_site.BattlesUntilRestock == 1 ? "БОЙ" : "БОЯ")}" : "ЗАПАС ПОПОЛНЕН", 790, 652, Parchment, 1);
         _font.Draw("ESC — ОТМЕНА   /   ENTER — ПОКУПКА", 83, 652, new Color(172, 160, 124), 1);
     }
 

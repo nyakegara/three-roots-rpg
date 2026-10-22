@@ -8,6 +8,18 @@ public sealed class RecruitmentSite
     private readonly Dictionary<string, RecruitmentOffer> _offers;
     private readonly ReadOnlyCollection<RecruitmentOffer> _offerView;
 
+    public int BattlesUntilRestock { get; private set; }
+
+    internal void RecordPurchase() => BattlesUntilRestock = 3;
+
+    internal void CompleteBattle()
+    {
+        if (BattlesUntilRestock == 0 || --BattlesUntilRestock != 0) return;
+        foreach (var offer in _offers.Values) offer.RestoreStock(offer.StartingStock);
+    }
+
+    internal void RestoreRestockTimer(int remaining) => BattlesUntilRestock = remaining;
+
     public string Id { get; }
     public string? FactionId { get; }
     public IReadOnlyList<RecruitmentOffer> Offers => _offerView;

@@ -26,6 +26,7 @@ public sealed record CampaignSave(
     public IReadOnlyList<SavedRecruitmentStock> RecruitmentStocks { get; init; } = [];
     public IReadOnlyList<string> CompletedEncounterIds { get; init; } = [];
     public bool IsDefeated { get; init; }
+    public int? CompletedBattleCount { get; init; }
     public string RunId { get; init; } = string.Empty;
     public Game.Core.Navigation.MapPosition? AdventurePosition { get; init; }
 }
@@ -34,4 +35,4 @@ public sealed record SavedTroopStack(string UnitId, int Count);
 
 public sealed record SavedQuestChoice(string QuestId, string ChoiceId);
 
-public sealed record SavedRecruitmentStock(string SiteId, string UnitId, int RemainingStock);
+public sealed record SavedRecruitmentStock(string SiteId, string UnitId, int RemainingStock, int BattlesUntilRestock = 0);

@@ -132,7 +132,7 @@ public sealed record GameLaunchOptions
             or "--screenshot-combat-arrow-impact" or "--screenshot-combat-magic-impact"
             or "--screenshot-combat-melee"
             or "--screenshot-combat-range" or "--screenshot-combat-target" or "--screenshot-combat-ranged-target";
-        if ((hasSeed || night) && !battle && !combat)
+        if ((hasSeed || night) && !battle && !combat && !(night && !hasSeed && mode == "--screenshot-idle-map"))
             throw new ArgumentException("--seed and --night require --battle, --combat or their screenshot modes.");
         if (hasSeed && mode == "--screenshot-grid-descent")
             throw new ArgumentException("The fixed descent fixture does not accept a generated seed.");

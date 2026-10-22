@@ -24,6 +24,9 @@ public sealed class Campaign
     private readonly CampaignProgressionRules _progression;
     private CampaignBattle? _activeEncounter;
 
+    public int CompletedBattleCount { get; private set; }
+    public bool IsNight => CompletedBattleCount / 2 % 2 == 1;
+
     public Hero Hero { get; }
     public IReadOnlyList<Quest> Quests => _questView;
     public IReadOnlySet<string> CompletedQuestIds => _completedQuestIds.ToHashSet(StringComparer.Ordinal);
@@ -187,6 +190,8 @@ public sealed class Campaign
         if (!session.StartingArmy.SequenceEqual(Hero.Army.Stacks.Select(stack => new EncounterTroop(stack.UnitTypeId, stack.Count))))
             return new(false, "The campaign army changed during this encounter.");
 
+        if (CompletedBattleCount == int.MaxValue)
+            return new(false, "The battle counter reached its limit.");
         var victory = session.Battle.Winner == BattleSide.Player;
         var gold = victory ? session.Encounter.GoldReward : 0;
         var experience = victory ? session.Encounter.ExperienceReward : 0;
@@ -205,13 +210,15 @@ public sealed class Campaign
         }
         else if (_progression.DefeatOnArmyWipe && Hero.Army.Stacks.Count == 0)
             IsDefeated = true;
+        CompletedBattleCount++;
+        foreach (var site in _recruitmentSites.Values) site.CompleteBattle();
         _activeEncounter = null;
         return new(true, victory ? "Encounter won." : "Encounter lost.", victory, gold, experience);
     }
 
     public IReadOnlyList<SavedRecruitmentStock> GetRecruitmentStockSnapshot() => Array.AsReadOnly(
         _recruitmentSites.Values.SelectMany(site => site.Offers.Select(offer =>
-            new SavedRecruitmentStock(site.Id, offer.UnitTypeId, offer.RemainingStock))).ToArray());
+            new SavedRecruitmentStock(site.Id, offer.UnitTypeId, offer.RemainingStock, site.BattlesUntilRestock))).ToArray());
 
     public RecruitmentStockRestoreResult TryRestoreRecruitmentStock(IReadOnlyList<SavedRecruitmentStock> savedStocks)
     {
@@ -231,6 +238,9 @@ public sealed class Campaign
                 return new RecruitmentStockRestoreResult(false, "Saved recruitment stock contains duplicate or invalid keys.");
         }
 
+        if (!ValidRestockTimers(savedStocks))
+            return new(false, "Saved restock timers are invalid.");
+
         foreach (var (siteId, unitId, offer) in expected)
         {
             if (!values.TryGetValue((siteId, unitId), out var stock) || stock < 0 || stock > offer.StartingStock)
@@ -239,8 +249,15 @@ public sealed class Campaign
 
         foreach (var (siteId, unitId, offer) in expected)
             offer.RestoreStock(values[(siteId, unitId)]);
+        foreach (var group in savedStocks.GroupBy(stock => stock.SiteId))
+            _recruitmentSites[group.Key].RestoreRestockTimer(group.First().BattlesUntilRestock);
         return new RecruitmentStockRestoreResult(true, "Recruitment stock restored.");
     }
+
+    private static bool ValidRestockTimers(IReadOnlyList<SavedRecruitmentStock> stocks) =>
+        stocks.All(stock => stock.BattlesUntilRestock is >= 0 and <= 3) &&
+        stocks.GroupBy(stock => stock.SiteId).All(group =>
+            group.Select(stock => stock.BattlesUntilRestock).Distinct().Count() == 1);
 
     public ChoiceResult ApplyChoice(string questId, string choiceId)
     {
@@ -295,7 +312,8 @@ public sealed class Campaign
         {
             RecruitmentStocks = GetRecruitmentStockSnapshot(),
             CompletedEncounterIds = _completedEncounterIds.Order(StringComparer.Ordinal).ToArray(),
-            IsDefeated = IsDefeated
+            IsDefeated = IsDefeated,
+            CompletedBattleCount = CompletedBattleCount
         };
     }
 
@@ -356,6 +374,9 @@ public sealed class Campaign
         if (save.RecruitmentStocks.Any(stock => stock is null || string.IsNullOrWhiteSpace(stock.SiteId) ||
                 string.IsNullOrWhiteSpace(stock.UnitId)))
             return Fail(out error, "Saved recruitment stock contains invalid keys.");
+        if (!ValidRestockTimers(save.RecruitmentStocks) ||
+            save.CompletedBattleCount is { } battleCount && battleCount < save.CompletedEncounterIds.Count)
+            return Fail(out error, "Saved battle clock or restock timers are invalid.");
         var savedStocks = save.RecruitmentStocks.GroupBy(stock => (stock.SiteId, stock.UnitId))
             .ToDictionary(group => group.Key, group => group.First().RemainingStock);
         var expectedStocks = _recruitmentSites.Values.SelectMany(site => site.Offers.Select(offer =>
@@ -382,6 +403,11 @@ public sealed class Campaign
             !TryRestoreRecruitmentStock(save.RecruitmentStocks).Success)
             return Fail(out error, "Campaign progress could not be restored.");
 
+        CompletedBattleCount = save.CompletedBattleCount ?? save.CompletedEncounterIds.Count;
+        if (save.CompletedBattleCount is null)
+            foreach (var site in _recruitmentSites.Values.Where(site =>
+                         site.Offers.Any(offer => offer.RemainingStock < offer.StartingStock)))
+                site.RecordPurchase();
         return true;
 
         bool IsUnlockedInSave(string unlockId) =>
@@ -458,6 +484,7 @@ public sealed class Campaign
         foreach (var id in snapshot.CompletedEncounterIds)
             _completedEncounterIds.Add(id);
         IsDefeated = snapshot.IsDefeated;
+        CompletedBattleCount = Math.Max(CompletedBattleCount, snapshot.CompletedEncounterIds.Count);
         return true;
     }
 

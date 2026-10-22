@@ -8,6 +8,32 @@ namespace Game.Tests.Content;
 
 public sealed class AdventureMapContentTests
 {
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void RestoreKeepsBattleClockAndShopCountdownIncludingLegacySaves(bool legacy)
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "content");
+        var units = UnitCatalog.Load(Path.Combine(root, "units", "units.json")).Catalog!;
+        var definition = new CampaignLoader(units).Load(Path.Combine(root, "campaigns", "flora-01.json")).Definition!;
+        var campaign = definition.CreateGameState();
+        var site = campaign.RecruitmentSites.Single(s => s.Id == "starting-clearing");
+        Assert.True(new Game.Core.Economy.EconomyRules().TryRecruit(campaign.Hero, site, "flora.thorn-guard", 1).Success);
+        var save = campaign.CreateSave(definition.Id, definition.Map.Id, definition.Map.StartPosition!.Value)
+            with { CompletedBattleCount = legacy ? null : 2 };
+        if (legacy) save = save with { RecruitmentStocks = save.RecruitmentStocks.Select(stock =>
+            stock with { BattlesUntilRestock = 0 }).ToArray() };
+        var json = System.Text.Json.JsonSerializer.Serialize(save);
+        save = System.Text.Json.JsonSerializer.Deserialize<Game.Core.Persistence.CampaignSave>(json)!;
+        var restored = definition.CreateGameState();
+        Assert.True(restored.TryRestoreSave(save, definition.Id, definition.PlayerFactionId,
+            definition.Map, units, out var error), error);
+        Assert.Equal(legacy ? 0 : 2, restored.CompletedBattleCount);
+        Assert.Equal(!legacy, restored.IsNight);
+        Assert.Equal(3, restored.RecruitmentSites.Single(s => s.Id == site.Id).BattlesUntilRestock);
+        Assert.Equal(17, restored.RecruitmentSites.Single(s => s.Id == site.Id).Offers[0].RemainingStock);
+    }
+
     [Fact]
     public void SavedApproachPosition_RestoresBesideLandmarkWithItsLogicalQuestAnchor()
     {

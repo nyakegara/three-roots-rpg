@@ -198,7 +198,7 @@ internal sealed class BattleScreen : IGameScreen
 
     public BattleScreen(PixelCanvas canvas, AssetCatalog assets, UnitCatalog catalog, CampaignBattle session,
         Func<EncounterResolution> returnToMap, Action exit, MouseState initialMouse, KeyboardState initialKeyboard)
-        : this(canvas, assets, catalog, exit, false)
+        : this(canvas, assets, catalog, exit, session.IsNight)
     {
         _seed = session.Encounter.Seed;
         _campaignBattle = session;
