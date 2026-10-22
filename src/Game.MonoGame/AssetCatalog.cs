@@ -234,6 +234,17 @@ internal sealed class AssetCatalog : IDisposable
         return true;
     }
 
+    public Rectangle GetVisibleDestination(string key, Rectangle destination)
+    {
+        if (!_textures.TryGetValue(key, out var asset)) return destination;
+        var source = asset.ContentBounds;
+        var xScale = destination.Width / (float)asset.Texture.Width;
+        var yScale = destination.Height / (float)asset.Texture.Height;
+        return new Rectangle(destination.X + (int)MathF.Round(source.X * xScale),
+            destination.Y + (int)MathF.Round(source.Y * yScale),
+            (int)MathF.Round(source.Width * xScale), (int)MathF.Round(source.Height * yScale));
+    }
+
     public bool TryDraw(PixelCanvas canvas, string key, Rectangle destination, float opacity = 1f)
     {
         if (!_textures.TryGetValue(key, out var asset))

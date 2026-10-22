@@ -246,6 +246,14 @@ internal sealed class ExplorationScreen : IGameScreen
             SaveProgress();
     }
 
+    internal void PrepareSitePlacementPreview(string siteId)
+    {
+        _questScreen = null;
+        _encounterScreen = null;
+        if (_map.Navigation is not { } navigation || !navigation.Points.TryGetValue(siteId, out var anchor)) return;
+        _camera.CenterOn(_projection.FromArt(anchor) + new NumericsVector2(0, -40));
+    }
+
     internal void CaptureRecruitmentPurchasePreview() => _recruitmentScreen?.CapturePurchasePreview();
 
     private float _nightBlend;

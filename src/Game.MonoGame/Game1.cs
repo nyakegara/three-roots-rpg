@@ -91,6 +91,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                 _options.PreviewMapPanel, _options.PreviewJournalPanel, restoreSave,
                 _progressWriter is not null ? SaveCampaignProgress : null,
                 saveWarning) { ShowNavigation = _options.PreviewNavigation };
+            if (_options.ScreenshotPath is not null && _options.PreviewMapSiteId is { } sitePreview)
+                ((ExplorationScreen)_screen).PrepareSitePlacementPreview(sitePreview);
             if (_options.ScreenshotPath is not null && _options.PreviewRecruitmentSiteId is not null)
                 ((ExplorationScreen)_screen).CaptureRecruitmentPurchasePreview();
             if (_options.Night) ((ExplorationScreen)_screen).PrepareNightPreview();

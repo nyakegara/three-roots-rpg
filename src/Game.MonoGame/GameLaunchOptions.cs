@@ -22,6 +22,7 @@ public sealed record GameLaunchOptions
     public bool PreviewNavigation { get; init; }
     public bool PreviewFreeTravel { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
+    public string? PreviewMapSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
     public bool Night { get; init; }
     public int MapPixelSize { get; init; }
@@ -67,6 +68,10 @@ public sealed record GameLaunchOptions
                 case "--combat":
                     SetMode(argument);
                     break;
+                case "--screenshot-site-t1":
+                case "--screenshot-site-t2":
+                case "--screenshot-site-t3":
+                case "--screenshot-site-peasants":
                 case "--screenshot":
                 case "--screenshot-quest-hover":
                 case "--screenshot-north-trail":
@@ -184,6 +189,14 @@ public sealed record GameLaunchOptions
             PreviewNavigation = mode == "--screenshot-navigation",
             PreviewFreeTravel = mode == "--screenshot-travel",
             PreviewJournalPanel = mode == "--screenshot-journal",
+            PreviewMapSiteId = mode switch
+            {
+                "--screenshot-site-t1" => "starting-clearing",
+                "--screenshot-site-t2" => "flora-tier-two",
+                "--screenshot-site-t3" => "flora-tier-three",
+                "--screenshot-site-peasants" => "peasant-recruitment",
+                _ => null
+            },
             PreviewRecruitmentSiteId = mode switch
             {
                 "--screenshot-recruitment" => "starting-clearing",

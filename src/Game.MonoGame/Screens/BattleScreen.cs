@@ -558,7 +558,9 @@ internal sealed class BattleScreen : IGameScreen
         var y = (int)point.Y;
         var ring = Enumerable.Range(0, 20).Select(i => new Vector2(x + MathF.Cos(i * MathHelper.TwoPi / 20) * 25,
             y + 16 + MathF.Sin(i * MathHelper.TwoPi / 20) * 7)).ToArray();
-        _canvas.Polygon(ring, new Color(24, 26, 19) * 0.65f);
+        var shadowKey = _catalog.Get(unit.UnitTypeId)!.ArtKey;
+        ContactShadow.Draw(_canvas, _assets.GetCroppedDestination(shadowKey,
+            BattleUnitSpriteLayout.Bounds(unit.UnitTypeId, new Point(x, y))));
         _canvas.Outline(ring, unit.Side == BattleSide.Player ? Green * 0.8f : Red * 0.8f, 1);
         using (_canvas.PushTint(BattleLighting.ForegroundTint(_nightBlend)))
         {
