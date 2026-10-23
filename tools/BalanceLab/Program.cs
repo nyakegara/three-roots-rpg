@@ -6,6 +6,18 @@ using Game.Core.Content;
 using Game.Core.Geometry;
 
 var root=Path.GetFullPath(args.ElementAtOrDefault(0)??".");
+if(args.ElementAtOrDefault(1)=="swap"){
+ var swapOptions=args.Skip(3).ToArray();
+ var guardCostArgument=swapOptions.FirstOrDefault(option=>option.StartsWith("guard-cost="));
+ var budgetArgument=swapOptions.FirstOrDefault(option=>option.StartsWith("budget="));
+ var guardCost=guardCostArgument is not null && int.TryParse(guardCostArgument[11..],out var requestedGuardCost)
+     ?requestedGuardCost:0;
+ var stackBudget=budgetArgument is not null && int.TryParse(budgetArgument[7..],out var requestedBudget)
+     ?requestedBudget:90;
+ SwapStudy.Run(root,int.TryParse(args.ElementAtOrDefault(2),out var swapSamples)?swapSamples:40,
+     guardCost,stackBudget);
+ return;
+}
 var samples=int.TryParse(args.ElementAtOrDefault(1),out var requested)?requested:50;
 var terrain=args.ElementAtOrDefault(2)=="generated"?"generated":"flat";
 var disableConvert=args.Contains("no-convert");
