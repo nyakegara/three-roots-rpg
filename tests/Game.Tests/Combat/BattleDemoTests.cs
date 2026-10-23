@@ -35,11 +35,12 @@ public sealed class BattleDemoTests
     [InlineData(BattleCaptureStage.HunterAttack)]
     public void HunterCaptures_ReachALegalAttackWithoutMovingUnitsOutsideBattleRules(BattleCaptureStage stage)
     {
-        var demo = BattleDemo.Create(Catalog(), 1729, fullRoster: true);
+        var demo = BattleDemo.Create(Catalog(), 1729, hunterPreview: true);
         var cell = BattleCaptureSetup.Advance(demo.Battle, stage);
         var actor = demo.Battle.ActiveUnit!;
         var target = demo.Battle.Units.Single(unit => unit.IsAlive && unit.Position == cell);
         Assert.Equal("human.order-hunter", actor.UnitTypeId);
+        Assert.True(target.IsRanged);
         Assert.True(BattleRules.CanAttack(actor, target, demo.Battle.Map));
         Assert.True(demo.Battle.Attack(actor.Id, target.Id));
     }

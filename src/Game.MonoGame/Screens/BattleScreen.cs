@@ -99,7 +99,7 @@ internal sealed class BattleScreen : IGameScreen
         }
         if (capture is BattleCaptureStage.HunterAttack or BattleCaptureStage.HunterRest)
         {
-            var demo = BattleDemo.Create(_catalog, _seed, fullRoster: true);
+            var demo = BattleDemo.Create(_catalog, _seed, hunterPreview: true);
             LoadBattle(demo.Battle, demo.Field);
             var cell = BattleCaptureSetup.Advance(Battle, capture);
             RefreshReachable();

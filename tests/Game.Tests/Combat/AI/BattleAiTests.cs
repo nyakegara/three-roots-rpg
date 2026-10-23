@@ -7,6 +7,45 @@ namespace Game.Tests.Combat.AI;
 
 public sealed class BattleAiTests
 {
+    [Fact]
+    public void ChooseAction_HunterAttacksRangedTargetBeforeWeakerMeleeStack()
+    {
+        var hunter = new BattleUnit("hunter", BattleSide.Enemy, new(0, 0), 2, 16, 6,
+            speed: 9, movement: 6, range: 1, isRanged: false, ability: UnitAbility.Hunter);
+        var melee = new BattleUnit("melee", BattleSide.Player, new(1, 0), 1, 10, 3,
+            speed: 2, movement: 3, range: 1, isRanged: false);
+        var shooter = new BattleUnit("shooter", BattleSide.Player, new(0, 1), 4, 8, 4,
+            speed: 2, movement: 3, range: 7, isRanged: true);
+        var battle = new Battle(new BattleMap(new[] { hunter.Position, melee.Position, shooter.Position }
+            .Select(cell => new BattleTile(cell))), [hunter, melee, shooter]);
+        battle.StartRound();
+
+        var action = new BattleAi().ChooseAction(battle, hunter.Id);
+
+        Assert.Equal(BattleActionType.Attack, action.Type);
+        Assert.Equal(shooter.Id, action.TargetId);
+    }
+
+    [Fact]
+    public void ChooseAction_HunterApproachesReachableShooterBeforeCloserMelee()
+    {
+        var hunter = new BattleUnit("hunter", BattleSide.Enemy, new(0, 0), 2, 16, 6,
+            speed: 9, movement: 6, range: 1, isRanged: false, ability: UnitAbility.Hunter);
+        var melee = new BattleUnit("melee", BattleSide.Player, new(2, 0), 2, 10, 3,
+            speed: 2, movement: 3, range: 1, isRanged: false);
+        var shooter = new BattleUnit("shooter", BattleSide.Player, new(4, 1), 2, 8, 4,
+            speed: 2, movement: 3, range: 7, isRanged: true);
+        var map = new BattleMap(from q in Enumerable.Range(0, 6) from r in Enumerable.Range(0, 4)
+            select new BattleTile(new(q, r)));
+        var battle = new Battle(map, [hunter, melee, shooter]);
+        battle.StartRound();
+
+        var action = new BattleAi().ChooseAction(battle, hunter.Id);
+
+        Assert.Equal(BattleActionType.Move, action.Type);
+        Assert.Equal(1, action.Destination!.Value.DistanceTo(shooter.Position));
+    }
+
     [Theory]
     [InlineData(1, false)]
     [InlineData(8, true)]
