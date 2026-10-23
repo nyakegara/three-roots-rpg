@@ -48,9 +48,9 @@ public sealed class CampaignBalanceTests
         Assert.True(campaign.ApplyChoice(introduction.Id, introduction.Choices[0].Id).Success);
         TravelTo("starting-clearing");
         var startingSite = campaign.RecruitmentSites.Single(site => site.Id == "starting-clearing");
-        Assert.True(economy.TryRecruit(campaign.Hero, startingSite, "flora.thorn-guard", 18).Success);
-        Assert.True(economy.TryRecruit(campaign.Hero, startingSite, "flora.sprout", 8).Success);
-        Assert.Equal(0, campaign.Hero.Gold);
+        Assert.True(economy.TryRecruit(campaign.Hero, startingSite, "flora.thorn-guard", 8).Success);
+        Assert.True(economy.TryRecruit(campaign.Hero, startingSite, "flora.sprout", 4).Success);
+        Assert.Equal(72, campaign.Hero.Gold);
         Assert.False(PathTo("burned-forest").IsReachable);
         if (choiceId is not null)
         {

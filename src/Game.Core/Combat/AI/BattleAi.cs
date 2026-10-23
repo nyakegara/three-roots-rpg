@@ -24,9 +24,11 @@ public sealed class BattleAi
             {
                 // Spending an attack to restore a scratch is worse than attacking. Reserve
                 // healing for a substantial wound, including a lost 8-HP Utburd.
+                var heal = BattleRules.GetHealingAmount(unit);
                 var wounded = battle.Units.Where(ally => ally.IsAlive && ally.Side == unit.Side &&
-                                  ally.Id != unit.Id && ally.MaximumHitPointsAtBattleStart - ally.RemainingHitPoints >= 7)
-                    .OrderByDescending(ally => Math.Min(10, ally.MaximumHitPointsAtBattleStart - ally.RemainingHitPoints))
+                                  ally.Id != unit.Id && ally.MaximumHitPointsAtBattleStart - ally.RemainingHitPoints >=
+                                  Math.Max(3, heal - 3))
+                    .OrderByDescending(ally => Math.Min(heal, ally.MaximumHitPointsAtBattleStart - ally.RemainingHitPoints))
                     .ThenBy(ally => ally.Id, StringComparer.Ordinal).FirstOrDefault();
                 if (wounded is not null) return BattleAction.Heal(wounded.Id);
             }

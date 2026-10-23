@@ -8,5 +8,6 @@ public enum UnitAbility
     ConvertOnHit,
     Hunter,
     RadiantModes,
-    SacrificePulse
+    SacrificePulse,
+    KnightWard
 }

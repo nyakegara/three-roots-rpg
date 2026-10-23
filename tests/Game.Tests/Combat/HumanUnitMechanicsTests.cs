@@ -22,6 +22,49 @@ public sealed class HumanUnitMechanicsTests
         Assert.Equal(30 - expectedDamage, target.RemainingHitPoints);
     }
 
+    [Theory]
+    [InlineData(true, 8)]
+    [InlineData(false, 10)]
+    public void KnightReducesRangedDamageOnly(bool ranged, int expectedDamage)
+    {
+        var attacker = Unit("attacker", BattleSide.Player, 0, 0, 10, ranged: ranged);
+        var knight = Unit("knight", BattleSide.Enemy, 1, 0, 1, UnitAbility.KnightWard);
+        var battle = BattleWith(attacker, knight);
+        battle.StartRound();
+        Assert.Equal(expectedDamage, BattleRules.GetAttackDamage(attacker, knight));
+        Assert.True(battle.Attack(attacker.Id, knight.Id));
+        Assert.Equal(30 - expectedDamage, knight.RemainingHitPoints);
+    }
+
+    [Fact]
+    public void KnightWardHandlesLargeRangedStacksWithoutOverflow()
+    {
+        var attacker = new BattleUnit("shooter", BattleSide.Player, new(0, 0), int.MaxValue,
+            1, int.MaxValue, 7, 0, 7, true);
+        var knight = Unit("knight", BattleSide.Enemy, 1, 0, 1, UnitAbility.KnightWard);
+        Assert.Equal(checked((long)int.MaxValue * int.MaxValue) / 5 * 4 +
+            checked((long)int.MaxValue * int.MaxValue) % 5 * 4 / 5,
+            BattleRules.GetAttackDamage(attacker, knight));
+    }
+
+    [Theory]
+    [InlineData(0, 30)]
+    [InlineData(1, 20)]
+    public void HunterHasTenPercentChanceToDodgeAnyHit(int roll, int remainingHitPoints)
+    {
+        var attacker = Unit("attacker", BattleSide.Player, 0, 0, 10, ranged: true);
+        var hunter = Unit("hunter", BattleSide.Enemy, 1, 0, 1, UnitAbility.Hunter);
+        var battle = new Battle(BattleWith(attacker, hunter).Map, [attacker, hunter], new FixedRandom(roll));
+        battle.StartRound();
+        Assert.True(battle.Attack(attacker.Id, hunter.Id));
+        Assert.Equal(remainingHitPoints, hunter.RemainingHitPoints);
+    }
+
+    private sealed class FixedRandom(int value) : Random
+    {
+        public override int Next(int maxValue) => value;
+    }
+
     [Fact]
     public void InquisitorHammerAndFireHaveDifferentDamage()
     {

@@ -94,9 +94,16 @@ public static class BattleRules
         ArgumentNullException.ThrowIfNull(target);
         var rangedTarget = target.IsRanged || target.Ability == UnitAbility.RadiantModes &&
             target.AttackMode == AttackMode.HolyFire;
-        return attacker.Ability == UnitAbility.Hunter && rangedTarget
+        var damage = attacker.Ability == UnitAbility.Hunter && rangedTarget
             ? checked(GetBaseAttackDamage(attacker) * 3 / 2) : GetBaseAttackDamage(attacker);
+        var rangedAttack = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
+            attacker.AttackMode == AttackMode.HolyFire;
+        return target.Ability == UnitAbility.KnightWard && rangedAttack
+            ? damage - damage / 5 - (damage % 5 == 0 ? 0 : 1) : damage;
     }
+
+    public static int GetHealingAmount(BattleUnit healer) =>
+        healer.UnitTypeId == "flora.sprout" ? 5 : 10;
 
     public static bool CanAttack(BattleUnit attacker, BattleUnit target, BattleMap map)
     {

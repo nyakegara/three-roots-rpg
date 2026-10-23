@@ -20,11 +20,12 @@ public sealed class UnitCatalogTests : IDisposable
         Assert.Equal(UnitAbility.HealAlly, units.Single(unit => unit.Id == "flora.sprout").Ability);
         Assert.Equal(UnitAbility.ConvertOnHit, units.Single(unit => unit.Id == "flora.root-warden").Ability);
         Assert.Equal(UnitAbility.Hunter, units.Single(unit => unit.Id == "human.order-hunter").Ability);
+        Assert.Equal(UnitAbility.KnightWard, units.Single(unit => unit.Id == "human.banner-knight").Ability);
         Assert.Equal(UnitAbility.RadiantModes, units.Single(unit => unit.Id == "human.inquisitor").Ability);
         Assert.Equal(UnitAbility.HealAlly, units.Single(unit => unit.Id == "undead.utburd").Ability);
         Assert.Equal(UnitAbility.SacrificePulse, units.Single(unit => unit.Id == "undead.nachzehrer").Ability);
         Assert.All(units.Where(unit => unit.Id is not "flora.sprout" and not "flora.root-warden" and
-            not "human.order-hunter" and not "human.inquisitor" and not "undead.utburd" and not "undead.nachzehrer"),
+            not "human.order-hunter" and not "human.banner-knight" and not "human.inquisitor" and not "undead.utburd" and not "undead.nachzehrer"),
             unit => Assert.Equal(UnitAbility.None, unit.Ability));
     }
 
@@ -45,7 +46,7 @@ public sealed class UnitCatalogTests : IDisposable
             "undead.asura-preta", "undead.nachzehrer", "undead.silat", "undead.utburd", "undead.vetala"
         }, units.Where(unit => unit.FactionId != "flora").Select(unit => unit.Id).Order(StringComparer.Ordinal));
 
-        AssertUnit("flora.thorn-guard", "Кабачок-крепыш", 10, 4, 5, 3, 1, false, 8, UnitAbility.None);
+        AssertUnit("flora.thorn-guard", "Кабачок-крепыш", 10, 4, 5, 3, 1, false, 15, UnitAbility.None);
         AssertUnit("flora.sprout", "Ипомея-целительница", 8, 3, 7, 4, 6, true, 12, UnitAbility.HealAlly);
         AssertUnit("flora.ember-bloom", "Пламенный цветок", 9, 6, 6, 4, 6, true, 30, UnitAbility.None);
         AssertUnit("flora.pod-slinger", "Орхидея-ассасин", 12, 5, 8, 5, 1, false, 34, UnitAbility.None);

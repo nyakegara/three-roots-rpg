@@ -331,6 +331,23 @@ public sealed class BattleTests
     }
 
     [Fact]
+    public void HunterDodge_PreventsMushroomConversionAndDoesNotRollForIt()
+    {
+        var random = new SequenceRandom(0);
+        var mushroom = Unit("mushroom", BattleSide.Player, new(0, 0), speed: 10, range: 3,
+            ability: UnitAbility.ConvertOnHit);
+        var hunter = Unit("hunter", BattleSide.Enemy, new(2, 0), ability: UnitAbility.Hunter);
+        var battle = CreateBattle(random, mushroom, hunter);
+        battle.StartRound();
+
+        Assert.True(battle.Attack(mushroom.Id, hunter.Id));
+        Assert.Equal(30, hunter.RemainingHitPoints);
+        Assert.Equal(BattleSide.Enemy, hunter.Side);
+        Assert.Equal(1, random.Calls);
+        Assert.Equal(10, random.LastMaxValue);
+    }
+
+    [Fact]
     public void MushroomAttack_WhenTargetDies_DoesNotConvertDeadStackOrRollForConversion()
     {
         var random = new SequenceRandom(0);
@@ -475,6 +492,23 @@ public sealed class BattleTests
     }
 
     private static Battle CreateBattle(params BattleUnit[] units) => CreateBattle(null, units);
+
+    [Theory]
+    [InlineData("flora.sprout", 5)]
+    [InlineData("undead.utburd", 10)]
+    public void HealersRestoreTheirOwnAmount(string healerType, int expectedHeal)
+    {
+        var healer = Unit("healer", BattleSide.Player, new(0, 0), speed: 8,
+            ability: UnitAbility.HealAlly, unitTypeId: healerType);
+        var ally = Unit("ally", BattleSide.Player, new(1, 0));
+        var enemy = Unit("enemy", BattleSide.Enemy, new(2, 0));
+        typeof(BattleUnit).GetMethod("ApplyDamage", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic)!.Invoke(ally, [10L]);
+        var battle = CreateBattle(healer, ally, enemy);
+        battle.StartRound();
+        Assert.True(battle.TryHeal(healer.Id, ally.Id));
+        Assert.Equal(20 + expectedHeal, ally.RemainingHitPoints);
+    }
 
     private static Battle CreateBattle(Random? random, params BattleUnit[] units)
     {

@@ -49,8 +49,14 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
                 inspected.MaximumHitPointsAtBattleStart, 25), 110, 643, Text, 2);
             _font.Draw(Shorten($"УРОН {BattleRules.GetBaseAttackDamage(inspected)}", 15),
                 430, 643, Text, 2);
-            _font.Draw(inspected.Ability == UnitAbility.SacrificePulse ? "ИМПУЛЬС 4 / -10% ОЗ" :
-                ranged ? $"ДАЛЬН.{range} (+2 НИЖЕ)" : "БЛИЖНИЙ БОЙ", 620, 643, Gold, 2);
+            _font.Draw(inspected.Ability switch
+            {
+                UnitAbility.SacrificePulse => "ИМПУЛЬС 4 / -10% ОЗ",
+                UnitAbility.KnightWard => "ДАЛЬН. УРОН -20%",
+                UnitAbility.Hunter => "УКЛОНЕНИЕ 10%",
+                UnitAbility.HealAlly => $"ЛЕЧЕНИЕ {BattleRules.GetHealingAmount(inspected)} ОЗ",
+                _ => ranged ? $"ДАЛЬН.{range} (+2 НИЖЕ)" : "БЛИЖНИЙ БОЙ"
+            }, 620, 643, Gold, 2);
         }
         else
             _font.Draw(battle.IsFinished ? "БОЙ ЗАВЕРШЁН" : "НАЧАЛО РАУНДА", 110, 624, Text, 2);

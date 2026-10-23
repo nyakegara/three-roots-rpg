@@ -17,7 +17,7 @@ public sealed class CampaignFlowTests
         Assert.Equal(new[] { ("flora.thorn-guard", 12), ("flora.sprout", 3) },
             campaign.Hero.Army.Stacks.Select(stack => (stack.UnitTypeId, stack.Count)));
         CampaignCaptureSetup.RecruitParty(campaign);
-        Assert.Equal(128, campaign.Hero.Gold);
+        Assert.Equal(72, campaign.Hero.Gold);
         Assert.Equal(2, campaign.Hero.Army.Stacks.Count);
         Assert.Equal(10, campaign.RecruitmentSites.Single(site => site.Id == "starting-clearing")
             .GetOffer("flora.thorn-guard")!.RemainingStock);
@@ -38,7 +38,7 @@ public sealed class CampaignFlowTests
         Assert.Equal(BattleSide.Player, session.Battle.Winner);
         var expected = session.Battle.GetOutcome().SurvivingPlayerStacks.ToDictionary(stack => stack.UnitTypeId, stack => stack.Count);
         Assert.True(campaign.ResolveEncounter(session).Success);
-        Assert.Equal(173, campaign.Hero.Gold);
+        Assert.Equal(117, campaign.Hero.Gold);
         Assert.Equal(65, campaign.Hero.Experience);
         Assert.Contains(encounter.Id, campaign.CompletedEncounterIds);
         foreach (var stack in campaign.Hero.Army.Stacks)
@@ -49,7 +49,7 @@ public sealed class CampaignFlowTests
         Assert.Equal(expected.Count, campaign.Hero.Army.Stacks.Count);
         Assert.False(campaign.ResolveEncounter(session).Success);
         Assert.False(campaign.TryStartEncounter(point, point.Coordinate, units).Success);
-        Assert.Equal(173, campaign.Hero.Gold);
+        Assert.Equal(117, campaign.Hero.Gold);
     }
 
     [Theory]

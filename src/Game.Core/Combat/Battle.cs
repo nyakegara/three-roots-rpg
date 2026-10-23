@@ -171,13 +171,14 @@ public sealed class Battle
             var cost = Math.Max(1, (attacker.RemainingHitPoints + 9) / 10);
             foreach (var enemy in GetEnemies(attacker.Side)
                          .Where(enemy => attacker.Position.DistanceTo(enemy.Position) <= 4))
-                enemy.ApplyDamage(BattleRules.GetAttackDamage(attacker, enemy));
+                ApplyAttackDamage(attacker, enemy);
             attacker.ApplyDamage(cost);
         }
-        else target.ApplyDamage(BattleRules.GetAttackDamage(attacker, target));
-        if (attacker.Ability == UnitAbility.ConvertOnHit && target.IsAlive && _random.Next(8) == 0)
+        else
         {
-            target.ConvertTo(attacker.Side);
+            var dodged = !ApplyAttackDamage(attacker, target);
+            if (!dodged && attacker.Ability == UnitAbility.ConvertOnHit && target.IsAlive && _random.Next(8) == 0)
+                target.ConvertTo(attacker.Side);
         }
 
         _hasAttacked[unitId] = true;
@@ -211,7 +212,7 @@ public sealed class Battle
             return false;
         }
 
-        target.Heal(10);
+        target.Heal(BattleRules.GetHealingAmount(healer));
         _hasAttacked[healerId] = true;
         return true;
     }
@@ -249,6 +250,14 @@ public sealed class Battle
 
     public bool HasMoved(string unitId) => _hasMoved.GetValueOrDefault(unitId);
     public bool HasAttacked(string unitId) => _hasAttacked.GetValueOrDefault(unitId);
+
+    private bool ApplyAttackDamage(BattleUnit attacker, BattleUnit target)
+    {
+        if (target.Ability == UnitAbility.Hunter && _random.Next(10) == 0)
+            return false;
+        target.ApplyDamage(BattleRules.GetAttackDamage(attacker, target));
+        return true;
+    }
 
     private BattleUnit? GetActiveUnit(string unitId) =>
         ActiveUnit is { IsAlive: true } active && string.Equals(active.Id, unitId, StringComparison.Ordinal)
