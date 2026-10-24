@@ -28,6 +28,23 @@ public sealed class AdventureMapContentTests
         Assert.False(surface.IsWalkable(new(900, 400)), "Deep river water is traversable.");
         Assert.False(surface.IsWalkable(new(900, 620)), "Water between ford and dam is traversable.");
         Assert.False(surface.IsWalkable(new(540, 470)), "Flooded western pool is traversable.");
+        Assert.False(surface.IsWalkable(new(364, 283)), "Marked western ruins are traversable.");
+        Assert.False(surface.IsWalkable(new(773, 446)), "Marked wooded island is traversable.");
+        Assert.False(surface.IsWalkable(new(1108, 665)), "Marked southern cliffs are traversable.");
+        Assert.True(surface.IsWalkable(new(506, 353)), "Open western road is blocked.");
+        Assert.True(surface.IsWalkable(new(1088, 272)), "Open eastern road is blocked.");
+
+        foreach (var (from, to, top, bottom) in new[]
+        {
+            (new MapPosition(815, 266), new MapPosition(985, 266), 245f, 310f),
+            (new MapPosition(835, 537), new MapPosition(1040, 537), 500f, 570f),
+            (new MapPosition(760, 715), new MapPosition(1010, 715), 680f, 755f)
+        })
+        {
+            var crossing = pathfinder.FindPath(from, to);
+            Assert.True(crossing.IsReachable, $"Crossing from {from} to {to} is unreachable.");
+            Assert.All(crossing.Points, point => Assert.InRange(point.Y, top, bottom));
+        }
 
         foreach (var (id, point) in navigation.Points)
         {
