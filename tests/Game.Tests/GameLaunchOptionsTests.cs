@@ -5,6 +5,16 @@ namespace Game.Tests;
 
 public sealed class GameLaunchOptionsTests
 {
+    [Fact]
+    public void InteractiveHumanMapLaunchDoesNotUseFloraCampaignSave()
+    {
+        var options = GameLaunchOptions.Parse(["--human-map"]);
+        Assert.True(options.PreviewHumanCampaign);
+        Assert.Null(options.ScreenshotPath);
+        Assert.False(options.UseCampaignSave);
+        Assert.True(GameLaunchOptions.Parse([]).UseCampaignSave);
+    }
+
     [Theory]
     [InlineData("--screenshot-human-map", false, false)]
     [InlineData("--screenshot-human-overview", true, false)]

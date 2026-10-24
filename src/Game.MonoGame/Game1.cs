@@ -61,7 +61,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             string? saveWarning = null;
             var canWriteSave = true;
             var savePath = CampaignSavePath();
-            if (_options.ScreenshotPath is null && File.Exists(savePath))
+            if (_options.UseCampaignSave && File.Exists(savePath))
             {
                 var load = CampaignSerializer.Load(savePath);
                 if (load.Success) restoreSave = load.Save;
@@ -84,7 +84,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                     ? "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ЭТОЙ ВЕРСИЕЙ КАМПАНИИ. НАЧИНАЕТСЯ НОВАЯ ИГРА."
                     : "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ВЕРСИЕЙ ИГРЫ И НЕ ИЗМЕНЕНО. НОВЫЙ ПРОГРЕСС НЕ АВТОСОХРАНЯЕТСЯ.";
             }
-            if (_options.ScreenshotPath is null && canWriteSave)
+            if (_options.UseCampaignSave && canWriteSave)
                 _progressWriter = NewProgressWriter(campaign, restoreSave?.RunId);
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
                 _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture,
