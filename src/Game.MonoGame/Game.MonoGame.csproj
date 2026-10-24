@@ -8,6 +8,9 @@
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\..\content\art\source\exploration.human-border-master-v1.png"
+             Link="Content\art\exploration.human-border.png"
+             CopyToOutputDirectory="PreserveNewest" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.6" />
     <ProjectReference Include="..\Game.Core\Game.Core.csproj" />
   </ItemGroup>
