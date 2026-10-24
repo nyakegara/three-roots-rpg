@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1000" role="img" aria-labelledby="title desc">
+<title id="title">Граница рассвета — схема карты второй кампании</title>
+<desc id="desc">Большая долина с рекой, двумя бродами, южной плотиной, человеческой цитаделью на востоке и некрополем на западе. Три цвета показывают общий путь и две ветки после выбора.</desc>
+<defs>
+<linearGradient id="land"><stop stop-color="#263d37"/><stop offset=".49" stop-color="#65745d"/><stop offset="1" stop-color="#b39a62"/></linearGradient>
+<linearGradient id="water"><stop stop-color="#153d52"/><stop offset=".5" stop-color="#4d8990"/><stop offset="1" stop-color="#174155"/></linearGradient>
+<filter id="shade"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity=".35"/></filter>
+<style>text{font-family:Georgia,'Times New Roman',serif;fill:#f6efd9}.title{font-size:35px;font-weight:bold;letter-spacing:3px}.area{font-size:25px;font-weight:bold;letter-spacing:3px;opacity:.8}.label{font-size:19px;font-weight:bold}.sub{font-size:15px}.card{fill:#1b2d2e;stroke:#cdbb87;stroke-width:2;filter:url(#shade)}.route{fill:none;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:17 12;filter:url(#shade)}</style>
+</defs>
+<rect width="1800" height="1000" fill="#111c20"/>
+<rect x="33" y="94" width="1734" height="816" rx="16" fill="url(#land)" stroke="#d2bc86" stroke-width="3"/>
+<path d="M33 95H765Q607 322 608 470Q670 650 444 909H33Z" fill="#24352e" opacity=".75"/>
+<path d="M1180 95H1766V909H1320Q1440 730 1260 597Q1370 320 1180 95" fill="#e3b46f" opacity=".13"/>
+<path d="M40 131L229 134L265 202L198 259L263 302L174 344L43 310ZM1626 99H1765V347L1686 321L1659 240L1695 185Z" fill="#1b2b2b" opacity=".5"/>
+<path d="M990 100C886 190 944 273 831 346S740 509 820 592S820 717 691 809L614 909" fill="none" stroke="#163c4e" stroke-width="170" stroke-linecap="round"/>
+<path d="M990 100C886 190 944 273 831 346S740 509 820 592S820 717 691 809L614 909" fill="none" stroke="url(#water)" stroke-width="151" stroke-linecap="round"/>
+<path d="M528 383Q629 342 706 392Q739 445 695 487Q582 520 515 459Z M468 569Q524 519 627 548Q685 600 627 645Q540 670 475 622Z M247 684Q329 645 394 683Q427 735 377 764Q295 777 247 731Z" fill="#34636a" opacity=".75"/>
+<path d="M1525 446Q1325 332 1084 324Q946 323 831 342Q648 328 525 408Q455 460 354 523Q277 559 202 566" fill="none" stroke="#bc9e6e" stroke-width="35" stroke-linecap="round" opacity=".83"/>
+<path d="M1010 331Q1049 470 952 543Q816 564 650 535Q482 527 353 596" fill="none" stroke="#c7a978" stroke-width="25" stroke-linecap="round" opacity=".8"/>
+<path d="M635 536Q573 676 699 802Q861 881 1041 827Q1319 757 1525 446" fill="none" stroke="#bd9f6f" stroke-width="30" stroke-linecap="round" opacity=".85"/>
+<path d="M887 332L993 338M763 546L885 545" stroke="#dfc790" stroke-width="23" stroke-dasharray="14 9"/>
+<path d="M634 793L746 821" stroke="#343738" stroke-width="31"/><path d="M634 793L746 821" stroke="#bb9e72" stroke-width="21" stroke-dasharray="27 5"/>
+<path class="route" d="M1510 449Q1322 326 1080 322L934 330Q690 321 528 447Q515 509 639 545" stroke="#f3d47c"/>
+<path class="route" d="M642 545Q502 537 352 597Q270 573 210 566" stroke="#95cbe4"/>
+<path class="route" d="M645 545Q576 672 698 802Q890 905 1106 805Q1396 692 1510 488" stroke="#e5937f"/>
+<text x="130" y="194" class="area">ЗЕМЛИ МЁРТВЫХ</text><text x="1230" y="192" class="area">ЛЮДСКАЯ МАРКА</text>
+<g fill="#1d3435" stroke="#f4d477" stroke-width="4"><circle cx="1510" cy="449" r="43"/><circle cx="1210" cy="339" r="23"/><circle cx="938" cy="332" r="23"/><circle cx="532" cy="465" r="31"/><circle cx="648" cy="547" r="35"/></g>
+<g fill="#203b44" stroke="#ccdbc9" stroke-width="4"><circle cx="789" cy="545" r="22"/></g>
+<g fill="#1e3340" stroke="#95cbe4" stroke-width="4"><circle cx="211" cy="566" r="44"/></g>
+<g fill="#3c3330" stroke="#e5937f" stroke-width="4"><circle cx="692" cy="803" r="26"/><circle cx="1132" cy="789" r="23"/></g>
+<text x="1510" y="461" text-anchor="middle" font-size="36">♜</text><text x="1210" y="347" text-anchor="middle" font-size="27">⌂</text><text x="938" y="342" text-anchor="middle" font-size="28">✣</text><text x="532" y="476" text-anchor="middle" font-size="29">⌂</text><text x="648" y="558" text-anchor="middle" font-size="31">?</text><text x="789" y="554" text-anchor="middle" font-size="28">✣</text><text x="211" y="579" text-anchor="middle" font-size="35">♜</text><text x="692" y="813" text-anchor="middle" font-size="28">▤</text><text x="1132" y="798" text-anchor="middle" font-size="26">⌂</text>
+<g><rect class="card" x="1304" y="501" width="397" height="65" rx="5"/><text x="1320" y="528" class="label">01  Цитадель людей</text><text x="1320" y="550" class="sub">старт · людской найм · финал некроманта</text></g>
+<g><rect class="card" x="1116" y="249" width="256" height="50" rx="5"/><text x="1132" y="280" class="label">Лагерь беженцев</text></g>
+<g><rect class="card" x="863" y="233" width="269" height="57" rx="5"/><text x="880" y="259" class="label">02  Северный брод</text><text x="880" y="280" class="sub">основная переправа</text></g>
+<g><rect class="card" x="817" y="595" width="266" height="57" rx="5"/><text x="833" y="621" class="label">Средний брод</text><text x="833" y="642" class="sub">необязательный обход</text></g>
+<g><rect class="card" x="332" y="371" width="311" height="58" rx="5"/><text x="347" y="397" class="label">03  Затопленная деревня</text><text x="347" y="419" class="sub">Дом колокола · свидетели</text></g>
+<g><rect class="card" x="479" y="596" width="317" height="76" rx="5"/><text x="495" y="623" class="label">04  Старая таможня</text><text x="495" y="645" class="sub">архив с приказом о дамбе</text><text x="495" y="665" class="sub">и сюжетный выбор Эдрика</text></g>
+<g><rect class="card" x="78" y="615" width="278" height="63" rx="5"/><text x="94" y="643" class="label">05А  Некрополь</text><text x="94" y="665" class="sub">финал людской ветки</text></g>
+<g><rect class="card" x="500" y="845" width="357" height="59" rx="5"/><text x="516" y="873" class="label">05Б  Южная плотина</text><text x="516" y="894" class="sub">новый путь некроманта</text></g>
+<g><rect class="card" x="1033" y="696" width="238" height="57" rx="5"/><text x="1050" y="723" class="label">Найм нежити</text><text x="1050" y="744" class="sub">на южной ветке</text></g>
+<rect x="33" y="16" width="1734" height="64" fill="#172729" stroke="#d2bc86" stroke-width="2"/><text x="58" y="60" class="title">ГРАНИЦА РАССВЕТА</text><text x="925" y="57" font-size="21">Кампания II · затопленная долина · блок-аут</text>
+<rect x="33" y="925" width="1734" height="58" fill="#172729" stroke="#d2bc86" stroke-width="2"/>
+<path class="route" d="M63 953H140" stroke="#f3d47c"/><text x="155" y="960" font-size="17">общий путь</text><path class="route" d="M354 953H430" stroke="#95cbe4"/><text x="446" y="960" font-size="17">люди → некрополь</text><path class="route" d="M746 953H821" stroke="#e5937f"/><text x="838" y="960" font-size="17">некромант → цитадель</text><text x="1280" y="960" font-size="17">Точки боёв — после ревью</text>
+</svg>
