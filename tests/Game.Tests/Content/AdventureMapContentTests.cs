@@ -8,6 +8,35 @@ namespace Game.Tests.Content;
 
 public sealed class AdventureMapContentTests
 {
+    [Fact]
+    public void HumanBorder_UsesFreeMovementOnLandAndOnlyThreeRiverCrossings()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "content", "maps", "human-01.json");
+        var result = new MapLoader().Load(path);
+        Assert.True(result.Success, string.Join("; ", result.Errors));
+        var map = result.Map!;
+        var navigation = Assert.IsType<AdventureNavigation>(map.Navigation);
+        Assert.Equal(1672, navigation.Width);
+        Assert.Equal(941, navigation.Height);
+        var surface = new AdventureSurface(navigation, _ => true);
+        var pathfinder = new AdventurePathfinder(surface);
+
+        Assert.True(surface.IsWalkable(navigation.Start));
+        Assert.True(surface.IsSegmentWalkable(new(815, 266), new(975, 266)), "Northern ford is cut.");
+        Assert.True(surface.IsSegmentWalkable(new(800, 537), new(1030, 537)), "Middle ford is cut.");
+        Assert.True(surface.IsSegmentWalkable(new(770, 715), new(970, 715)), "Dam road is cut.");
+        Assert.False(surface.IsWalkable(new(900, 400)), "Deep river water is traversable.");
+        Assert.False(surface.IsWalkable(new(900, 620)), "Water between ford and dam is traversable.");
+        Assert.False(surface.IsWalkable(new(540, 470)), "Flooded western pool is traversable.");
+
+        foreach (var (id, point) in navigation.Points)
+        {
+            Assert.True(surface.IsWalkable(point), $"Landmark '{id}' is blocked.");
+            Assert.True(pathfinder.FindPath(navigation.Start, point).IsReachable,
+                $"Landmark '{id}' cannot be reached.");
+        }
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]

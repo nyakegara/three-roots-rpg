@@ -41,7 +41,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
-        _assets = new AssetCatalog(GraphicsDevice, _options.MapPixelSize, _options.MapDetailStyle);
+        _assets = new AssetCatalog(GraphicsDevice, _options.MapPixelSize, _options.MapDetailStyle,
+            _options.PreviewHumanCampaign);
         if (_options.PlayableCombat)
         {
             var units = LoadUnitCatalog();
@@ -53,7 +54,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         }
         else
         {
-            var (campaign, units) = LoadFloraCampaign();
+            var (campaign, units) = LoadCampaign(_options.PreviewHumanCampaign ? "human-01" : "flora-01");
             _floraCampaign = campaign;
             _floraUnits = units;
             CampaignSave? restoreSave = null;
@@ -102,17 +103,17 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             SurfaceFormat.Color, DepthFormat.None);
     }
 
-    private static (CampaignDefinition Campaign, UnitCatalog Units) LoadFloraCampaign()
+    private static (CampaignDefinition Campaign, UnitCatalog Units) LoadCampaign(string campaignId)
     {
         var root = Path.Combine(AppContext.BaseDirectory, "Content");
         var units = LoadUnitCatalog();
-        var campaignPath = Path.Combine(root, "campaigns", "flora-01.json");
+        var campaignPath = Path.Combine(root, "campaigns", campaignId + ".json");
         var campaignResult = new CampaignLoader(units).Load(campaignPath);
         if (campaignResult.Success && campaignResult.Definition is not null)
             return (campaignResult.Definition, units);
 
         throw new InvalidOperationException(
-            "Cannot load the flora campaign: " + string.Join("; ", campaignResult.Errors));
+            "Cannot load campaign '" + campaignId + "': " + string.Join("; ", campaignResult.Errors));
     }
 
     private static UnitCatalog LoadUnitCatalog()

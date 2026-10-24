@@ -6,6 +6,20 @@ namespace Game.Tests;
 public sealed class GameLaunchOptionsTests
 {
     [Theory]
+    [InlineData("--screenshot-human-map", false, false)]
+    [InlineData("--screenshot-human-overview", true, false)]
+    [InlineData("--screenshot-human-navigation", true, true)]
+    public void HumanMapCaptureLoadsHumanCampaignWithOptionalOverviewAndDiagnosticOutline(
+        string mode, bool overview, bool navigation)
+    {
+        var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "human-map.png")]);
+        Assert.True(options.PreviewHumanCampaign);
+        Assert.Equal(overview, options.PreviewMapPanel);
+        Assert.Equal(navigation, options.PreviewNavigation);
+        Assert.False(options.PlayableCombat);
+    }
+
+    [Theory]
     [InlineData("--screenshot-encounter-empty", CampaignCaptureStage.EmptyEncounter)]
     [InlineData("--screenshot-encounter", CampaignCaptureStage.ReadyEncounter)]
     [InlineData("--screenshot-campaign-battle", CampaignCaptureStage.Combat)]
