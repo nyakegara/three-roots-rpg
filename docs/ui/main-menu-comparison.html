@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Three Roots — варианты главного меню</title>
+  <style>
+    :root{color-scheme:dark;--ink:#24180f;--wood:#372318;--wood2:#51351f;--gold:#d8b66d;--paper:#dccb9b;--cream:#f1e3bb;--muted:#b59d68;--green:#648744;--red:#7c382b}
+    *{box-sizing:border-box} body{margin:0;background:#17110c;color:var(--cream);font-family:Consolas,"Courier New",monospace;padding:24px}
+    header{max-width:1880px;margin:0 auto 18px;display:flex;align-items:end;justify-content:space-between;gap:24px}
+    h1{margin:0;color:#f6dfaa;font:700 23px Georgia,serif;letter-spacing:.08em;text-transform:uppercase} header p{margin:7px 0 0;color:#dccaa0;font-size:13px}
+    .key{font-size:11px;color:#9d8962;text-align:right;line-height:1.6}
+    .pair{max-width:1880px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .option{min-width:0}.option-title{height:28px;color:#dfc17c;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+    .screen{position:relative;aspect-ratio:16/9;overflow:hidden;background:#090e12;border:5px solid #80572c;outline:1px solid #d0a95f;box-shadow:0 12px 40px #0009,inset 0 0 0 2px #23170f}
+    .backdrop{position:absolute;inset:0;background-size:cover;background-position:center;image-rendering:auto;transition:filter .35s,transform .7s}
+    .map .backdrop{background-color:#071a2c;background-image:url('../../content/art/source/exploration.flora-island-master-v5.png');background-size:76% auto;background-position:right 2% center;background-repeat:no-repeat;filter:none}
+    .splash .backdrop{background-image:url('../../content/art/battlefield.forest.night.png');background-size:cover;background-position:center;filter:saturate(.9) brightness(.65)}
+    .screen:after{content:"";position:absolute;inset:0;pointer-events:none;border:1px solid #e0bd6a77;box-shadow:inset 0 0 80px #06080b99}
+    .title-mark{position:absolute;z-index:2;left:7%;top:8%;text-shadow:3px 4px #1b120a,0 0 20px #000b}
+    .title-mark .small{font-size:11px;letter-spacing:.34em;color:#d1b369}
+    .title-mark h2{font:700 clamp(29px,3vw,51px)/.95 Georgia,serif;letter-spacing:.08em;margin:9px 0 5px;color:#ffebbb}
+    .title-mark .sub{font-size:11px;letter-spacing:.18em;color:#d3c49a}
+    .frame{border:2px solid #987044;outline:1px solid #28190f;box-shadow:inset 0 0 0 2px #dfbd6b55,0 5px 18px #0009;background:linear-gradient(135deg,#4a321fef,#25190ff2)}
+    .buttons{position:absolute;z-index:3;display:grid;gap:8px}
+    .map .buttons{left:2.5%;top:39%;width:17%}
+    .splash .buttons{left:7%;top:49%;width:36%;gap:7px}
+    .splash-hero{position:absolute;z-index:2;right:5%;bottom:5%;height:55%;max-width:43%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 8px 0 #090807);transition:opacity .2s}
+    .screen.show-campaigns .splash-hero{opacity:0}
+    button{font:inherit;color:#f2e2b6;cursor:pointer}
+    .menu-btn{height:43px;text-align:left;padding:0 16px;background:linear-gradient(90deg,#52361fdc,#322117e8);border:1px solid #9c7540;box-shadow:inset 0 0 0 2px #23170c;letter-spacing:.08em;font-size:12px;transition:.15s}
+    .splash .menu-btn{height:38px;background:#251a11dc}
+    .menu-btn:hover,.menu-btn:focus-visible{background:#668042ef;border-color:#e4c778;transform:translateX(5px);outline:none}
+    .menu-btn.primary{color:#f7e5ae;background:linear-gradient(90deg,#705128f2,#49311df2);border-color:#e0bb66}
+    .stamp{position:absolute;z-index:2;right:4%;bottom:5%;color:#e5d09c;font-size:10px;letter-spacing:.1em;text-align:right;text-shadow:1px 2px #080705}
+    .map .stamp{max-width:27%}
+    .splash .stamp{left:7%;right:auto;bottom:5%;text-align:left}
+    .edition{position:absolute;z-index:2;bottom:4%;left:45%;padding:7px 11px;font-size:9px;letter-spacing:.16em;color:#c8b17a;background:#21170fc9;border:1px solid #795a32}
+    .campaigns{position:absolute;z-index:5;inset:0;display:none;align-items:center;justify-content:center;padding:5%;background:#080907f2;backdrop-filter:blur(3px)}
+    .screen.show-campaigns .campaigns{display:flex}
+    .campaign-board{width:100%;max-width:780px;padding:20px 22px 18px;background:linear-gradient(135deg,#e0d0a5,#c9b783);color:#2e2115;border:5px ridge #977042;box-shadow:0 12px 40px #000b}
+    .board-head{display:flex;align-items:start;justify-content:space-between;border-bottom:1px solid #8b7146;padding-bottom:10px;margin-bottom:13px}
+    .board-head h3{margin:0;font:700 22px Georgia,serif;letter-spacing:.04em;text-transform:uppercase}.board-head small{font:12px/1.4 "Trebuchet MS",sans-serif;color:#56442e}
+    .close{background:#39271b;color:#f0dfb6;border:1px solid #8b6b3e;width:34px;height:30px;font-size:17px}
+    .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .campaign-card{min-height:190px;padding:11px;background:#37271dcc;color:#f1e0b5;border:2px solid #87643a;display:flex;flex-direction:column;gap:7px;position:relative;overflow:hidden}
+    .campaign-card:before{content:"";position:absolute;inset:0;background-size:cover;background-position:center;opacity:.24;mix-blend-mode:screen}
+    .campaign-card.flora:before{background-image:url('../../content/art/source/exploration.flora-island-master-v5.png')}
+    .campaign-card.human:before{background-image:url('../../content/art/battlefield.forest.day.png')}
+    .campaign-card.undead:before{background-image:url('../../content/art/battlefield.forest.night.png')}
+    .campaign-card>*{position:relative;z-index:1;max-width:52%}
+    .campaign-card .sigil{width:max-content;max-width:57%;height:25px;padding:0 6px;display:grid;place-items:center;border:1px solid #d0ae6b;background:#1e1812;color:#f4d889;font-size:9px}
+    .campaign-card .hero-art{position:absolute;z-index:0;right:8px;bottom:8px;width:48%;height:66%;max-width:none;object-fit:contain;image-rendering:pixelated;opacity:.94}
+    .campaign-card h4{font:700 15px/1.2 Georgia,serif;color:#fff0be;margin:1px 0 0;letter-spacing:.02em;text-shadow:1px 2px #21170f,0 0 5px #000b}.campaign-card p{font:600 12px/1.43 "Trebuchet MS",Verdana,sans-serif;color:#f8efd7;margin:0;text-shadow:1px 2px #21170f,0 0 5px #000c}
+    .status{margin-top:auto;color:#ffe09b;font-size:10px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;text-shadow:1px 2px #21170f}
+    .board-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;color:#665337;font-size:10px}
+    .back{background:#39271b;color:#f0dfb6;border:1px solid #8b6b3e;padding:8px 12px;font-size:10px}
+    .caption{margin:9px 2px 0;color:#ae9b70;font-size:11px;line-height:1.5;min-height:34px}
+    @media(max-width:900px){body{padding:12px}.pair{grid-template-columns:1fr}.option-title{margin-top:10px}.campaign-card{min-height:165px}}
+  </style>
+</head>
+<body>
+  <header>
+    <div><h1>Три корня · главное меню</h1><p>Два направления одной оболочки. Нажми «Кампании», чтобы сравнить следующий экран.</p></div>
+    <div class="key">КОНЦЕПТ, НЕ ФИНАЛЬНЫЙ UI<br>Иллюстрации взяты из текущего билда</div>
+  </header>
+  <main class="pair">
+    <section class="option">
+      <div class="option-title">01 · Большая карта и меню поверх</div>
+      <div class="screen map">
+        <div class="backdrop"></div>
+        <div class="title-mark"><div class="small">ХРОНИКИ ТРЁХ КОРНЕЙ</div><h2>ТРИ<br>КОРНЯ</h2><div class="sub">ТРИ НАРОДА · ОДНА ЗЕМЛЯ</div></div>
+        <nav class="buttons frame">
+          <button class="menu-btn primary" data-open>▶ &nbsp; НОВАЯ ИГРА</button>
+          <button class="menu-btn" data-open>▣ &nbsp; КАМПАНИИ</button>
+          <button class="menu-btn">◷ &nbsp; ПРОДОЛЖИТЬ</button>
+          <button class="menu-btn">⚙ &nbsp; НАСТРОЙКИ</button>
+          <button class="menu-btn">× &nbsp; ВЫХОД</button>
+        </nav>
+        <div class="edition">ИСТОРИЯ ОСТРОВА · ГЛАВА I</div><div class="stamp">ПУТЬ ПРОЛЕГАЕТ СКВОЗЬ ТРИ КОРНЯ<br>ДЕМО · 2026</div>
+        <div class="campaigns"><div class="campaign-board"><div class="board-head"><div><h3>Выбери хронику</h3><small>Каждая кампания — отдельная история мира</small></div><button class="close" data-close aria-label="Закрыть">×</button></div><div class="cards">
+          <article class="campaign-card flora"><div class="sigil">I · ФЛОРА</div><h4>Защита острова</h4><p>Лиара собирает народ флоры, чтобы остановить высадку людей.</p><div class="status">ДОСТУПНА · ГЛАВА I</div><img class="hero-art" src="hero.flora.png" alt="Лиара"></article>
+          <article class="campaign-card human"><div class="sigil">II · ЛЮДИ</div><h4>Граница рассвета</h4><p>Эдрик идёт против мёртвых — пока не узнаёт, кого бросили за стеной.</p><div class="status">СЛЕДУЮЩАЯ · ГЛАВА II</div><img class="hero-art" src="hero.human.png" alt="Эдрик, капитан людей"></article>
+          <article class="campaign-card undead"><div class="sigil">III · НЕЖИТЬ</div><h4>Сад без рассвета</h4><p>Морвен хранит забытые имена и тайну древнего некрополя.</p><div class="status">ХРОНИКА · В РАЗРАБОТКЕ</div><img class="hero-art" src="hero.undead.png" alt="Морвен, хранитель некрополя"></article>
+        </div><div class="board-foot"><span>ESC · НАЗАД</span><button class="back" data-close>НАЗАД</button></div></div></div>
+      </div>
+      <p class="caption">Карта сразу объясняет масштаб мира и напоминает стратегическую карту. Кнопки занимают правый свободный край океана.</p>
+    </section>
+    <section class="option">
+      <div class="option-title">02 · Атмосферная заставка и компактное меню</div>
+      <div class="screen splash">
+        <div class="backdrop"></div>
+        <div class="title-mark"><div class="small">ХРОНИКИ ТРЁХ КОРНЕЙ</div><h2>ТРИ КОРНЯ</h2><div class="sub">ПАМЯТЬ ДОЛЬШЕ ЖИЗНИ</div></div>
+        <img class="splash-hero" src="../../content/art/hero.human.png" alt="Эдрик, капитан людей">
+        <nav class="buttons">
+          <button class="menu-btn primary" data-open>▶ &nbsp; НОВАЯ ИГРА</button>
+          <button class="menu-btn" data-open>▣ &nbsp; КАМПАНИИ</button>
+          <button class="menu-btn">◷ &nbsp; ПРОДОЛЖИТЬ</button>
+          <button class="menu-btn">⚙ &nbsp; НАСТРОЙКИ</button>
+          <button class="menu-btn">× &nbsp; ВЫХОД</button>
+        </nav>
+        <div class="stamp">ЗА ПРЕДЕЛАМИ ОСТРОВА<br>ЛЮДИ И МЁРТВЫЕ СПОРЯТ О ПРАВЕ ПОМНИТЬ</div>
+        <div class="campaigns"><div class="campaign-board"><div class="board-head"><div><h3>Выбери хронику</h3><small>Каждая кампания — отдельная история мира</small></div><button class="close" data-close aria-label="Закрыть">×</button></div><div class="cards">
+          <article class="campaign-card flora"><div class="sigil">I · ФЛОРА</div><h4>Защита острова</h4><p>Лиара собирает народ флоры, чтобы остановить высадку людей.</p><div class="status">ДОСТУПНА · ГЛАВА I</div><img class="hero-art" src="hero.flora.png" alt="Лиара"></article>
+          <article class="campaign-card human"><div class="sigil">II · ЛЮДИ</div><h4>Граница рассвета</h4><p>Эдрик идёт против мёртвых — пока не узнаёт, кого бросили за стеной.</p><div class="status">СЛЕДУЮЩАЯ · ГЛАВА II</div><img class="hero-art" src="hero.human.png" alt="Эдрик, капитан людей"></article>
+          <article class="campaign-card undead"><div class="sigil">III · НЕЖИТЬ</div><h4>Сад без рассвета</h4><p>Морвен хранит забытые имена и тайну древнего некрополя.</p><div class="status">ХРОНИКА · В РАЗРАБОТКЕ</div><img class="hero-art" src="hero.undead.png" alt="Морвен, хранитель некрополя"></article>
+        </div><div class="board-foot"><span>ESC · НАЗАД</span><button class="back" data-close>НАЗАД</button></div></div></div>
+      </div>
+      <p class="caption">Крупная типографика и текущий игровой кадр дают более кинематографичное первое впечатление; карта остаётся отдельным экраном выбора.</p>
+    </section>
+  </main>
+  <script>
+    document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>button.closest('.screen').classList.add('show-campaigns')));
+    document.querySelectorAll('[data-close]').forEach(button=>button.addEventListener('click',()=>button.closest('.screen').classList.remove('show-campaigns')));
+    document.addEventListener('keydown',event=>{if(event.key==='Escape')document.querySelectorAll('.show-campaigns').forEach(screen=>screen.classList.remove('show-campaigns'))});
+  </script>
+</body>
+</html>

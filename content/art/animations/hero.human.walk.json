@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 2,
+  "id": "hero.human.walk",
+  "image": "hero.human.walk.png",
+  "kind": "hero",
+  "width": 256,
+  "height": 720,
+  "columns": 4,
+  "rows": 9,
+  "cell": {
+    "width": 64,
+    "height": 80
+  },
+  "anchor": {
+    "x": 32,
+    "y": 72
+  },
+  "frameOrder": "row-major",
+  "heroCompactWalk": true,
+  "usedFrameCount": 29,
+  "unusedSlots": [
+    2,
+    3,
+    18,
+    19,
+    33,
+    34,
+    35
+  ],
+  "clips": [
+    {
+      "name": "walk.N",
+      "frames": [
+        0,
+        1
+      ],
+      "frameMs": 220,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.NE",
+      "frames": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "frameMs": 110,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.E",
+      "frames": [
+        8,
+        9,
+        10,
+        11
+      ],
+      "frameMs": 110,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.SE",
+      "frames": [
+        12,
+        13,
+        14,
+        15
+      ],
+      "frameMs": 110,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.S",
+      "frames": [
+        16,
+        17
+      ],
+      "frameMs": 220,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.SW",
+      "frames": [
+        20,
+        21,
+        22,
+        23
+      ],
+      "frameMs": 110,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.W",
+      "frames": [
+        24,
+        25,
+        26,
+        27
+      ],
+      "frameMs": 110,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "walk.NW",
+      "frames": [
+        28,
+        29,
+        30,
+        31
+      ],
+      "frameMs": 110,
+      "loop": true,
+      "impactFrame": null
+    },
+    {
+      "name": "idle.SE",
+      "frames": [
+        32
+      ],
+      "frameMs": 110,
+      "loop": false,
+      "impactFrame": null
+    }
+  ]
+}

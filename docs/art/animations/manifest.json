@@ -1,6 +1,8 @@
 {
   "sheets": [
     "../../../content/art/animations/hero.flora.walk.json",
+    "../../../content/art/animations/hero.human.walk.json",
+    "../../../content/art/animations/hero.undead.walk.json",
     "../../../content/art/animations/unit.flora.thorn-guard.actions.json",
     "../../../content/art/animations/unit.flora.sprout.actions.json",
     "../../../content/art/animations/unit.flora.ember-bloom.actions.json",
