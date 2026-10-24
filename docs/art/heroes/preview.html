@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Главные герои · сравнение с Лиарой</title>
+<style>
+  :root { color-scheme: dark; font-family: Georgia, serif; background: #151c1b; color: #f2e4ba; }
+  body { max-width: 1060px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 27px; margin: 0 0 6px; }
+  p { color: #cfbea0; line-height: 1.5; margin: 0 0 18px; }
+  .controls { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; margin: 15px 0 20px; }
+  select, button { font: 15px Georgia, serif; padding: 8px 12px; color: #f9e8b6; background: #34291d; border: 1px solid #af8550; }
+  button.active { color: #21190f; background: #e2c483; }
+  .figures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  article { padding: 12px; border: 2px solid #917349; background: #25322d; text-align: center; }
+  article h2 { font: 22px Georgia, serif; margin: 0 0 3px; color: #ffe6a7; }
+  article small { color: #c9b89b; }
+  canvas { display: block; width: 256px; height: 320px; max-width: 100%; margin: 10px auto 0; image-rendering: pixelated; }
+  .note { margin-top: 20px; padding: 12px 15px; border-left: 3px solid #d0a565; background: #251e1a; }
+  @media (max-width: 760px) { .figures { grid-template-columns: 1fr; } }
+</style>
+<h1>Эдрик и Морвен рядом с Лиарой</h1>
+<p>Игровые атласы 64×80: восемь направлений ходьбы и неподвижный кадр покоя. Скорость 0,5× — та, на которой ранее проверялась походка Лиары.</p>
+<div class="controls">
+  <label>Направление <select id="direction"><option>N</option><option>NE</option><option>E</option><option selected>SE</option><option>S</option><option>SW</option><option>W</option><option>NW</option><option>idle</option></select></label>
+  <span>Скорость</span><button id="half" class="active">0,5×</button><button id="normal">1×</button>
+</div>
+<div class="figures">
+  <article><h2>Лиара</h2><small>Флора · эталон масштаба</small><canvas id="flora" width="64" height="80"></canvas></article>
+  <article><h2>Эдрик</h2><small>Люди · капитан с фонарём</small><canvas id="human" width="64" height="80"></canvas></article>
+  <article><h2>Морвен</h2><small>Нежить · хранитель имён</small><canvas id="undead" width="64" height="80"></canvas></article>
+</div>
+<p class="note">Каждый герой использует собственный спрайт и портрет в путешествии и боевом интерфейсе. Если здесь виден дефект шага, можно назвать направление и кадр.</p>
+<script>
+const directions = ['N','NE','E','SE','S','SW','W','NW'];
+const atlas = {};
+for (const faction of ['flora','human','undead']) {
+  atlas[faction] = new Image();
+  atlas[faction].src = `../../../content/art/animations/hero.${faction}.walk.png`;
+}
+let direction = 'SE', speed = .5, elapsed = 0, last = performance.now();
+document.getElementById('direction').onchange = event => { direction = event.target.value; elapsed = 0; };
+for (const [id, value] of [['half', .5], ['normal', 1]]) {
+  document.getElementById(id).onclick = () => {
+    speed = value;
+    document.getElementById('half').classList.toggle('active', value === .5);
+    document.getElementById('normal').classList.toggle('active', value === 1);
+  };
+}
+function draw(now) {
+  elapsed += Math.min(100, now - last) * speed; last = now;
+  const row = direction === 'idle' ? 8 : directions.indexOf(direction);
+  const cadence = row === 0 || row === 4 ? 220 : 110;
+  const frames = row === 8 ? [0] : row === 0 || row === 4 ? [0,1] : [0,1,2,3];
+  const frame = frames[Math.floor(elapsed / cadence) % frames.length];
+  for (const faction of ['flora','human','undead']) {
+    const canvas = document.getElementById(faction);
+    const context = canvas.getContext('2d');
+    context.imageSmoothingEnabled = false;
+    context.fillStyle = '#405744'; context.fillRect(0, 0, 64, 80);
+    context.fillStyle = '#566747'; context.fillRect(0, 66, 64, 14);
+    context.fillStyle = '#233326'; context.fillRect(18, 72, 28, 2);
+    const image = atlas[faction];
+    if (image.complete && image.naturalWidth) context.drawImage(image, frame * 64, row * 80, 64, 80, 0, 0, 64, 80);
+  }
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+</script>
+</html>

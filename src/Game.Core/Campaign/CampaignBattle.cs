@@ -10,6 +10,7 @@ public sealed class CampaignBattle
     public GeneratedBattlefield Field { get; }
     public Battle Battle { get; }
     public bool IsNight => Owner.IsNight;
+    public string HeroId => Owner.Hero.Id;
     internal Campaign Owner { get; }
     internal IReadOnlyList<EncounterTroop> StartingArmy { get; }
 

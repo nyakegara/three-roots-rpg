@@ -11,9 +11,13 @@ namespace Game.MonoGame;
 internal sealed class AssetCatalog : IDisposable
 {
     public const string FloraHero = "hero.flora";
+    public const string HumanHero = "hero.human";
+    public const string UndeadHero = "hero.undead";
     public const string HumanGuard = "unit.human.guard";
     public const string Rock = "terrain.rock";
     public const string FloraPortrait = "portrait.flora";
+    public const string HumanPortrait = "portrait.human";
+    public const string UndeadPortrait = "portrait.undead";
     public const string AncientOak = "terrain.old-oak";
     public const string ForestTree = "terrain.forest-tree";
     public const string Treasure = "poi.treasure";
@@ -34,11 +38,26 @@ internal sealed class AssetCatalog : IDisposable
     private readonly Dictionary<string, Texture2D> _actionTextures = new();
     private readonly Dictionary<string, Rectangle[]> _actionFrameBounds = new();
     private readonly Dictionary<string, byte[]> _hitAlpha = new();
-    private Texture2D? _heroWalkTexture;
+    private readonly Dictionary<string, Texture2D> _heroWalkTextures = new();
+
+    public static string HeroKey(string heroId) => heroId switch
+    {
+        "edric" or "human" => HumanHero,
+        "morven" or "undead" => UndeadHero,
+        _ => FloraHero
+    };
+
+    public static string PortraitKey(string heroId) => heroId switch
+    {
+        "edric" or "human" => HumanPortrait,
+        "morven" or "undead" => UndeadPortrait,
+        _ => FloraPortrait
+    };
 
     public AssetCatalog(GraphicsDevice device, int mapPixelSize = 0, string mapDetailStyle = "original")
     {
-        foreach (var key in new[] { FloraHero, HumanGuard, Rock, FloraPortrait,
+        foreach (var key in new[] { FloraHero, HumanHero, UndeadHero, HumanGuard, Rock,
+                     FloraPortrait, HumanPortrait, UndeadPortrait,
                      AncientOak, ForestTree, Treasure, AdventureGround, FloraIslandGround,
                      FloraIslandNorthWest, FloraIslandNorthEast,
                      FloraIslandSouthWest, FloraIslandSouthEast,
@@ -167,14 +186,15 @@ internal sealed class AssetCatalog : IDisposable
                 System.Diagnostics.Trace.TraceWarning("Cannot load action art '{0}': {1}", path, exception.Message);
             }
         }
-        var heroPath = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", "hero.flora.walk.png");
-        if (File.Exists(heroPath))
+        foreach (var faction in new[] { "flora", "human", "undead" })
         {
+            var heroPath = Path.Combine(AppContext.BaseDirectory, "Content", "art", "animations", $"hero.{faction}.walk.png");
+            if (!File.Exists(heroPath)) continue;
             try
             {
                 using var stream = File.OpenRead(heroPath);
                 var texture = LoadPremultiplied(device, stream, out _);
-                if (texture.Width == 256 && texture.Height == 720) _heroWalkTexture = texture;
+                if (texture.Width == 256 && texture.Height == 720) _heroWalkTextures.Add(faction, texture);
                 else texture.Dispose();
             }
             catch (Exception exception) when (exception is IOException or InvalidOperationException)
@@ -207,15 +227,16 @@ internal sealed class AssetCatalog : IDisposable
 
     public bool HasAsset(string key) => _textures.ContainsKey(key);
 
-    public bool TryDrawHeroWalk(PixelCanvas canvas, Rectangle destination,
+    public bool TryDrawHeroWalk(PixelCanvas canvas, string heroId, Rectangle destination,
         bool moving, System.Numerics.Vector2 direction, float seconds)
     {
-        if (_heroWalkTexture is null) return false;
+        var faction = heroId switch { "edric" => "human", "morven" => "undead", _ => "flora" };
+        if (!_heroWalkTextures.TryGetValue(faction, out var texture)) return false;
         var octant = ((int)MathF.Round(MathF.Atan2(direction.Y, direction.X) / (MathF.PI / 4)) + 8) % 8;
         var row = moving ? (octant + 2) % 8 : 8;
         var cardinal = row is 0 or 4;
         var frame = moving ? (int)(seconds / (cardinal ? 0.44f : 0.22f)) % (cardinal ? 2 : 4) : 0;
-        canvas.Texture(_heroWalkTexture, new Rectangle(frame * 64, row * 80, 64, 80), destination);
+        canvas.Texture(texture, new Rectangle(frame * 64, row * 80, 64, 80), destination);
         return true;
     }
 
@@ -339,7 +360,8 @@ internal sealed class AssetCatalog : IDisposable
 
     public void Dispose()
     {
-        _heroWalkTexture?.Dispose();
+        foreach (var texture in _heroWalkTextures.Values) texture.Dispose();
+        _heroWalkTextures.Clear();
         foreach (var asset in _textures.Values)
             asset.Texture.Dispose();
         _textures.Clear();

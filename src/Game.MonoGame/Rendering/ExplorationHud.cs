@@ -30,7 +30,7 @@ internal sealed class ExplorationHud(PixelCanvas canvas, AssetCatalog assets, Un
         canvas.Frame(17, 600, 94, 113, Bronze, 3);
         canvas.Frame(22, 605, 84, 103, Gold * 0.68f, 1);
         var portrait = new Rectangle(27, 610, 74, 90);
-        if (!assets.TryDraw(canvas, AssetCatalog.FloraPortrait, portrait)) FantasyArt.DrawPortrait(canvas, portrait, true);
+        if (!assets.TryDraw(canvas, AssetCatalog.PortraitKey(hero.Id), portrait)) FantasyArt.DrawPortrait(canvas, portrait, true);
 
         _font.Draw(hero.Name, 128, 614, Parchment, 2);
         _font.Draw($"УРОВЕНЬ {hero.Level}   ОПЫТ {hero.Experience}/{hero.ExperienceToNextLevel}", 128, 638, Gold, 1);

@@ -7,6 +7,7 @@ namespace Game.MonoGame.Rendering;
 /// <summary>Compact wood-and-bronze battle commands, unit details, and initiative strip.</summary>
 internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCatalog units)
 {
+    public string HeroId { get; set; } = "flora";
     internal static bool CanIssueCommands(Battle battle, bool actionInProgress) =>
         !actionInProgress && !battle.IsFinished && battle.ActiveUnit is { IsAlive: true, Side: BattleSide.Player };
 
@@ -92,9 +93,9 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
         canvas.Rect(14, 610, 78, 94, Shadow);
         canvas.Frame(14, 610, 78, 94, Bronze, 2);
         var portrait = new Rectangle(18, 612, 70, 86);
-        if (!assets.TryDraw(canvas, AssetCatalog.FloraPortrait, portrait))
+        if (!assets.TryDraw(canvas, AssetCatalog.PortraitKey(HeroId), portrait))
             FantasyArt.DrawPortrait(canvas, portrait, true);
-        _font.Draw("ФЛОРА", 34, 706, Gold, 1);
+        _font.Draw(HeroId switch { "edric" => "ЛЮДИ", "morven" => "НЕЖИТЬ", _ => "ФЛОРА" }, 29, 706, Gold, 1);
     }
 
     private void DrawInitiative(Battle battle, BattleUnit? active)
@@ -112,7 +113,7 @@ internal sealed class BattleHud(PixelCanvas canvas, AssetCatalog assets, UnitCat
             canvas.Rect(x + 3, 688, 2, 21, color);
             var icon = new Rectangle(x + 7, 687, 22, 19);
             var definition = units.Get(unit.UnitTypeId);
-            var key = unit.IsHero ? AssetCatalog.FloraHero : definition?.ArtKey ?? AssetCatalog.HumanGuard;
+            var key = unit.IsHero ? AssetCatalog.HeroKey(HeroId) : definition?.ArtKey ?? AssetCatalog.HumanGuard;
             if (!assets.TryDrawCropped(canvas, key, icon) &&
                 !assets.TryDrawCropped(canvas, AssetCatalog.HumanGuard, icon))
             {

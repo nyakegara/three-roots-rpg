@@ -17,6 +17,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
     private static readonly Color Water = new(54, 91, 105);
     private static readonly Color Ink = new(39, 40, 23);
     private bool _compactMap;
+    private string _heroId = "flora";
     private IReadOnlySet<string>? _activeQuestPoints;
 
     internal static WorldVector2 IdleActorOffset(string pointId) =>
@@ -51,6 +52,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         IReadOnlySet<string>? activeQuestPoints = null)
     {
         _compactMap = map.Id == "flora-01";
+        _heroId = map.Id switch { "human-01" => "edric", "undead-01" => "morven", _ => "flora" };
         _activeQuestPoints = activeQuestPoints;
         var viewport = new Rectangle(0, 0, 1280, 600);
         using var clip = canvas.PushClip(viewport);
@@ -151,9 +153,9 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             canvas.Line(new(p.X + MathF.Cos(a) * 18, p.Y + MathF.Sin(a) * 6),
                 new(p.X + MathF.Cos(b) * 18, p.Y + MathF.Sin(b) * 6), new Color(230, 192, 107), 1);
         }
-        if (!assets.TryDrawHeroWalk(canvas, new((int)p.X - 32, (int)p.Y - 72, 64, 80),
+        if (!assets.TryDrawHeroWalk(canvas, _heroId, new((int)p.X - 32, (int)p.Y - 72, 64, 80),
                 travel.IsMoving, travel.Direction, travel.AnimationSeconds))
-            assets.TryDraw(canvas, AssetCatalog.FloraHero, new((int)p.X - 22, (int)p.Y - 56, 44, 56));
+            assets.TryDraw(canvas, AssetCatalog.HeroKey(_heroId), new((int)p.X - 22, (int)p.Y - 56, 44, 56));
     }
 
     private bool DrawGround(WorldMap map, AdventureMapProjection projection, AdventureMapCamera camera)
@@ -388,7 +390,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
                 new XnaVector2(p.X + MathF.Cos(next) * 21, p.Y + 19 + MathF.Sin(next) * 8),
                 new Color(230, 192, 107) * 0.9f, 2);
         }
-        if (!assets.TryDraw(canvas, AssetCatalog.FloraHero, _compactMap
+        if (!assets.TryDraw(canvas, AssetCatalog.HeroKey(_heroId), _compactMap
                 ? new Rectangle((int)p.X - 22, (int)p.Y - 48, 44, 56)
                 : new Rectangle((int)p.X - 37, (int)p.Y - 78, 74, 96)))
             FantasyArt.DrawHero(canvas, (int)p.X, (int)p.Y);

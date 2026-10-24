@@ -12,8 +12,8 @@
     <ProjectReference Include="..\Game.Core\Game.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\..\content\art\animations\hero.flora.walk.png"
-             Link="Content\art\animations\hero.flora.walk.png"
+    <Content Include="..\..\content\art\animations\hero.*.walk.png"
+             Link="Content\art\animations\%(Filename)%(Extension)"
              CopyToOutputDirectory="PreserveNewest" />
     <Content Include="..\..\content\art\*.png"
              Link="Content\art\%(Filename)%(Extension)"

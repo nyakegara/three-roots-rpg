@@ -212,6 +212,7 @@ internal sealed class BattleScreen : IGameScreen
         Func<EncounterResolution> returnToMap, Action exit, MouseState initialMouse, KeyboardState initialKeyboard)
         : this(canvas, assets, catalog, exit, session.IsNight)
     {
+        _hud.HeroId = session.HeroId;
         _seed = session.Encounter.Seed;
         _campaignBattle = session;
         _returnToMap = returnToMap;
