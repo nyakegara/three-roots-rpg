@@ -91,7 +91,9 @@ public sealed class CampaignBalanceTests
             var session = campaign.TryStartEncounter(point, point.Coordinate, units).Session;
             Assert.NotNull(session);
             SimulateBattle(session!.Battle);
-            Assert.Equal(BattleSide.Player, session.Battle.Winner);
+            Assert.True(session.Battle.Winner == BattleSide.Player,
+                $"Lost {encounterId}: " + string.Join(", ", session.Battle.Units.Select(unit =>
+                    $"{unit.Id} {unit.UnitTypeId} HP={unit.RemainingHitPoints}")));
             var resolution = campaign.ResolveEncounter(session);
             Assert.True(resolution.Success, resolution.Message);
             Assert.True(resolution.Victory);
@@ -155,21 +157,12 @@ public sealed class CampaignBalanceTests
                 continue;
             }
 
-            if (active.Ability == UnitAbility.HealAlly && !battle.HasAttacked(active.Id))
-            {
-                var wounded = battle.Units.Where(unit => unit.IsAlive && unit.Side == active.Side && unit.Id != active.Id &&
-                        unit.RemainingHitPoints < unit.MaximumHitPointsAtBattleStart)
-                    .OrderBy(unit => unit.RemainingHitPoints)
-                    .FirstOrDefault();
-                if (wounded is not null && battle.TryHeal(active.Id, wounded.Id))
-                    continue;
-            }
-
             var action = ai.ChooseAction(battle, active.Id);
             var applied = action.Type switch
             {
                 BattleActionType.Move => battle.Move(active.Id, action.Destination!.Value),
                 BattleActionType.Attack => battle.Attack(active.Id, action.TargetId!),
+                BattleActionType.Heal => battle.TryHeal(active.Id, action.TargetId!),
                 BattleActionType.SetAttackMode => battle.TrySetAttackMode(active.Id, action.Mode!.Value),
                 _ => EndActivation()
             };

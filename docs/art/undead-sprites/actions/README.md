@@ -8,6 +8,8 @@
 dotnet run --project docs/art/undead-sprites/actions/export -- docs/art/undead-sprites/actions
 ```
 
+Для отправки без браузера: [`undead-actions-half-speed.gif`](undead-actions-half-speed.gif) показывает все шесть клипов на скорости 0,5× с целочисленным масштабом 2×. Он собирается из тех же атласов командой `python docs/art/undead-sprites/actions/export-preview.py` (нужен Pillow); художественные кадры при этом не меняются.
+
 Игровой кадр со всеми пятью бойцами: [`undead-battle.png`](undead-battle.png). Воспроизвести его можно командой `dotnet run --project src/Game.MonoGame/Game.MonoGame.csproj -- --screenshot-combat-undead <абсолютный-путь-к-PNG>`. Для интерактивного боя служит `--combat-undead`.
 
 Экспорт берёт реальные alpha-компоненты из `sources/*.png`, один масштаб на весь клип, опору ног в `(80,168)` и точечную выборку без размытия. `edge=0` в JSON означает отсутствие обрезки экспортной клеткой; уже обрезанные границей *исходника* части он не восстанавливает.
