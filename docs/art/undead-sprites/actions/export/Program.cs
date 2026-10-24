@@ -32,12 +32,16 @@ foreach(var id in new[]{"utburd","silat","nachzehrer","vetala","asura-preta"}){
  using var reference=new Bitmap(Path.Combine(root,"../../../../content/art/prototypes/undead",id+".png"));
  int top=128,bottom=0;for(int y=0;y<128;y++)for(int x=0;x<128;x++)if(reference.GetPixel(x,y).A>=128){top=Math.Min(top,y);bottom=Math.Max(bottom,y);}
  double scale=(bottom-top+1.0)/bodies[0].Box.Height;
+ // The Asura winds up above the head, then lunges low. Keep the approved body
+ // scale across poses rather than shrinking the body to the raised sword box.
+ if(id=="asura-preta")scale=0.18659420289855072;
  using var sheet=new Bitmap(192*4,192*(count/4));var records=new List<object>();
  for(int i=0;i<count;i++){
   var b=bodies[i].Box;
   var feet=bodies[i].Pixels.Where(p=>p/w>=b.Bottom-18).ToArray();
   double px=(feet.Min(p=>p%w)+feet.Max(p=>p%w))/2.0,py=b.Bottom;
-  if(id=="asura-preta"){double[] xs={.265,.755,.255,.775},ys={.524,.524,.962,.994};px=w*xs[i];py=h*ys[i];}
+  // Ground contacts exclude the descending sword tip in the impact frame.
+  if(id=="asura-preta"){double[] xs={340,913,288,980},ys={629,628,1114,1128};px=xs[i];py=ys[i];}
   int occupied=0,edge=0;
   for(int y=0;y<192;y++)for(int x=0;x<192;x++){
    int sx=(int)Math.Floor(px+(x+.5-80)/scale),sy=(int)Math.Floor(py+(y+.5-168)/scale);

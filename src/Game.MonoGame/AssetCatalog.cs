@@ -242,6 +242,9 @@ internal sealed class AssetCatalog : IDisposable
         if (source.IsEmpty)
             source = new Rectangle(index % 4 * cellWidth, index / 4 * cellHeight, cellWidth, cellHeight);
         var reference = _actionFrameBounds[key][0];
+        // Keep the approved Asura body scale: its new anticipation raises the
+        // sword higher, which must not shrink the entire creature to that box.
+        if (key == "unit.undead.asura-preta.actions") reference = new Rectangle(18, 65, 119, 103);
         if (reference.IsEmpty) reference = new Rectangle(0, 0, cellWidth, cellHeight);
         var fitted = ActionFrameLayout.FitToReference(source, reference, destination, flipHorizontally,
             cellWidth, cellHeight);

@@ -14,7 +14,7 @@ for(const e of state){
  const card=document.createElement('section');card.className='card';
  card.innerHTML='<div class="title">'+names[e.id]+'</div><div class="stage"><canvas width="192" height="192"></canvas></div><div class="info"></div><div class="clips"></div><div class="frames"></div>';
  e.card=card;e.canvas=card.querySelector('canvas');cards.append(card);
- const img=new Image();img.src=e.image;e.img=img;img.onload=()=>draw(e);
+ const img=new Image();img.src=e.image+'?v='+encodeURIComponent(JSON.stringify(e.records));e.img=img;img.onload=()=>draw(e);
  e.clips.forEach((c,i)=>{const b=document.createElement('button');b.textContent=c.name==='heal'?'Лечение':'Атака';b.onclick=()=>{e.clip=i;e.frame=0;draw(e)};card.querySelector('.clips').append(b)});
  for(let i=0;i<4;i++){const b=document.createElement('button');b.textContent=String(i+1);b.onclick=()=>{playing=false;e.frame=i;updateControls();draw(e)};card.querySelector('.frames').append(b)}
 }

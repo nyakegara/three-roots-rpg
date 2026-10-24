@@ -26,3 +26,14 @@ for index in range(4):
 frames[0].save(root / "undead-actions-half-speed.gif", save_all=True, append_images=frames[1:], duration=320, loop=0, disposal=2)
 frames[2].save(root / "undead-actions-contact.png")
 print("Exported 6 original clips, 4 frames each, 0.5x speed")
+
+asura = next(entry for entry in entries if entry["id"] == "asura-preta")
+atlas = Image.open(root / asura["image"]).convert("RGBA")
+frames = []
+for frame in asura["clips"][0]["frames"]:
+    canvas = Image.new("RGB", (384,416), "#3c483a")
+    ImageDraw.Draw(canvas).text((14,8), "Асура-прета: новая атака / 0,5x", font=font, fill="#efdbab")
+    cell = atlas.crop((frame*192,0,(frame+1)*192,192)).resize((384,384), Image.Resampling.NEAREST)
+    canvas.paste(cell, (0,32), cell)
+    frames.append(canvas)
+frames[0].save(root / "asura-preta-half-speed.gif", save_all=True, append_images=frames[1:], duration=320, loop=0, disposal=2)
