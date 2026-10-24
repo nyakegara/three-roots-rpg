@@ -94,6 +94,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                 saveWarning) { ShowNavigation = _options.PreviewNavigation };
             if (_options.ScreenshotPath is not null && _options.PreviewMapSiteId is { } sitePreview)
                 ((ExplorationScreen)_screen).PrepareSitePlacementPreview(sitePreview);
+            if (_options.PreviewHumanDam)
+                ((ExplorationScreen)_screen).PrepareHumanDamPreview();
             if (_options.ScreenshotPath is not null && _options.PreviewRecruitmentSiteId is not null)
                 ((ExplorationScreen)_screen).CaptureRecruitmentPurchasePreview();
             if (_options.Night) ((ExplorationScreen)_screen).PrepareNightPreview();

@@ -177,6 +177,7 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         };
         if (assets.TryDraw(canvas, groundKey, worldRect))
         {
+            if (map.Id == "human-01") HumanBorderArt.DrawDamEdit(canvas, assets, worldRect);
             canvas.Rect(0, 0, 1280, MapViewportHeight, new Color(32, 36, 25) * 0.19f);
             return true;
         }

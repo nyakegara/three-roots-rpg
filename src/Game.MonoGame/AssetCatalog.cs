@@ -24,6 +24,7 @@ internal sealed class AssetCatalog : IDisposable
     public const string AdventureGround = "exploration.ground";
     public const string FloraIslandGround = "exploration.flora-island";
     public const string HumanBorderGround = "exploration.human-border";
+    public const string HumanBorderDamEdit = "exploration.human-border-dam-edit-v3";
     public const string FloraIslandNorthWest = "exploration.flora-island-v5-nw";
     public const string FloraIslandNorthEast = "exploration.flora-island-v5-ne";
     public const string FloraIslandSouthWest = "exploration.flora-island-v5-sw";
@@ -60,7 +61,8 @@ internal sealed class AssetCatalog : IDisposable
     {
         foreach (var key in new[] { FloraHero, HumanHero, UndeadHero, HumanGuard, Rock,
                      FloraPortrait, HumanPortrait, UndeadPortrait,
-                     AncientOak, ForestTree, Treasure, AdventureGround, FloraIslandGround, HumanBorderGround,
+                     AncientOak, ForestTree, Treasure, AdventureGround, FloraIslandGround,
+                     HumanBorderGround, HumanBorderDamEdit,
                      FloraIslandNorthWest, FloraIslandNorthEast,
                      FloraIslandSouthWest, FloraIslandSouthEast,
                      "unit.flora.sprout", "unit.flora.thorn-guard", "unit.flora.ember-bloom",
@@ -75,7 +77,7 @@ internal sealed class AssetCatalog : IDisposable
                      RootGreenhouse, SunnyClearing, SporeCircle,
                      BattlefieldForestDay, BattlefieldForestNight })
         {
-            if (key == HumanBorderGround && !loadHumanBorder) continue;
+            if (key is HumanBorderGround or HumanBorderDamEdit && !loadHumanBorder) continue;
             var path = Path.Combine(AppContext.BaseDirectory, "Content", "art", key + ".png");
             if (!File.Exists(path))
                 continue;
@@ -84,6 +86,8 @@ internal sealed class AssetCatalog : IDisposable
             {
                 using var stream = File.OpenRead(path);
                 var texture = LoadPremultiplied(device, stream, out var contentBounds);
+                if (key == HumanBorderDamEdit)
+                    HumanBorderArt.ApplyDamEditMask(texture);
                 if (mapPixelSize > 0 && key is FloraIslandNorthWest or FloraIslandNorthEast or
                     FloraIslandSouthWest or FloraIslandSouthEast)
                 {

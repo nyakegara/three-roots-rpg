@@ -22,6 +22,7 @@ public sealed record GameLaunchOptions
     public bool PreviewNavigation { get; init; }
     public bool PreviewFreeTravel { get; init; }
     public bool PreviewHumanCampaign { get; init; }
+    public bool PreviewHumanDam { get; init; }
     public string? PreviewRecruitmentSiteId { get; init; }
     public string? PreviewMapSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
@@ -82,6 +83,7 @@ public sealed record GameLaunchOptions
                 case "--screenshot-human-map":
                 case "--screenshot-human-overview":
                 case "--screenshot-human-navigation":
+                case "--screenshot-human-dam":
                 case "--screenshot-navigation":
                 case "--screenshot-travel":
                 case "--screenshot-journal":
@@ -198,7 +200,8 @@ public sealed record GameLaunchOptions
                 or "--screenshot-human-overview" or "--screenshot-human-navigation",
             PreviewNavigation = mode is "--screenshot-navigation" or "--screenshot-human-navigation",
             PreviewHumanCampaign = mode is "--screenshot-human-map" or "--screenshot-human-overview"
-                or "--screenshot-human-navigation",
+                or "--screenshot-human-navigation" or "--screenshot-human-dam",
+            PreviewHumanDam = mode == "--screenshot-human-dam",
             PreviewFreeTravel = mode == "--screenshot-travel",
             PreviewJournalPanel = mode == "--screenshot-journal",
             PreviewMapSiteId = mode switch

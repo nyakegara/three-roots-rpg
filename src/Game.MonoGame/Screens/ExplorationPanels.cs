@@ -2,6 +2,7 @@ using Game.Core.Campaigns;
 using Game.Core.Geometry;
 using Game.Core.World;
 using Game.Core.Navigation;
+using Game.MonoGame.Rendering;
 using Microsoft.Xna.Framework;
 
 namespace Game.MonoGame.Screens;
@@ -51,6 +52,7 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
         {
             using var tint = canvas.PushTint(BattleLighting.ExplorationTint(nightBlend));
             assets.TryDraw(canvas, AssetCatalog.HumanBorderGround, _displayMapArea);
+            HumanBorderArt.DrawDamEdit(canvas, assets, _displayMapArea);
         }
         else canvas.Rect(MapArea.X, MapArea.Y, MapArea.Width, MapArea.Height, new Color(92, 110, 63));
 

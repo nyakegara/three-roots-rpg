@@ -9,6 +9,7 @@ public sealed class GameLaunchOptionsTests
     [InlineData("--screenshot-human-map", false, false)]
     [InlineData("--screenshot-human-overview", true, false)]
     [InlineData("--screenshot-human-navigation", true, true)]
+    [InlineData("--screenshot-human-dam", false, false)]
     public void HumanMapCaptureLoadsHumanCampaignWithOptionalOverviewAndDiagnosticOutline(
         string mode, bool overview, bool navigation)
     {
@@ -16,6 +17,7 @@ public sealed class GameLaunchOptionsTests
         Assert.True(options.PreviewHumanCampaign);
         Assert.Equal(overview, options.PreviewMapPanel);
         Assert.Equal(navigation, options.PreviewNavigation);
+        Assert.Equal(mode == "--screenshot-human-dam", options.PreviewHumanDam);
         Assert.False(options.PlayableCombat);
     }
 
