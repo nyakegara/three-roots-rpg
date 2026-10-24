@@ -9,6 +9,16 @@ namespace Game.Tests.Combat;
 public sealed class BattleDemoTests
 {
     [Fact]
+    public void UndeadPreview_ContainsAllFiveApprovedUnitsOnThePlayerSide()
+    {
+        var demo = BattleDemo.Create(Catalog(), 1729, undeadPreview: true);
+        Assert.Equal(5, demo.Battle.Units.Count(unit => unit.Side == BattleSide.Player));
+        Assert.Equal(new[] { "undead.asura-preta", "undead.nachzehrer", "undead.silat", "undead.utburd", "undead.vetala" },
+            demo.Battle.Units.Where(unit => unit.Side == BattleSide.Player)
+                .Select(unit => unit.UnitTypeId).OrderBy(id => id).ToArray());
+    }
+
+    [Fact]
     public void AfterAttackCapture_ActuallyRetainsUnusedMovementForItsVisiblePromise()
     {
         var battle = BattleDemo.Create(Catalog(), 1729).Battle;
@@ -25,11 +35,12 @@ public sealed class BattleDemoTests
     [InlineData(BattleCaptureStage.HunterAttack)]
     public void HunterCaptures_ReachALegalAttackWithoutMovingUnitsOutsideBattleRules(BattleCaptureStage stage)
     {
-        var demo = BattleDemo.Create(Catalog(), 1729, fullRoster: true);
+        var demo = BattleDemo.Create(Catalog(), 1729, hunterPreview: true);
         var cell = BattleCaptureSetup.Advance(demo.Battle, stage);
         var actor = demo.Battle.ActiveUnit!;
         var target = demo.Battle.Units.Single(unit => unit.IsAlive && unit.Position == cell);
         Assert.Equal("human.order-hunter", actor.UnitTypeId);
+        Assert.True(target.IsRanged);
         Assert.True(BattleRules.CanAttack(actor, target, demo.Battle.Map));
         Assert.True(demo.Battle.Attack(actor.Id, target.Id));
     }

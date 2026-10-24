@@ -20,6 +20,18 @@ public sealed class BattleAi
 
         if (!battle.HasAttacked(unitId))
         {
+            if (unit.Ability == UnitAbility.HealAlly)
+            {
+                // Spending an attack to restore a scratch is worse than attacking. Reserve
+                // healing for a substantial wound, including a lost 8-HP Utburd.
+                var heal = BattleRules.GetHealingAmount(unit);
+                var wounded = battle.Units.Where(ally => ally.IsAlive && ally.Side == unit.Side &&
+                                  ally.Id != unit.Id && ally.MaximumHitPointsAtBattleStart - ally.RemainingHitPoints >=
+                                  Math.Max(3, heal - 3))
+                    .OrderByDescending(ally => Math.Min(heal, ally.MaximumHitPointsAtBattleStart - ally.RemainingHitPoints))
+                    .ThenBy(ally => ally.Id, StringComparer.Ordinal).FirstOrDefault();
+                if (wounded is not null) return BattleAction.Heal(wounded.Id);
+            }
             if (unit.Ability == UnitAbility.RadiantModes)
             {
                 // Keep the hammer against adjacent enemies; use fire when a clear shot is available.
@@ -30,7 +42,8 @@ public sealed class BattleAi
             }
             var target = battle.GetEnemies(unit.Side)
                 .Where(enemy => BattleRules.CanAttack(unit, enemy, battle.Map))
-                .OrderBy(enemy => enemy.Count)
+                .OrderBy(enemy => unit.Ability == UnitAbility.Hunter && IsRangedThreat(enemy) ? 0 : 1)
+                .ThenBy(enemy => enemy.Count)
                 .ThenBy(enemy => enemy.Id, StringComparer.Ordinal)
                 .FirstOrDefault();
             if (target is not null)
@@ -56,14 +69,18 @@ public sealed class BattleAi
         // away or goes backwards around a wall. Straight distance alone can stall.
         var approach = battle.Map.Tiles.Where(tile => tile.IsPassable && !occupied.Contains(tile.Coordinate) &&
                 enemies.Any(enemy => tile.Coordinate.DistanceTo(enemy.Position) == 1))
-            .Select(tile => _pathfinder.FindPath(battle.Map, unit.Position, tile.Coordinate, occupied))
-            .Where(path => path.IsReachable)
-            .OrderBy(path => path.Cost)
-            .ThenBy(path => path.Coordinates[^1].Q).ThenBy(path => path.Coordinates[^1].R)
+            .Select(tile => (Path: _pathfinder.FindPath(battle.Map, unit.Position, tile.Coordinate, occupied),
+                RangedTarget: enemies.Any(enemy => IsRangedThreat(enemy) &&
+                    tile.Coordinate.DistanceTo(enemy.Position) == 1)))
+            .Where(candidate => candidate.Path.IsReachable)
+            .OrderBy(candidate => unit.Ability == UnitAbility.Hunter && candidate.RangedTarget ? 0 : 1)
+            .ThenBy(candidate => candidate.Path.Cost)
+            .ThenBy(candidate => candidate.Path.Coordinates[^1].Q)
+            .ThenBy(candidate => candidate.Path.Coordinates[^1].R)
             .FirstOrDefault();
-        if (approach is { Cost: > 0 })
-            return BattleAction.MoveTo(approach.Coordinates[Math.Min(unit.Movement, approach.Cost)]);
-        if (approach is not null || !(unit.IsRanged || unit.Ability == UnitAbility.RadiantModes &&
+        if (approach.Path is { Cost: > 0 })
+            return BattleAction.MoveTo(approach.Path.Coordinates[Math.Min(unit.Movement, approach.Path.Cost)]);
+        if (approach.Path is not null || !(unit.IsRanged || unit.Ability == UnitAbility.RadiantModes &&
                                      unit.AttackMode == AttackMode.HolyFire))
             return BattleAction.End();
 
@@ -96,4 +113,7 @@ public sealed class BattleAi
             .First();
         return best.Coordinate == unit.Position ? BattleAction.End() : BattleAction.MoveTo(best.Coordinate);
     }
+
+    private static bool IsRangedThreat(BattleUnit unit) => unit.IsRanged ||
+        unit.Ability == UnitAbility.RadiantModes && unit.AttackMode == AttackMode.HolyFire;
 }

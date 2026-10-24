@@ -21,6 +21,7 @@ internal sealed class BattleAttackEffect
         _from = from + new Vector2(0, -20);
         _to = to + new Vector2(0, -20);
         _kind = healing ? Kind.HealingLeaf :
+            attacker.Ability == UnitAbility.SacrificePulse ? Kind.RadialPulse :
             attacker.AttackMode == AttackMode.HolyFire && attacker.Ability == UnitAbility.RadiantModes
             ? Kind.HolyFire
             : attacker.UnitTypeId switch
@@ -39,6 +40,20 @@ internal sealed class BattleAttackEffect
     {
         if (_elapsed < Windup || IsFinished) return;
         var travel = Math.Clamp((_elapsed - Windup) / Flight, 0f, 1f);
+        if (_kind == Kind.RadialPulse)
+        {
+            var center = _from;
+            var pulseRadius = 7f + travel * 58f;
+            var tint = new Color(177, 115, 195) * (1f - travel);
+            for (var i = 0; i < 12; i++)
+            {
+                var angle = i * MathHelper.TwoPi / 12;
+                var next = (i + 1) * MathHelper.TwoPi / 12;
+                canvas.Line(center + new Vector2(MathF.Cos(angle), MathF.Sin(angle)) * pulseRadius,
+                    center + new Vector2(MathF.Cos(next), MathF.Sin(next)) * pulseRadius, tint, 3);
+            }
+            return;
+        }
         if (_kind == Kind.Melee)
         {
             // Contact feedback stays on the victim: no weapon-shaped object in flight.
@@ -151,5 +166,5 @@ internal sealed class BattleAttackEffect
 
     internal static Vector2 GetMeleeSlashCenter(Vector2 from, Vector2 to) => to;
 
-    private enum Kind { Melee, Arrow, Vine, HealingLeaf, Ember, Spore, HolyFire }
+    private enum Kind { Melee, Arrow, Vine, HealingLeaf, Ember, Spore, HolyFire, RadialPulse }
 }

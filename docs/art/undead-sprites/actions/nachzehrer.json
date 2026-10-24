@@ -1,0 +1,64 @@
+{
+  "id": "nachzehrer",
+  "image": "nachzehrer.png",
+  "cell": 192,
+  "anchor": {
+    "x": 80,
+    "y": 168
+  },
+  "frameMs": 160,
+  "impactFrame": 2,
+  "clips": [
+    {
+      "name": "attack",
+      "frames": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  ],
+  "records": [
+    {
+      "frame": 0,
+      "pivot": {
+        "px": 369.5,
+        "py": 656
+      },
+      "scale": 0.13755458515283842,
+      "occupied": 3123,
+      "edge": 0
+    },
+    {
+      "frame": 1,
+      "pivot": {
+        "px": 879,
+        "py": 641
+      },
+      "scale": 0.13755458515283842,
+      "occupied": 2595,
+      "edge": 0
+    },
+    {
+      "frame": 2,
+      "pivot": {
+        "px": 1425,
+        "py": 655
+      },
+      "scale": 0.13755458515283842,
+      "occupied": 3220,
+      "edge": 0
+    },
+    {
+      "frame": 3,
+      "pivot": {
+        "px": 1960,
+        "py": 655
+      },
+      "scale": 0.13755458515283842,
+      "occupied": 3095,
+      "edge": 0
+    }
+  ]
+}

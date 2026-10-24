@@ -109,6 +109,7 @@ public sealed class BattleInteraction
         {
             BattleActionType.Move when action.Destination is { } destination => Battle.Move(unit.Id, destination),
             BattleActionType.Attack when action.TargetId is { } target => Battle.Attack(unit.Id, target),
+            BattleActionType.Heal when action.TargetId is { } ally => Battle.TryHeal(unit.Id, ally),
             BattleActionType.SetAttackMode when action.Mode is { } mode => Battle.TrySetAttackMode(unit.Id, mode),
             _ => false
         };

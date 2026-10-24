@@ -1,0 +1,41 @@
+{
+  "tool": "image_gen",
+  "basePrompt": "Create ONE isolated full-body battle idle sprite on genuinely transparent background. The FIRST TWO reference images are EXISTING GAME SPRITES and define rendering style, chunky pixel size, flat color clusters, outline weight, and restrained material shading. The LAST reference is CHARACTER DESIGN ONLY, not rendering style. Convert chosen character into SAME pixel art family as first two. Actual low resolution pixel sprite, approximately 64-90 logical pixels tall, enlarged nearest-neighbor, no smooth painting, no tiny texture, no anti-aliased rendered illustration, no gradients, no glow haze. Crisp 1 logical pixel dark contour, 3 tones per material, readable face and hands, broad simplified shapes, 24-32 colors. Three-quarter battle view facing RIGHT, feet or lowest cloth at common baseline. Entire body and any weapon visible with comfortable transparent margin. No ground, no shadow, no text, no frame, no other characters, no inset portrait. Preserve selected design's essential silhouette but simplify ragged cloth to a few readable shapes. Heroes III balance of serious fantasy and stylization, no chibi proportions except inherent child revenant core. Dark faction yet readable against dark forest ground. Camera same as knight reference.",
+  "units": [
+    {
+      "id": "utburd",
+      "conceptReference": "exec-d914d581-12a7-45e1-ac06-e0cbf8a02728.png",
+      "initialPrompt": "Use ONLY character B (second from left) of last reference: UTBURD. Tall stick-thin dark shadow limbs supporting a tiny swaddled child spirit bundle high at chest; pale little face surrounded by burial cloth, small hands gripping edge, long dark arms ending in skeletal fingers, twig-like legs and feet. Upright hunched silhouette, charcoal cloth with small mossy olive accents and pale cloth around face. Do NOT choose short hooded A or crawling C. Simplify tiny twigs, keep long supporting limbs and recognizable swaddled core. Fits roughly 46 wide by66 tall logical pixels."
+    },
+    {
+      "id": "silat",
+      "conceptReference": "exec-3911671d-7bc5-47cb-87f1-72130c9c092c.png",
+      "initialPrompt": "Use ONLY character D at far right of last reference: SILAT. Crouched female Arabian desert spirit, black face veil with narrow golden eyes, broad striped dark brown and ochre wool shawl, bent arms with long claw fingers extending from sleeves, lower body tapers into a compact curling sand tail. Important distinctive LOW HUNCHED silhouette and Arabian striped shawl, NOT upright generic robed ghost. No large dust cloud. Fits roughly52 wide by64 tall logical pixels."
+    },
+    {
+      "id": "nachzehrer",
+      "conceptReference": "exec-0585a552-1cbc-4220-b568-ba8889097670.png",
+      "initialPrompt": "NACHZEHRER from last reference: low massive hunched corpse creature, rounded heavy shoulders, head sunk between them, two very long broad forearms planted with large clawed hands, short bent legs, offwhite burial shawl over dark gray body, black cloth drawn into mouth. Tiny malicious eyes and horizontal mouth. Preserve broad ape-like weight and four limbs, not generic obese zombie. Simplify cloth tatters. Roughly80 wide by66 tall logical pixels."
+    },
+    {
+      "id": "vetala",
+      "conceptReference": "exec-a2df0259-2eba-41fd-80c8-cd30e75617f5.png",
+      "initialPrompt": "Use ONLY B, second from left: VETALA adult androgynous aristocratic vampire, tall slim severe pale face, black swept wavy hair, visibly tilted head, long elegant clawed hands, dark antique long coat with FEW muted gold trim accents over cream draped lower garments and burgundy waist wrap. Calm predatory poise, small visible fang. No oversized coat train. Not crouched muscular A/C, not shaved head D. Roughly46 wide by72 tall logical pixels."
+    },
+    {
+      "id": "asura-preta",
+      "conceptReference": "exec-e0bc0c14-8fdc-4956-aaf1-0a31ef3a277c.png",
+      "initialPrompt": "ASURA-PRETA from last reference: largest unit, hunched giant corpse-blue demon with enormous swollen belly and emaciated ribcage, small predatory head on thin neck, EXACTLY SIX arms: TWO giant upper arms with TWO separated hands grasping ONE huge rusty broad cleaver sword overhead, FOUR smaller lower arms separated clearly with small rusty blades/claws. Maroon torn waistcloth, heavy short legs, aggressive forward stoop. Simplify chains away, retain huge arms and sword silhouette, readable six hands. No tiny portrait. Roughly100 wide by100 tall logical pixels, shared SAME logical pixel size as knight (bigger BODY not denser pixels). No huge flame cloud, at most tiny orange pixel at mouth."
+    }
+  ],
+  "refinements": {
+    "utburd": "Preserve first gaunt undead version; angular dead child face, dark eye sockets, thin skeletal limbs. Reject soft round mask. Simplify only isolated twigs.",
+    "silat": "Broader flat cloth groups, three ochre shawl stripes, clear black face veil, compact sand tail.",
+    "vetala": "Remove filigree, broaden torso and arms, flat charcoal coat and three ivory cloth folds.",
+    "asuraPreta": "Separate two giant fists and wrists along overhead sword; preserve four lower arms."
+  },
+  "largerNativeRevision": {
+    "utburd": "Redraw at 64x88 max native box, angular corpse-child face, deep eye sockets, enlarged readable face, remove fine twigs, preserve gaunt skeletal body; charcoal cloth with large folds.",
+    "vetala": "Redraw at 68x94 max native box, broaden torso and forearms, enlarged pale face and separated claw hands, simple charcoal coat, ivory folds, burgundy sash."
+  }
+}

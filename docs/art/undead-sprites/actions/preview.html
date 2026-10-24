@@ -1,0 +1,39 @@
+<!doctype html><html lang="ru"><meta charset="utf-8"><title>Нежить — анимации действий</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#1c1c1a;color:#e8ddc8;font:16px system-ui}main{max-width:1320px;margin:auto;padding:26px}h1{font-size:26px;margin:0 0 9px}p{line-height:1.45;color:#c7bb9f}button{background:#392f27;border:1px solid #a4875c;color:#f4e6c7;padding:8px 12px;cursor:pointer;margin:2px}button[aria-pressed=true]{background:#826040}#controls{margin:16px 0}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:14px}.card{background:#30382e;border:1px solid #63563d;padding:14px}.title{font-size:20px;color:#efdbab;margin:0 0 10px}.stage{height:300px;display:flex;justify-content:center;align-items:end;background:#3c483a;overflow:hidden}.stage.dark{background:#292633}.stage canvas{image-rendering:pixelated;object-fit:contain}.info{color:#d6c39c;min-height:24px;margin-top:9px}.frames{display:flex;gap:3px}.frames button{min-width:36px}small{color:#b6a98d}
+</style>
+<main><h1>Атаки и способности нежити</h1><p>Кадры в игровом масштабе: общая точка опоры и один коэффициент уменьшения для каждого юнита. Временные анимации для проверки арта перед подключением к бою.</p>
+<div id="controls"><button id="play" aria-pressed="true">⏸ Пауза</button><button id="slower">0,5×</button><button id="normal" aria-pressed="true">1×</button><button id="one">Размер 1×</button><button id="two" aria-pressed="true">Размер 2×</button><button id="ground" aria-pressed="true">Земля</button><button id="night">Ночь</button></div>
+<div id="cards" class="cards"></div><p>Утбурд: ближняя атака и лечение — отдельные действия. Силат: проклятие песком. Нахцерер: радиальный удар с потерей собственного здоровья. Ветала и Асура: ближний бой. Эффекты попадания в цель будут отдельно в игре.</p><small>Щёлкните номер кадра, чтобы остановить анимацию на нужной фазе.</small>
+<script src="manifest.js"></script><script>
+let playing=true,speed=1,zoom=2,dark=false,elapsed=0,last=performance.now();
+const names={'utburd':'Утбурд','silat':'Силат','nachzehrer':'Нахцерер','vetala':'Ветала','asura-preta':'Асура-прета'};
+const state=window.undeadActions.map(e=>({...e,clip:0,frame:0,canvas:null,img:null}));
+const cards=document.querySelector('#cards');
+for(const e of state){
+ const card=document.createElement('section');card.className='card';
+ card.innerHTML='<div class="title">'+names[e.id]+'</div><div class="stage"><canvas width="192" height="192"></canvas></div><div class="info"></div><div class="clips"></div><div class="frames"></div>';
+ e.card=card;e.canvas=card.querySelector('canvas');cards.append(card);
+ const img=new Image();img.src=e.image+'?v='+encodeURIComponent(JSON.stringify(e.records));e.img=img;img.onload=()=>draw(e);
+ e.clips.forEach((c,i)=>{const b=document.createElement('button');b.textContent=c.name==='heal'?'Лечение':'Атака';b.onclick=()=>{e.clip=i;e.frame=0;draw(e)};card.querySelector('.clips').append(b)});
+ for(let i=0;i<4;i++){const b=document.createElement('button');b.textContent=String(i+1);b.onclick=()=>{playing=false;e.frame=i;updateControls();draw(e)};card.querySelector('.frames').append(b)}
+}
+function draw(e){
+ if(!e.img?.complete||!e.img.naturalWidth)return;
+ const c=e.canvas,ctx=c.getContext('2d');ctx.clearRect(0,0,192,192);
+ const f=e.clips[e.clip].frames[e.frame];ctx.drawImage(e.img,(f%4)*192,Math.floor(f/4)*192,192,192,0,0,192,192);
+ c.style.width=c.style.height=192*zoom+'px';e.card.querySelector('.stage').classList.toggle('dark',dark);
+ e.card.querySelector('.info').textContent=(e.clip===1?'Лечение':'Атака')+' · кадр '+(e.frame+1)+'/4';
+ e.card.querySelectorAll('.clips button').forEach((b,i)=>b.setAttribute('aria-pressed',i===e.clip));
+ e.card.querySelectorAll('.frames button').forEach((b,i)=>b.setAttribute('aria-pressed',i===e.frame));
+}
+function updateControls(){document.querySelector('#play').textContent=playing?'⏸ Пауза':'▶ Играть';document.querySelector('#play').setAttribute('aria-pressed',playing);for(const [id,on] of [['slower',speed===.5],['normal',speed===1],['one',zoom===1],['two',zoom===2],['ground',!dark],['night',dark]])document.getElementById(id).setAttribute('aria-pressed',on)}
+document.querySelector('#play').onclick=()=>{playing=!playing;updateControls()};
+document.querySelector('#slower').onclick=()=>{speed=.5;updateControls()};
+document.querySelector('#normal').onclick=()=>{speed=1;updateControls()};
+document.querySelector('#one').onclick=()=>{zoom=1;state.forEach(draw);updateControls()};
+document.querySelector('#two').onclick=()=>{zoom=2;state.forEach(draw);updateControls()};
+document.querySelector('#ground').onclick=()=>{dark=false;state.forEach(draw);updateControls()};
+document.querySelector('#night').onclick=()=>{dark=true;state.forEach(draw);updateControls()};
+function tick(now){let dt=Math.min(now-last,100);last=now;if(playing){elapsed+=dt*speed;if(elapsed>=160){const steps=Math.floor(elapsed/160);elapsed%=160;for(const e of state){e.frame=(e.frame+steps)%4;draw(e)}}}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+</script></html>

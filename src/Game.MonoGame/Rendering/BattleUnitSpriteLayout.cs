@@ -22,6 +22,11 @@ internal static class BattleUnitSpriteLayout
             "human.inquisitor" => (88, 100),
             "human.banner-knight" => (83, 94),
             "flora.root-warden" => (75, 88),
+            "undead.utburd" => (64, 88),
+            "undead.silat" => (56, 66),
+            "undead.nachzehrer" => (84, 70),
+            "undead.vetala" => (68, 94),
+            "undead.asura-preta" => (128, 126),
             _ => (56, 66)
         };
         return new Rectangle(center.X - width / 2, center.Y + 17 - height, width, height);

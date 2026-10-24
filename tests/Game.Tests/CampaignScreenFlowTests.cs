@@ -32,8 +32,8 @@ public sealed class CampaignScreenFlowTests
         var travel = Field<AdventureTravel>(screen, "_travel");
         var economy = new EconomyRules();
         var site = campaign.RecruitmentSites.Single(site => site.Id == "starting-clearing");
-        Assert.True(economy.TryRecruit(campaign.Hero, site, "flora.thorn-guard", 18).Success);
-        Assert.True(economy.TryRecruit(campaign.Hero, site, "flora.sprout", 8).Success);
+        Assert.True(economy.TryRecruit(campaign.Hero, site, "flora.thorn-guard", 8).Success);
+        Assert.True(economy.TryRecruit(campaign.Hero, site, "flora.sprout", 4).Success);
 
         Press(screen, Keys.Enter); // The guide's introduction.
         Assert.Contains("guide-introduction", campaign.CompletedQuestIds);

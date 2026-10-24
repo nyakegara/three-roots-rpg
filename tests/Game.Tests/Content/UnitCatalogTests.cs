@@ -20,9 +20,12 @@ public sealed class UnitCatalogTests : IDisposable
         Assert.Equal(UnitAbility.HealAlly, units.Single(unit => unit.Id == "flora.sprout").Ability);
         Assert.Equal(UnitAbility.ConvertOnHit, units.Single(unit => unit.Id == "flora.root-warden").Ability);
         Assert.Equal(UnitAbility.Hunter, units.Single(unit => unit.Id == "human.order-hunter").Ability);
+        Assert.Equal(UnitAbility.KnightWard, units.Single(unit => unit.Id == "human.banner-knight").Ability);
         Assert.Equal(UnitAbility.RadiantModes, units.Single(unit => unit.Id == "human.inquisitor").Ability);
+        Assert.Equal(UnitAbility.HealAlly, units.Single(unit => unit.Id == "undead.utburd").Ability);
+        Assert.Equal(UnitAbility.SacrificePulse, units.Single(unit => unit.Id == "undead.nachzehrer").Ability);
         Assert.All(units.Where(unit => unit.Id is not "flora.sprout" and not "flora.root-warden" and
-            not "human.order-hunter" and not "human.inquisitor"),
+            not "human.order-hunter" and not "human.banner-knight" and not "human.inquisitor" and not "undead.utburd" and not "undead.nachzehrer"),
             unit => Assert.Equal(UnitAbility.None, unit.Ability));
     }
 
@@ -40,15 +43,16 @@ public sealed class UnitCatalogTests : IDisposable
         {
             "human.banner-knight", "human.field-medic", "human.inquisitor", "human.longbow", "human.militia",
             "human.order-hunter", "human.spearman",
-            "undead.ash-vessel", "undead.grave-gardener", "undead.hourless", "undead.porcelain-choir", "undead.refrain"
+            "undead.asura-preta", "undead.nachzehrer", "undead.silat", "undead.utburd", "undead.vetala"
         }, units.Where(unit => unit.FactionId != "flora").Select(unit => unit.Id).Order(StringComparer.Ordinal));
 
-        AssertUnit("flora.thorn-guard", "Кабачок-крепыш", 10, 4, 5, 3, 1, false, 8, UnitAbility.None);
+        AssertUnit("flora.thorn-guard", "Кабачок-крепыш", 10, 4, 5, 3, 1, false, 15, UnitAbility.None);
         AssertUnit("flora.sprout", "Ипомея-целительница", 8, 3, 7, 4, 6, true, 12, UnitAbility.HealAlly);
         AssertUnit("flora.ember-bloom", "Пламенный цветок", 9, 6, 6, 4, 6, true, 30, UnitAbility.None);
         AssertUnit("flora.pod-slinger", "Орхидея-ассасин", 12, 5, 8, 5, 1, false, 34, UnitAbility.None);
         AssertUnit("flora.root-warden", "Гриб-сновидец", 28, 7, 3, 2, 7, true, 52, UnitAbility.ConvertOnHit);
-        Assert.All(units.Where(unit => unit.IsRanged), unit => Assert.InRange(unit.Range, 6, int.MaxValue));
+        Assert.All(units.Where(unit => unit.IsRanged && unit.Ability != UnitAbility.SacrificePulse),
+            unit => Assert.InRange(unit.Range, 6, int.MaxValue));
 
         void AssertUnit(string id, string name, int hp, int damage, int speed, int movement,
             int range, bool ranged, int cost, UnitAbility ability)

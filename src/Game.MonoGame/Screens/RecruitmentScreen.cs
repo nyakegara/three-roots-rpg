@@ -311,6 +311,8 @@ internal sealed class RecruitmentScreen : IGameScreen
         {
             UnitAbility.HealAlly => "ДАЛЬНИЙ БОЙ / ЛЕЧЕНИЕ",
             UnitAbility.ConvertOnHit => "ДАЛЬНИЙ БОЙ / СПОРОВЫЙ МОРОК",
+            UnitAbility.KnightWard => "БЛИЖНИЙ БОЙ / ЗАЩИТА ОТ СТРЕЛЬБЫ",
+            UnitAbility.Hunter => "БЛИЖНИЙ БОЙ / УКЛОНЕНИЕ",
             _ when unit.IsRanged => "ДАЛЬНИЙ БОЙ",
             _ => "БЛИЖНИЙ БОЙ"
         };

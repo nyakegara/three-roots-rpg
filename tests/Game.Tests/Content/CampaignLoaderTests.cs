@@ -170,7 +170,7 @@ public sealed class CampaignLoaderTests : IDisposable
         Assert.Equal("human", pasture.FactionId);
         state.Hero.ChangeReputation(2);
         var economy = new EconomyRules();
-        Assert.Equal(7, economy.GetAdjustedUnitCost(state.Hero, grove, grove.GetOffer("flora.thorn-guard")!));
+        Assert.Equal(12, economy.GetAdjustedUnitCost(state.Hero, grove, grove.GetOffer("flora.thorn-guard")!));
         Assert.Equal(16, economy.GetAdjustedUnitCost(state.Hero, pasture, pasture.GetOffer("human.militia")!));
         Assert.Equal(4, state.Quests.Count);
         Assert.Equal(4, state.RecruitmentSites.Count);

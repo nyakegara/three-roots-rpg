@@ -25,6 +25,7 @@ public static class BattleRules
         if (!attacker.IsAlive) return false;
         var distance = attacker.Position.DistanceTo(target.Coordinate);
         if (distance == 0) return false;
+        if (attacker.Ability == UnitAbility.SacrificePulse) return distance <= 4;
         var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
             attacker.AttackMode == AttackMode.HolyFire;
         return ranged ? distance <= GetEffectiveRange(attacker, target) : distance == 1;
@@ -60,6 +61,8 @@ public static class BattleRules
             return AttackFailureReason.ImpassableTarget;
         var distance = attacker.Position.DistanceTo(target.Coordinate);
         if (distance == 0) return AttackFailureReason.UnavailableUnit;
+        if (attacker.Ability == UnitAbility.SacrificePulse)
+            return distance <= 4 ? AttackFailureReason.None : AttackFailureReason.OutOfRange;
         var ranged = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
             attacker.AttackMode == AttackMode.HolyFire;
         if (!ranged && distance != 1) return AttackFailureReason.NotAdjacent;
@@ -74,7 +77,8 @@ public static class BattleRules
         ArgumentNullException.ThrowIfNull(attacker);
         ArgumentNullException.ThrowIfNull(target);
         var baseRange = attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire
-            ? HolyFireRange : attacker.Range;
+            ? HolyFireRange : attacker.Ability == UnitAbility.SacrificePulse ? 4 : attacker.Range;
+        if (attacker.Ability == UnitAbility.SacrificePulse) return baseRange;
         return baseRange + (attacker.Height > target.Height && (attacker.IsRanged ||
             attacker.Ability == UnitAbility.RadiantModes && attacker.AttackMode == AttackMode.HolyFire) ? 2 : 0);
     }
@@ -90,9 +94,16 @@ public static class BattleRules
         ArgumentNullException.ThrowIfNull(target);
         var rangedTarget = target.IsRanged || target.Ability == UnitAbility.RadiantModes &&
             target.AttackMode == AttackMode.HolyFire;
-        return attacker.Ability == UnitAbility.Hunter && rangedTarget
+        var damage = attacker.Ability == UnitAbility.Hunter && rangedTarget
             ? checked(GetBaseAttackDamage(attacker) * 3 / 2) : GetBaseAttackDamage(attacker);
+        var rangedAttack = attacker.IsRanged || attacker.Ability == UnitAbility.RadiantModes &&
+            attacker.AttackMode == AttackMode.HolyFire;
+        return target.Ability == UnitAbility.KnightWard && rangedAttack
+            ? damage - damage / 5 - (damage % 5 == 0 ? 0 : 1) : damage;
     }
+
+    public static int GetHealingAmount(BattleUnit healer) =>
+        healer.UnitTypeId == "flora.sprout" ? 5 : 10;
 
     public static bool CanAttack(BattleUnit attacker, BattleUnit target, BattleMap map)
     {

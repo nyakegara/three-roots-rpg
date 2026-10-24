@@ -60,6 +60,12 @@ internal sealed class BattleScreen : IGameScreen
         : this(canvas, assets, catalog, exit, night)
     {
         _seed = seed;
+        if (capture == BattleCaptureStage.Undead)
+        {
+            var demo = BattleDemo.Create(_catalog, _seed, undeadPreview: true);
+            LoadBattle(demo.Battle, demo.Field);
+            return;
+        }
         if (capture == BattleCaptureStage.Outpost)
         {
             var demo = BattleDemo.Create(_catalog, _seed, mountain: true);
@@ -93,7 +99,7 @@ internal sealed class BattleScreen : IGameScreen
         }
         if (capture is BattleCaptureStage.HunterAttack or BattleCaptureStage.HunterRest)
         {
-            var demo = BattleDemo.Create(_catalog, _seed, fullRoster: true);
+            var demo = BattleDemo.Create(_catalog, _seed, hunterPreview: true);
             LoadBattle(demo.Battle, demo.Field);
             var cell = BattleCaptureSetup.Advance(Battle, capture);
             RefreshReachable();
@@ -324,10 +330,13 @@ internal sealed class BattleScreen : IGameScreen
                 _opponentDelay = 0.7f;
                 if (actor is not null && action?.Type == BattleActionType.Attack && Find(action.TargetId) is { } enemyTarget)
                     BeginAttackAnimation(actor, enemyTarget, conversion: enemyTarget.Side == actor.Side);
+                if (actor is not null && action?.Type == BattleActionType.Heal && Find(action.TargetId) is { } healed)
+                    BeginAttackAnimation(actor, healed, healing: true);
                 if (actor is not null && action is not null)
                     _message = action.Type switch
                     {
                         BattleActionType.Attack => Name(actor) + ": АТАКА ПО " + Name(Find(action.TargetId)!),
+                        BattleActionType.Heal => Name(actor) + ": ЛЕЧЕНИЕ " + Name(Find(action.TargetId)!),
                         BattleActionType.Move => Name(actor) + ": ПЕРЕМЕЩЕНИЕ.",
                         BattleActionType.SetAttackMode => Name(actor) + (action.Mode == AttackMode.HolyFire
                             ? ": СВЯЩЕННЫЙ ОГОНЬ." : ": МОЛОТ."),
