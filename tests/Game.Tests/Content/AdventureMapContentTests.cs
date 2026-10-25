@@ -24,7 +24,9 @@ public sealed class AdventureMapContentTests
         Assert.True(surface.IsWalkable(navigation.Start));
         Assert.True(surface.IsSegmentWalkable(new(815, 266), new(975, 266)), "Northern ford is cut.");
         Assert.True(surface.IsSegmentWalkable(new(800, 537), new(1030, 537)), "Middle ford is cut.");
-        Assert.True(surface.IsSegmentWalkable(new(770, 715), new(970, 715)), "Dam road is cut.");
+        Assert.True(surface.IsSegmentWalkable(new(770, 691), new(880, 694)), "Western dam road is cut.");
+        Assert.True(surface.IsSegmentWalkable(new(880, 694), new(945, 699)), "Central dam road is cut.");
+        Assert.True(surface.IsSegmentWalkable(new(945, 699), new(1000, 710)), "Eastern dam road is cut.");
         Assert.False(surface.IsWalkable(new(900, 400)), "Deep river water is traversable.");
         Assert.False(surface.IsWalkable(new(900, 620)), "Water between ford and dam is traversable.");
         Assert.False(surface.IsWalkable(new(540, 470)), "Flooded western pool is traversable.");
@@ -38,7 +40,7 @@ public sealed class AdventureMapContentTests
         {
             (new MapPosition(815, 266), new MapPosition(985, 266), 245f, 310f),
             (new MapPosition(835, 537), new MapPosition(1040, 537), 500f, 570f),
-            (new MapPosition(760, 715), new MapPosition(1010, 715), 680f, 755f)
+            (new MapPosition(760, 690), new MapPosition(1010, 714), 670f, 730f)
         })
         {
             var crossing = pathfinder.FindPath(from, to);
@@ -52,6 +54,35 @@ public sealed class AdventureMapContentTests
             Assert.True(pathfinder.FindPath(navigation.Start, point).IsReachable,
                 $"Landmark '{id}' cannot be reached.");
         }
+    }
+
+    [Fact]
+    public void HumanBorder_SouthernDamFollowsRoadAndEasternPassageRemainsOpen()
+    {
+        var path = Path.Combine(AppContext.BaseDirectory, "content", "maps", "human-01.json");
+        var navigation = new MapLoader().Load(path).Map!.Navigation!;
+        var surface = new AdventureSurface(navigation, _ => true);
+
+        Assert.True(surface.IsSegmentWalkable(new(770, 691), new(880, 694)),
+            "The southern dam is drawn above the old rectangular walkable area.");
+        Assert.True(surface.IsWalkable(new(945, 699)));
+        Assert.False(surface.IsWalkable(new(880, 723)),
+            "The former rectangle permits walking through the dam wall and water.");
+        Assert.True(surface.IsWalkable(new(1390, 605)),
+            "The mountain shape closes the eastern road after the middle bridge.");
+        var easternRoad = new AdventurePathfinder(surface).FindPath(new(1040, 537), new(1450, 600));
+        Assert.True(easternRoad.IsReachable, "The middle bridge does not connect to the eastern road.");
+        Assert.All(easternRoad.Points, point =>
+        {
+            Assert.InRange(point.X, 1000f, 1500f);
+            Assert.InRange(point.Y, 500f, 650f);
+        });
+
+        Assert.False(surface.IsWalkable(new(1075, 215)), "The bell-house itself is walkable.");
+        Assert.False(surface.IsWalkable(new(1375, 270)), "A village house is walkable.");
+        Assert.False(surface.IsWalkable(new(1400, 180)), "A northern farm house is walkable.");
+        Assert.True(surface.IsWalkable(navigation.Points["bell-house"]),
+            "The bell-house interaction point must stay beside its building.");
     }
 
     [Theory]
