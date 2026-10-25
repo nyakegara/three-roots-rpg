@@ -2,6 +2,7 @@ using Game.Core.Campaigns;
 using Game.Core.Geometry;
 using Game.Core.World;
 using Game.Core.Navigation;
+using Game.MonoGame.Rendering;
 using Microsoft.Xna.Framework;
 
 namespace Game.MonoGame.Screens;
@@ -19,13 +20,21 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
     private static readonly Color Ink = new(55, 42, 29);
     private static readonly Color Gold = new(230, 199, 122);
     private readonly PixelFont _font = new(canvas);
+    private Rectangle _displayMapArea = MapArea;
 
     public void DrawMap(WorldMap map, AdventureMapProjection projection, Campaign? campaign,
         HexCoord heroPosition, MapPosition? adventurePosition = null, bool showNavigation = false, float nightBlend = 0f)
     {
-        Frame("КАРТА ОСТРОВА");
+        Frame(map.Id == "human-01" ? "КАРТА ГРАНИЦЫ" : "КАРТА ОСТРОВА");
         canvas.Rect(MapArea.X - 5, MapArea.Y - 5, MapArea.Width + 10, MapArea.Height + 10, Wood);
         canvas.Frame(MapArea.X - 5, MapArea.Y - 5, MapArea.Width + 10, MapArea.Height + 10, Bronze, 3);
+        var artAspect = projection.WorldSize.X / projection.WorldSize.Y;
+        var fittedWidth = Math.Min(MapArea.Width, (int)MathF.Round(MapArea.Height * artAspect));
+        _displayMapArea = map.Id == "human-01"
+            ? new Rectangle(MapArea.X + (MapArea.Width - fittedWidth) / 2, MapArea.Y, fittedWidth, MapArea.Height)
+            : MapArea;
+        if (map.Id == "human-01")
+            canvas.Rect(MapArea.X, MapArea.Y, MapArea.Width, MapArea.Height, Wood);
         if (map.Id == "flora-01")
         {
             using var tint = canvas.PushTint(BattleLighting.ExplorationTint(nightBlend));
@@ -38,6 +47,12 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
                 assets.TryDraw(canvas, keys[index], new Rectangle(MapArea.X + column * MapArea.Width / 2,
                     MapArea.Y + row * MapArea.Height / 2, MapArea.Width / 2, MapArea.Height / 2));
             }
+        }
+        else if (map.Id == "human-01" && assets.HasAsset(AssetCatalog.HumanBorderGround))
+        {
+            using var tint = canvas.PushTint(BattleLighting.ExplorationTint(nightBlend));
+            assets.TryDraw(canvas, AssetCatalog.HumanBorderGround, _displayMapArea);
+            HumanBorderArt.DrawDamEdit(canvas, assets, _displayMapArea);
         }
         else canvas.Rect(MapArea.X, MapArea.Y, MapArea.Width, MapArea.Height, new Color(92, 110, 63));
 
@@ -78,7 +93,8 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
             : MapPoint(projection, heroPosition, map.GetTile(heroPosition)!.Height);
         canvas.Rect(hero.X - 7, hero.Y - 7, 15, 15, Wood);
         canvas.Frame(hero.X - 5, hero.Y - 5, 11, 11, Gold, 3);
-        _font.Draw("ЛИАРА", hero.X + 11, hero.Y - 8, Gold, 1);
+        _font.Draw(map.Id switch { "human-01" => "ЭДРИК", "undead-01" => "МОРВЕН", _ => "ЛИАРА" },
+            hero.X + 11, hero.Y - 8, Gold, 1);
         _font.Draw("ЗОЛОТОЙ: ГЕРОЙ И ЗАДАНИЯ   ЗЕЛЁНЫЙ: НАЙМ   КРАСНЫЙ: БОЙ",
             137, 600, Ink, 2);
     }
@@ -149,8 +165,8 @@ internal sealed class ExplorationPanels(PixelCanvas canvas, AssetCatalog assets)
 
     private Point MapPixel(AdventureMapProjection projection, System.Numerics.Vector2 projected)
     {
-        return new Point(MapArea.X + Math.Clamp((int)(projected.X / projection.WorldSize.X * MapArea.Width), 0, MapArea.Width),
-            MapArea.Y + Math.Clamp((int)(projected.Y / projection.WorldSize.Y * MapArea.Height), 0, MapArea.Height));
+        return new Point(_displayMapArea.X + Math.Clamp((int)(projected.X / projection.WorldSize.X * _displayMapArea.Width), 0, _displayMapArea.Width),
+            _displayMapArea.Y + Math.Clamp((int)(projected.Y / projection.WorldSize.Y * _displayMapArea.Height), 0, _displayMapArea.Height));
     }
 
     private static string Short(string text, int max) => text.Length <= max ? text : text[..(max - 2)] + "..";

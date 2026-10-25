@@ -41,7 +41,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
     {
         _spriteBatch = new SpriteBatch(GraphicsDevice);
         _canvas = new PixelCanvas(GraphicsDevice, _spriteBatch);
-        _assets = new AssetCatalog(GraphicsDevice, _options.MapPixelSize, _options.MapDetailStyle);
+        _assets = new AssetCatalog(GraphicsDevice, _options.MapPixelSize, _options.MapDetailStyle,
+            _options.PreviewHumanCampaign);
         if (_options.PlayableCombat)
         {
             var units = LoadUnitCatalog();
@@ -53,14 +54,14 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
         }
         else
         {
-            var (campaign, units) = LoadFloraCampaign();
+            var (campaign, units) = LoadCampaign(_options.PreviewHumanCampaign ? "human-01" : "flora-01");
             _floraCampaign = campaign;
             _floraUnits = units;
             CampaignSave? restoreSave = null;
             string? saveWarning = null;
             var canWriteSave = true;
             var savePath = CampaignSavePath();
-            if (_options.ScreenshotPath is null && File.Exists(savePath))
+            if (_options.UseCampaignSave && File.Exists(savePath))
             {
                 var load = CampaignSerializer.Load(savePath);
                 if (load.Success) restoreSave = load.Save;
@@ -83,7 +84,7 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                     ? "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ЭТОЙ ВЕРСИЕЙ КАМПАНИИ. НАЧИНАЕТСЯ НОВАЯ ИГРА."
                     : "СОХРАНЕНИЕ НЕ СОВПАДАЕТ С ВЕРСИЕЙ ИГРЫ И НЕ ИЗМЕНЕНО. НОВЫЙ ПРОГРЕСС НЕ АВТОСОХРАНЯЕТСЯ.";
             }
-            if (_options.ScreenshotPath is null && canWriteSave)
+            if (_options.UseCampaignSave && canWriteSave)
                 _progressWriter = NewProgressWriter(campaign, restoreSave?.RunId);
             _screen = new ExplorationScreen(_canvas, _assets, campaign, units,
                 _options.PreviewQuestHover, _options.PreviewRecruitmentSiteId, Exit, _options.CampaignCapture,
@@ -93,6 +94,8 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
                 saveWarning) { ShowNavigation = _options.PreviewNavigation };
             if (_options.ScreenshotPath is not null && _options.PreviewMapSiteId is { } sitePreview)
                 ((ExplorationScreen)_screen).PrepareSitePlacementPreview(sitePreview);
+            if (_options.PreviewHumanDam)
+                ((ExplorationScreen)_screen).PrepareHumanDamPreview();
             if (_options.ScreenshotPath is not null && _options.PreviewRecruitmentSiteId is not null)
                 ((ExplorationScreen)_screen).CaptureRecruitmentPurchasePreview();
             if (_options.Night) ((ExplorationScreen)_screen).PrepareNightPreview();
@@ -102,17 +105,17 @@ internal sealed class Game1 : Microsoft.Xna.Framework.Game
             SurfaceFormat.Color, DepthFormat.None);
     }
 
-    private static (CampaignDefinition Campaign, UnitCatalog Units) LoadFloraCampaign()
+    private static (CampaignDefinition Campaign, UnitCatalog Units) LoadCampaign(string campaignId)
     {
         var root = Path.Combine(AppContext.BaseDirectory, "Content");
         var units = LoadUnitCatalog();
-        var campaignPath = Path.Combine(root, "campaigns", "flora-01.json");
+        var campaignPath = Path.Combine(root, "campaigns", campaignId + ".json");
         var campaignResult = new CampaignLoader(units).Load(campaignPath);
         if (campaignResult.Success && campaignResult.Definition is not null)
             return (campaignResult.Definition, units);
 
         throw new InvalidOperationException(
-            "Cannot load the flora campaign: " + string.Join("; ", campaignResult.Errors));
+            "Cannot load campaign '" + campaignId + "': " + string.Join("; ", campaignResult.Errors));
     }
 
     private static UnitCatalog LoadUnitCatalog()

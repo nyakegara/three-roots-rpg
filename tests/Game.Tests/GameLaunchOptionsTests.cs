@@ -5,6 +5,32 @@ namespace Game.Tests;
 
 public sealed class GameLaunchOptionsTests
 {
+    [Fact]
+    public void InteractiveHumanMapLaunchDoesNotUseFloraCampaignSave()
+    {
+        var options = GameLaunchOptions.Parse(["--human-map"]);
+        Assert.True(options.PreviewHumanCampaign);
+        Assert.Null(options.ScreenshotPath);
+        Assert.False(options.UseCampaignSave);
+        Assert.True(GameLaunchOptions.Parse([]).UseCampaignSave);
+    }
+
+    [Theory]
+    [InlineData("--screenshot-human-map", false, false)]
+    [InlineData("--screenshot-human-overview", true, false)]
+    [InlineData("--screenshot-human-navigation", true, true)]
+    [InlineData("--screenshot-human-dam", false, false)]
+    public void HumanMapCaptureLoadsHumanCampaignWithOptionalOverviewAndDiagnosticOutline(
+        string mode, bool overview, bool navigation)
+    {
+        var options = GameLaunchOptions.Parse([mode, Path.Combine(Path.GetTempPath(), "human-map.png")]);
+        Assert.True(options.PreviewHumanCampaign);
+        Assert.Equal(overview, options.PreviewMapPanel);
+        Assert.Equal(navigation, options.PreviewNavigation);
+        Assert.Equal(mode == "--screenshot-human-dam", options.PreviewHumanDam);
+        Assert.False(options.PlayableCombat);
+    }
+
     [Theory]
     [InlineData("--screenshot-encounter-empty", CampaignCaptureStage.EmptyEncounter)]
     [InlineData("--screenshot-encounter", CampaignCaptureStage.ReadyEncounter)]

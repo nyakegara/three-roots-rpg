@@ -21,6 +21,9 @@ public sealed record GameLaunchOptions
     public bool PreviewJournalPanel { get; init; }
     public bool PreviewNavigation { get; init; }
     public bool PreviewFreeTravel { get; init; }
+    public bool PreviewHumanCampaign { get; init; }
+    public bool PreviewHumanDam { get; init; }
+    public bool UseCampaignSave => ScreenshotPath is null && !PreviewHumanCampaign;
     public string? PreviewRecruitmentSiteId { get; init; }
     public string? PreviewMapSiteId { get; init; }
     public int BattleSeed { get; init; } = 1729;
@@ -67,6 +70,7 @@ public sealed record GameLaunchOptions
                 case "--battle":
                 case "--combat":
                 case "--combat-undead":
+                case "--human-map":
                     SetMode(argument);
                     break;
                 case "--screenshot-site-t1":
@@ -78,6 +82,10 @@ public sealed record GameLaunchOptions
                 case "--screenshot-north-trail":
                 case "--screenshot-idle-map":
                 case "--screenshot-map":
+                case "--screenshot-human-map":
+                case "--screenshot-human-overview":
+                case "--screenshot-human-navigation":
+                case "--screenshot-human-dam":
                 case "--screenshot-navigation":
                 case "--screenshot-travel":
                 case "--screenshot-journal":
@@ -190,8 +198,12 @@ public sealed record GameLaunchOptions
             PreviewQuestHover = mode == "--screenshot-quest-hover",
             PreviewNorthTrail = mode == "--screenshot-north-trail",
             PreviewIdleMap = mode == "--screenshot-idle-map",
-            PreviewMapPanel = mode is "--screenshot-map" or "--screenshot-navigation" or "--screenshot-map-after-choice",
-            PreviewNavigation = mode == "--screenshot-navigation",
+            PreviewMapPanel = mode is "--screenshot-map" or "--screenshot-navigation" or "--screenshot-map-after-choice"
+                or "--screenshot-human-overview" or "--screenshot-human-navigation",
+            PreviewNavigation = mode is "--screenshot-navigation" or "--screenshot-human-navigation",
+            PreviewHumanCampaign = mode is "--human-map" or "--screenshot-human-map" or "--screenshot-human-overview"
+                or "--screenshot-human-navigation" or "--screenshot-human-dam",
+            PreviewHumanDam = mode == "--screenshot-human-dam",
             PreviewFreeTravel = mode == "--screenshot-travel",
             PreviewJournalPanel = mode == "--screenshot-journal",
             PreviewMapSiteId = mode switch

@@ -58,9 +58,10 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
         using var clip = canvas.PushClip(viewport);
         var hasScenicGround = DrawGround(map, projection, camera);
         if (!hasScenicGround) DrawWater(map, projection, camera);
-        // Flora's authored landscape already contains its main trails.
+        // Authored landscapes already contain their main trails.
         // The graph stays invisible so it cannot draw straight lines across the art.
-        if (map.Id != "flora-01") DrawRoadNetwork(map, projection, camera);
+        if (map.Id != "flora-01" && (map.Id != "human-01" || !assets.HasAsset(AssetCatalog.HumanBorderGround)))
+            DrawRoadNetwork(map, projection, camera);
         if (travel is null) DrawRoute(map, projection, camera, route);
         else DrawFreeRoute(projection, camera, travel, hoverPosition);
         if (showNavigation && map.Navigation is { } navigation)
@@ -168,9 +169,15 @@ internal sealed class AdventureMapRenderer(PixelCanvas canvas, AssetCatalog asse
             return true;
         }
 
-        var groundKey = map.Id == "flora-01" ? AssetCatalog.FloraIslandGround : AssetCatalog.AdventureGround;
+        var groundKey = map.Id switch
+        {
+            "flora-01" => AssetCatalog.FloraIslandGround,
+            "human-01" when assets.HasAsset(AssetCatalog.HumanBorderGround) => AssetCatalog.HumanBorderGround,
+            _ => AssetCatalog.AdventureGround
+        };
         if (assets.TryDraw(canvas, groundKey, worldRect))
         {
+            if (map.Id == "human-01") HumanBorderArt.DrawDamEdit(canvas, assets, worldRect);
             canvas.Rect(0, 0, 1280, MapViewportHeight, new Color(32, 36, 25) * 0.19f);
             return true;
         }

@@ -254,6 +254,13 @@ internal sealed class ExplorationScreen : IGameScreen
         _camera.CenterOn(_projection.FromArt(anchor) + new NumericsVector2(0, -40));
     }
 
+    internal void PrepareHumanDamPreview()
+    {
+        _questScreen = null;
+        _encounterScreen = null;
+        _camera.CenterOn(_projection.FromArt(new MapPosition(770, 690)));
+    }
+
     internal void CaptureRecruitmentPurchasePreview() => _recruitmentScreen?.CapturePurchasePreview();
 
     private float _nightBlend;

@@ -48,6 +48,8 @@ dotnet test ThreeRoots.sln
 dotnet run --project src/Game.MonoGame/Game.MonoGame.csproj
 ```
 
+Для проверки второй карты в текущем прототипе запусти `dotnet run --project src/Game.MonoGame/Game.MonoGame.csproj -- --human-map`. Это интерактивный предпросмотр: перемещение и обзор работают, сюжетные задания второй главы пока временные. Режим не читает и не изменяет сохранение первой кампании.
+
 Отдельный бой с ИИ, без изменения сохранения кампании:
 
 ```powershell
