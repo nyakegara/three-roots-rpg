@@ -81,8 +81,13 @@ public sealed class AdventureMapContentTests
         Assert.False(surface.IsWalkable(new(1075, 215)), "The bell-house itself is walkable.");
         Assert.False(surface.IsWalkable(new(1375, 270)), "A village house is walkable.");
         Assert.False(surface.IsWalkable(new(1400, 180)), "A northern farm house is walkable.");
+        Assert.False(surface.IsWalkable(new(772, 498)), "The wooded island reaches the road shoulder.");
+        Assert.False(surface.IsWalkable(new(1280, 560)), "The marked rock outcrop is walkable.");
         Assert.True(surface.IsWalkable(navigation.Points["bell-house"]),
             "The bell-house interaction point must stay beside its building.");
+        var westernRoad = new AdventurePathfinder(surface).FindPath(new(700, 495), new(830, 537));
+        Assert.True(westernRoad.IsReachable, "The western road no longer reaches the middle bridge.");
+        Assert.All(westernRoad.Points, point => Assert.InRange(point.Y, 470f, 570f));
     }
 
     [Theory]
